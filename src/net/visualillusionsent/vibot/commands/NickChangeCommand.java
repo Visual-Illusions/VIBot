@@ -1,19 +1,18 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.Misc;
 import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.VIBot;
 
-@BotCommand(aliases = { "nick" }, usage = "!nick <newnick>", desc = "Changes the bot's nickname", adminonly = true)
 final class NickChangeCommand extends BaseCommand {
+
+    public NickChangeCommand() {
+        super(null, new String[] { "nick" }, "!nick <newnick>", "Changes the bot's nickname", 2, 2, false, false, true);
+    }
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
-        if (!argCheck(2, args)) {
-            user.sendMessage("You didn't specify a new nick!");
-        } else {
-            Misc.changeNick(args[1]);
-        }
+        VIBot.changeNick(args[1]);
         return true;
     }
 }

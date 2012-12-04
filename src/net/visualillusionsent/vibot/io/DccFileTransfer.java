@@ -88,11 +88,13 @@ public class DccFileTransfer {
                 _progress = file.length();
                 if (_progress == 0) {
                     doReceive(file, false);
-                } else {
+                }
+                else {
                     _bot.sendCTCPCommand(_nick, "DCC RESUME file.ext " + _port + " " + _progress);
                     _manager.addAwaitingResume(this);
                 }
-            } else {
+            }
+            else {
                 _progress = file.length();
                 doReceive(file, resume);
             }
@@ -147,13 +149,16 @@ public class DccFileTransfer {
                         delay();
                     }
                     foutput.flush();
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     exception = e;
-                } finally {
+                }
+                finally {
                     try {
                         foutput.close();
                         _socket.close();
-                    } catch (Exception anye) {
+                    }
+                    catch (Exception anye) {
                         // Do nothing.
                     }
                 }
@@ -181,13 +186,15 @@ public class DccFileTransfer {
                     if (ports == null) {
                         // Use any free port.
                         ss = new ServerSocket(0);
-                    } else {
+                    }
+                    else {
                         for (int i = 0; i < ports.length; i++) {
                             try {
                                 ss = new ServerSocket(ports[i]);
                                 // Found a port number we could use.
                                 break;
-                            } catch (Exception e) {
+                            }
+                            catch (Exception e) {
                                 // Do nothing; go round and try another port.
                             }
                         }
@@ -258,13 +265,16 @@ public class DccFileTransfer {
                         _progress += bytesRead;
                         delay();
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     exception = e;
-                } finally {
+                }
+                finally {
                     try {
                         finput.close();
                         _socket.close();
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         // Do nothing.
                     }
                 }
@@ -288,7 +298,8 @@ public class DccFileTransfer {
         if (_packetDelay > 0) {
             try {
                 Thread.sleep(_packetDelay);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 // Do nothing.
             }
         }
@@ -428,7 +439,8 @@ public class DccFileTransfer {
     public void close() {
         try {
             _socket.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             // Let the DCC manager worry about anything that may go wrong.
         }
     }

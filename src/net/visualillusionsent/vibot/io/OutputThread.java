@@ -1,23 +1,10 @@
-/* 
-Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
-
-This file is part of PircBot.
-
-This software is dual-licensed, allowing you to choose between the GNU
-General Public License (GPL) and the www.jibble.org Commercial License.
-Since the GPL may be too restrictive for use in a proprietary application,
-a commercial license is also provided. Full license information can be
-found at http://www.jibble.org/licenses/
-
- */
-
 package net.visualillusionsent.vibot.io;
 
 import java.io.*;
-import java.util.logging.Logger;
 
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.io.logging.BotLevel;
+import net.visualillusionsent.vibot.io.configuration.BotConfig;
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
  * A Thread which is responsible for sending messages to the IRC server.
@@ -25,31 +12,29 @@ import net.visualillusionsent.vibot.io.logging.BotLevel;
  * possible. If there is a flood of messages, then to avoid getting kicked from
  * a channel, we put a small delay between each one.
  * 
- * @author Paul James Mutton, <a
- *         href="http://www.jibble.org/">http://www.jibble.org/</a>
- * @version 1.5.0 (Build time: Mon Dec 14 20:07:17 2009)
+ * @since VIBot 1.0
+ * @author Jason (darkdiplomat)
  */
 public class OutputThread extends Thread {
 
-    private VIBot _bot = null;
-    private Queue _outQueue = null;
-    private static Logger logger = Logger.getLogger("VIBot");
-
+    private VIBot bot = null;
+    private Queue outQueue = null;
+    
     /**
-     * Constructs an OutputThread for the underlying PircBot. All messages sent
+     * Constructs an OutputThread for the underlying VIBot. All messages sent
      * to the IRC server are sent by this OutputThread to avoid hammering the
      * server. Messages are sent immediately if possible. If there are multiple
      * messages queued, then there is a delay imposed.
      * 
      * @param bot
-     *            The underlying PircBot instance.
+     *            The underlying VIBot instance.
      * @param outQueue
      *            The Queue from which we will obtain our messages.
      */
     public OutputThread(VIBot bot, Queue outQueue) {
-        _bot = bot;
-        _outQueue = outQueue;
-        this.setName(this.getClass() + "-Thread");
+        super("OutputThread-Thread");
+        this.bot = bot;
+        this.outQueue = outQueue;
     }
 
     /**
@@ -57,7 +42,7 @@ public class OutputThread extends Thread {
      * the line to the log method of the supplied PircBot instance.
      * 
      * @param bot
-     *            The underlying PircBot instance.
+     *            The underlying VIBot instance.
      * @param out
      *            The BufferedOutputStream to write to.
      * @param line
@@ -71,12 +56,13 @@ public class OutputThread extends Thread {
         }
         synchronized (bwriter) {
             try {
-                bwriter.write(line + "\r\n");
+                bwriter.write(line.concat("\r\n"));
                 bwriter.flush();
                 if (!line.startsWith("PONG :")) {
-                    logger.log(BotLevel.OUTGOING, line);
+                    BotLogMan.outgoing(line);
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 // Silent response - just lose the line.
             }
         }
@@ -91,16 +77,18 @@ public class OutputThread extends Thread {
             boolean running = true;
             while (running) {
                 // Small delay to prevent spamming of the channel
-                Thread.sleep(_bot.getMessageDelay());
+                Thread.sleep(BotConfig.getMessageDelay());
 
-                String line = (String) _outQueue.next();
+                String line = outQueue.next();
                 if (line != null) {
-                    _bot.sendRawLine(line);
-                } else {
+                    bot.sendRawLine(line);
+                }
+                else {
                     running = false;
                 }
             }
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             // Just let the method return naturally...
         }
     }

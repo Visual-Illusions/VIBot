@@ -1,16 +1,28 @@
 package net.visualillusionsent.vibot.plugin;
 
+/**
+ * Bot Plugin interface<br>
+ * Extend this class to create plugins for VIBot
+ * 
+ * @author Jason (darkdiplomat)
+ */
 public abstract class BotPlugin {
-    private String name = "";
+    private String name = "BotPluginImpl";
     private boolean enabled = true;
-    
-    
-    protected float version = 0F;
+    protected String version = null;
+    private BotClassLoader loader = null;
+
+    public BotPlugin() {
+        this.name = this.getClass().getSimpleName();
+    }
 
     /**
-     * Enables the plugin
+     * Runs the Plugins enable code to check if enabling can happen
+     * 
+     * @return {@code true} if successfully enabled, {@code false} if failed its
+     *         checks
      */
-    public abstract void enable();
+    public abstract boolean enable();
 
     /**
      * Disables the plugin
@@ -27,7 +39,7 @@ public abstract class BotPlugin {
      * 
      * @return boolean enabled
      */
-    protected boolean isEnabled() {
+    public final boolean isEnabled() {
         return enabled;
     }
 
@@ -36,19 +48,9 @@ public abstract class BotPlugin {
      * 
      * @return boolean enabled
      */
-    protected boolean toggleEnabled() {
+    final boolean toggleEnabled() {
         enabled = !enabled;
         return enabled;
-    }
-
-    /**
-     * Sets the name of this plugin
-     * 
-     * @param String
-     *            name
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -56,15 +58,41 @@ public abstract class BotPlugin {
      * 
      * @return String name
      */
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
-    protected float getVersion() {
+    /**
+     * Gets the version of this plugin
+     * 
+     * @return version
+     */
+    public final String getVersion() {
+        if (version == null) {
+            version = "*UNKNOWN-VERSION*";
+        }
         return version;
     }
 
-    protected void setVersion(float version) {
-        this.version = version;
+    final void setBotClassLoader(BotClassLoader loader) {
+        this.loader = loader;
+    }
+
+    final void close() {
+        loader.close();
+    }
+
+    public final boolean equals(Object obj) {
+        if (!(obj instanceof BotPlugin)) {
+            return false;
+        }
+        BotPlugin toCheck = (BotPlugin) obj;
+        if (!toCheck.getName().equals(name)) {
+            return false;
+        }
+        if (!toCheck.getVersion().equals(version)) {
+            return false;
+        }
+        return true;
     }
 }

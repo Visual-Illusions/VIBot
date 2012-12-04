@@ -46,12 +46,14 @@ public class BotClassLoader extends URLClassLoader {
                     Object java_util_jar_JarFile = loader.get(sun_misc_URLClassPath_JarLoader);
 
                     ((java.util.jar.JarFile) java_util_jar_JarFile).close();
-                } catch (Throwable t) {
+                }
+                catch (Throwable t) {
                     // if we got this far, this is probably not a JAR loader so
                     // skip it
                 }
             }
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             // probably not a SUN VM
         }
         return;

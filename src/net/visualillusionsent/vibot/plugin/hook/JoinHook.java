@@ -7,10 +7,8 @@ import net.visualillusionsent.vibot.plugin.BotPlugin;
 public abstract class JoinHook extends BaseHook {
 
     public JoinHook(BotPlugin plugin) {
-        super(plugin);
-        HookManager.addHook(this);
+        super(plugin, HookType.JOIN);
     }
 
     public abstract void execute(Channel channel, User user);
-
 }

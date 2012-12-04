@@ -1,36 +1,21 @@
 package net.visualillusionsent.vibot.commands;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
-import net.visualillusionsent.vibot.VIBotMain;
+import net.visualillusionsent.vibot.io.exception.VIBotException;
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
+import net.visualillusionsent.vibot.plugin.BotPlugin;
 
 public class CommandParser {
     private static CommandParser instance;
+    private static final Object lock = new Object();
     private final LinkedHashMap<String, BaseCommand> commands = new LinkedHashMap<String, BaseCommand>();
 
-    private CommandParser() {
-        add(new DisablePluginCommand());
-        add(new DisconnectCommand());
-        add(new EchoCommand());
-        add(new EnablePluginCommand());
-        add(new HelpCommand());
-        add(new IgnoreUserCommand());
-        add(new InformationCommand());
-        add(new JoinChannelCommand());
-        add(new IdentifyCommand());
-        add(new ListIgnoresCommand());
-        add(new ListPluginsCommand());
-        add(new NickChangeCommand());
-        add(new OkThanksCommand());
-        add(new PartChannelCommand());
-        add(new PingCommand());
-        add(new ReloadPluginCommand());
-        add(new ShutTheFuckUpCommand());
-        add(new TopicCommand());
-        add(new UnignoreUserCommand());
-    }
+    private CommandParser() {}
 
     /**
      * Add a command to the server list.
@@ -40,42 +25,40 @@ public class CommandParser {
      */
     public void add(BaseCommand cmd) {
         if (cmd != null) {
-            BotCommand botcmd = cmd.getClass().getAnnotation(BotCommand.class);
-            for (String alias : botcmd.aliases()) {
+            for (String alias : cmd.getAliases()) {
                 if (!commands.containsValue(alias)) {
                     commands.put(alias, cmd);
-                } 
-                else {
-                    VIBotMain.logger.warning("Command: '" + alias + "' is already registered!");
                 }
-            }
-        }
-    }
-
-    /**
-     * Remove a command from the server list. (No / prefix)
-     * 
-     * @param name
-     */
-    public void remove(String name) {
-        if (name != null) {
-            commands.remove(name);
-        }
-    }
-
-    public void remove(BaseCommand cmd) {
-        if (cmd != null) {
-            BotCommand botcmd = cmd.getClass().getAnnotation(BotCommand.class);
-            for (String alias : botcmd.aliases()) {
-                if (commands.containsValue(alias)) {
-                    commands.remove(alias);
+                else {
+                    BotLogMan.warning("Command: '" + alias + "' is already registered!");
                 }
             }
         }
     }
 
     public static CommandParser getInstance() {
-        checkInstance();
+        if (instance == null) {
+            instance = new CommandParser();
+            new DisablePluginCommand();
+            new DisconnectCommand();
+            new EchoCommand();
+            new EnablePluginCommand();
+            new HelpCommand();
+            new IgnoreUserCommand();
+            new InformationCommand();
+            new JoinChannelCommand();
+            new IdentifyCommand();
+            new ListIgnoresCommand();
+            new ListPluginsCommand();
+            new NickChangeCommand();
+            new OkThanksCommand();
+            new PartChannelCommand();
+            new PingCommand();
+            new ReloadPluginCommand();
+            new ShutTheFuckUpCommand();
+            new TopicCommand();
+            new UnignoreUserCommand();
+        }
         return instance;
     }
 
@@ -87,23 +70,33 @@ public class CommandParser {
      * @param caller
      * @param args
      * @return
+     * @throws VIBotException
      */
-    public static boolean parseBotCommand(Channel channel, User user, String[] args) {
-        checkInstance();
-        BaseCommand cmd = instance.getCommand(args[0]);
-        if (cmd != null) {
-            BotCommand botcmd = cmd.getClass().getAnnotation(BotCommand.class);
-            if (botcmd.adminonly() && !(user.isAdmin() || user.isConsole())) {
-                user.sendNotice("You do not have permission to use that command!");
-                return false;
+    public static boolean parseBotCommand(Channel channel, User user, String[] args) throws VIBotException {
+        synchronized (lock) {
+            BaseCommand cmd = getInstance().getCommand(args[0]);
+            if (cmd != null) {
+                try {
+                    if (cmd.requiresVoice() && !(user.hasVoice() || user.isOp() || user.isBotOwner() || user.isConsole())) {
+                        user.sendNotice("You do not have permission to use that command!");
+                        return false;
+                    }
+                    if (cmd.requiresOp() && !(user.isBotOwner() || user.isOp() || user.isConsole())) {
+                        user.sendNotice("You do not have permission to use that command!");
+                        return false;
+                    }
+                    if (cmd.requiresOwner() && !(user.isBotOwner() || user.isConsole())) {
+                        user.sendNotice("You do not have permission to use that command!");
+                        return false;
+                    }
+                    return cmd.execute(channel, user, args);
+                }
+                catch (Exception e) {
+                    throw new VIBotException("Exception occured while parsing Command: ".concat(args[0]), e);
+                }
             }
-            if (botcmd.oponly() && !(user.isAdmin() || user.isOp() || user.isConsole())) {
-                user.sendNotice("You do not have permission to use that command!");
-                return false;
-            }
-            return cmd.execute(channel, user, args);
+            user.sendNotice("Unknown Command. Use !help to see availible commands.");
         }
-        user.sendNotice("Unknown Command. Use !help to see availible commands.");
         return false;
     }
 
@@ -111,13 +104,53 @@ public class CommandParser {
         return commands.get(command);
     }
 
-    BaseCommand[] getCommands() {
-        return commands.values().toArray(new BaseCommand[] {});
+    public static final void printHelp(Channel channel, User user) {
+        synchronized (lock) {
+            user.sendNotice("-- Help List for you in Channel: " + channel.getName() + " --");
+            List<BaseCommand> triggered = new ArrayList<BaseCommand>();
+            for (BaseCommand cmd : instance.commands.values()) {
+                if (triggered.contains(cmd)) {
+                    continue;
+                }
+                else if (cmd.getAliases().length > 1) {
+                    triggered.add(cmd);
+                }
+
+                if (cmd.requiresVoice() && !(user.hasVoice() || user.isOp() || user.isBotOwner() || user.isConsole())) {
+                    continue;
+                }
+                if (cmd.requiresOp() && !(user.isBotOwner() || user.isOp() || user.isConsole())) {
+                    continue;
+                }
+                if (cmd.requiresOwner() && !(user.isBotOwner() || user.isConsole())) {
+                    continue;
+                }
+
+                user.sendNotice(cmd.getUsage().concat(" - ").concat(cmd.getDescription()));
+                if (cmd.getAliases().length > 1) {
+                    StringBuilder builder = new StringBuilder();
+                    for (String alias : cmd.getAliases()) {
+                        builder.append(alias);
+                        builder.append(" ");
+                    }
+                    user.sendNotice("Aliases for ".concat(cmd.getName()).concat(": ").concat(builder.toString()));
+                }
+            }
+        }
     }
 
-    private static void checkInstance() {
-        if (instance == null) {
-            instance = new CommandParser();
+    public void removePluginCommands(BotPlugin plugin) {
+        synchronized (lock) {
+            List<String> toRemove = new ArrayList<String>();
+            for (String cmdName : commands.keySet()) {
+                BaseCommand cmd = commands.get(cmdName);
+                if (cmd.getPlugin() != null && cmd.getPlugin().equals(plugin)) {
+                    toRemove.add(cmdName);
+                }
+            }
+            for (String toRem : toRemove) {
+                commands.remove(toRem);
+            }
         }
     }
 }

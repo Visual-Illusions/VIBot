@@ -1,13 +1,12 @@
 package net.visualillusionsent.vibot.plugin.hook;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.plugin.BotPlugin;
 
 public class HookManager {
     private static HookManager instance;
@@ -15,14 +14,10 @@ public class HookManager {
     private HashMap<String, MessageHook> message = new HashMap<String, MessageHook>();
 
     public static HookManager getInstance() {
-        checkInstance();
-        return instance;
-    }
-
-    private static void checkInstance() {
         if (instance == null) {
             instance = new HookManager();
         }
+        return instance;
     }
 
     public static void addHook(BaseHook hook) {
@@ -34,22 +29,32 @@ public class HookManager {
     }
 
     private void add(BaseHook hook) {
-        if (hook instanceof JoinHook) {
-            if (!join.containsKey(hook.getClass().getName())) {
-                join.put(hook.getClass().getName(), (JoinHook) hook);
-            }
-        } else if (hook instanceof MessageHook) {
-            if (!message.containsKey(hook.getClass().getName())) {
-                message.put(hook.getClass().getName(), (MessageHook) hook);
-            }
+        switch (hook.getType()) {
+            case JOIN:
+                if (!join.containsKey(hook.getClass().getName())) {
+                    join.put(hook.getClass().getName(), (JoinHook) hook);
+                }
+                break;
+            case MESSAGE:
+                if (!message.containsKey(hook.getClass().getName())) {
+                    message.put(hook.getClass().getName(), (MessageHook) hook);
+                }
+                break;
+            default:
+                break;
         }
     }
 
     private void remove(BaseHook hook) {
-        if (hook instanceof JoinHook) {
-            join.remove(hook.getClass().getName());
-        } else if (hook instanceof MessageHook) {
-            message.remove(hook.getClass().getName());
+        switch (hook.getType()) {
+            case JOIN:
+                join.remove(hook.getClass().getName());
+                break;
+            case MESSAGE:
+                message.remove(hook.getClass().getName());
+                break;
+            default:
+                break;
         }
     }
 
@@ -72,15 +77,22 @@ public class HookManager {
             }
         }
     }
-    
-    public List<BaseHook> getAllHooks(){
-        List<BaseHook> phaseone = new ArrayList<BaseHook>(join.values());
-        List<BaseHook> phasetwo = new ArrayList<BaseHook>(message.values());
-        BaseHook[] phase1 = join.values().toArray(new BaseHook[]{});
-        BaseHook[] phase2 = message.values().toArray(new BaseHook[]{});
-        Collections.copy(phaseone, Arrays.asList(phase1));
-        Collections.copy(phasetwo, Arrays.asList(phase2));
-        phaseone.addAll(phasetwo);
-        return phaseone;
+
+    public void removePluginHooks(BotPlugin plugin) {
+        List<BaseHook> tempList = new ArrayList<BaseHook>();
+        for (BaseHook hook : join.values()) {
+            if (hook.getPlugin().equals(plugin)) {
+                tempList.add(hook);
+            }
+        }
+        for (BaseHook hook : message.values()) {
+            if (hook.getPlugin().equals(plugin)) {
+                tempList.add(hook);
+            }
+        }
+
+        for (BaseHook hook : tempList) {
+            removeHook(hook);
+        }
     }
 }

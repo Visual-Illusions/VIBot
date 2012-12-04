@@ -1,10 +1,12 @@
 package net.visualillusionsent.vibot.io;
 
 import java.net.*;
-import java.util.logging.Logger;
 import java.io.*;
 
 import net.visualillusionsent.vibot.VIBot;
+import net.visualillusionsent.vibot.io.configuration.BotConfig;
+import net.visualillusionsent.vibot.io.exception.VIBotException;
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
  * A simple IdentServer (also know as "The Identification Protocol"). An ident
@@ -15,56 +17,40 @@ import net.visualillusionsent.vibot.VIBot;
  * order to determine the user's identity. A few IRC servers will not allow you
  * to connect unless this information is provided.
  * <p>
- * So when a PircBot is run on a machine that does not run an ident server, it
- * may be necessary to provide a "faked" response by starting up its own ident
+ * So when a VIBot is run on a machine that does not run an ident server, it may
+ * be necessary to provide a "faked" response by starting up its own ident
  * server and sending out apparently correct responses.
- * <p>
- * An instance of this class can be used to start up an ident server only if it
- * is possible to do so. Reasons for not being able to do so are if there is
- * already an ident server running on port 113, or if you are running as an
- * unprivileged user who is unable to create a server socket on that port
- * number. TODO
  * 
- * @since 1.0
+ * @since VIBot 1.0
  * @author Jason Jones (darkdiplomat)
- * @author Paul James Mutton
- * @version 1.0
  */
 public class IdentServer extends Thread {
-
-    private String _login;
-    private ServerSocket _ss = null;
-    private Logger logger = Logger.getLogger("VIBot");
+    private ServerSocket ss = null;
 
     /**
      * Constructs and starts an instance of an IdentServer that will respond to
-     * a client with the provided login. Rather than calling this constructor
-     * explicitly from your code, it is recommended that you use the
-     * startIdentServer method in the PircBot class.
+     * a client with the provided login.
      * <p>
-     * The ident server will wait for up to 60 seconds before shutting down.
+     * The ident server will wait for up to 120 seconds before shutting down.
      * Otherwise, it will shut down as soon as it has responded to an ident
      * request.
      * 
      * @param bot
-     *            The PircBot instance that will be used to log to.
-     * @param login
-     *            The login that the ident server will respond with.
+     *            The VIBot instance that will be used to log to.
+     * @throws VIBotException
      */
-    public IdentServer(VIBot bot, String login) {
-        _login = login;
-
+    public IdentServer(VIBot bot) throws VIBotException {
+        super("IdentServer-Thread");
+        int port = BotConfig.getIdentPort();
         try {
-            _ss = new ServerSocket(113);
-            _ss.setSoTimeout(120000);
-        } catch (Exception e) {
-            logger.warning("*** Could not start the ident server on port 113.");
-            e.printStackTrace();
-            return;
+            ss = new ServerSocket(port);
+            ss.setSoTimeout(120000);
+        }
+        catch (Exception e) {
+            throw new VIBotException("Could not start the ident server on port ".concat(String.valueOf(port)).concat("."), e);
         }
 
-        logger.info("*** Ident server running on port 113 for the next 120 seconds...");
-        this.setName(this.getClass() + "-Thread");
+        BotLogMan.info("Ident server running on port ".concat(String.valueOf(BotConfig.getIdentPort())).concat(" for the next 120 seconds..."));
         this.start();
     }
 
@@ -75,7 +61,7 @@ public class IdentServer extends Thread {
      */
     public void run() {
         try {
-            Socket socket = _ss.accept();
+            Socket socket = ss.accept();
             socket.setSoTimeout(120000);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -83,24 +69,26 @@ public class IdentServer extends Thread {
 
             String line = reader.readLine();
             while (line != null) {
-                logger.info("*** Ident request received: " + line);
-                line = line + " : USERID : UNIX : " + _login;
-                writer.write(line + "\r\n");
+                BotLogMan.info("Ident request received: " + line);
+                line = line.concat(" : USERID : UNIX : ").concat(BotConfig.getLogin());
+                writer.write(line.concat("\r\n"));
                 writer.flush();
-                logger.info("*** Ident reply sent: " + line);
+                BotLogMan.info("Ident reply sent: ".concat(line));
                 writer.close();
                 break;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             // We're not really concerned with what went wrong, are we?
         }
 
         try {
-            _ss.close();
-        } catch (Exception e) {
+            ss.close();
+        }
+        catch (Exception e) {
             // Doesn't really matter...
         }
 
-        logger.info("*** The Ident server has been shut down.");
+        BotLogMan.info("The Ident server has been shut down.");
     }
 }

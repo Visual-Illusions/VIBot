@@ -1,4 +1,4 @@
-package net.visualillusionsent.vibot;
+package net.visualillusionsent.vibot.io.configuration;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -8,14 +8,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Logger;
+
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 public final class PropertiesFile {
 
-    private Logger log = Logger.getLogger("VIBot");
     private File propsFile;
     private String filepath;
-
     private HashMap<String, String> props = new HashMap<String, String>();
     private HashMap<String, String[]> comments = new HashMap<String, String[]>();
 
@@ -24,7 +23,8 @@ public final class PropertiesFile {
         propsFile = new File(filepath);
         if (propsFile.exists()) {
             load();
-        } else {
+        }
+        else {
             save();
         }
     }
@@ -37,7 +37,8 @@ public final class PropertiesFile {
             while ((inLine = in.readLine()) != null) {
                 if (inLine.startsWith(";") || inLine.startsWith("#")) {
                     inComments.add(inLine);
-                } else {
+                }
+                else {
                     try {
                         String[] propsLine = inLine.split("=");
                         props.put(propsLine[0].trim(), propsLine[1].trim());
@@ -49,15 +50,17 @@ public final class PropertiesFile {
                             comments.put(propsLine[0], commented);
                             inComments.clear();
                         }
-                    } catch (ArrayIndexOutOfBoundsException AIOOBE) {
+                    }
+                    catch (ArrayIndexOutOfBoundsException aioobe) {
                         inComments.clear();
                         continue;
                     }
                 }
             }
             in.close();
-        } catch (IOException IOE) {
-            log.warning("A IOException occurred in File: '" + filepath + "'");
+        }
+        catch (IOException IOE) {
+            BotLogMan.warning("A IOException occurred in File: '" + filepath + "'");
         }
     }
 
@@ -77,8 +80,9 @@ public final class PropertiesFile {
                 out.newLine();
             }
             out.close();
-        } catch (IOException IOE) {
-            log.warning("A IOException occurred in File: '" + filepath + "'");
+        }
+        catch (IOException IOE) {
+            BotLogMan.warning("A IOException occurred in File: '" + filepath + "'");
         }
     }
 
@@ -106,7 +110,7 @@ public final class PropertiesFile {
         props.put(key, value);
     }
 
-    public void setString(String key, String value, String[] comment) {
+    public void setString(String key, String value, String... comment) {
         props.put(key, value);
         addComment(key, comment);
     }
@@ -116,9 +120,10 @@ public final class PropertiesFile {
         if (containsKey(key)) {
             try {
                 value = Integer.parseInt(getString(key));
-            } catch (NumberFormatException NFE) {
+            }
+            catch (NumberFormatException NFE) {
                 value = -1;
-                log.warning("A NumberFormatException occurred in File: '" + filepath + "' @ KEY: " + key);
+                BotLogMan.warning("A NumberFormatException occurred in File: '" + filepath + "' @ KEY: " + key);
             }
         }
         return value;
@@ -128,7 +133,7 @@ public final class PropertiesFile {
         props.put(key, String.valueOf(value));
     }
 
-    public void setInt(String key, int value, String[] comment) {
+    public void setInt(String key, int value, String... comment) {
         props.put(key, String.valueOf(value));
         addComment(key, comment);
     }
@@ -138,9 +143,10 @@ public final class PropertiesFile {
         if (containsKey(key)) {
             try {
                 value = Double.parseDouble(getString(key));
-            } catch (NumberFormatException NFE) {
+            }
+            catch (NumberFormatException NFE) {
                 value = -1;
-                log.warning("A NumberFormatException occurred in File: '" + filepath + "' @ KEY: " + key);
+                BotLogMan.warning("A NumberFormatException occurred in File: '" + filepath + "' @ KEY: " + key);
             }
         }
         return value;
@@ -155,9 +161,10 @@ public final class PropertiesFile {
         if (containsKey(key)) {
             try {
                 value = Long.parseLong(getString(key));
-            } catch (NumberFormatException NFE) {
+            }
+            catch (NumberFormatException NFE) {
                 value = -1;
-                log.warning("A NumberFormatException occurred in File: '" + filepath + "' @ KEY: " + key);
+                BotLogMan.warning("A NumberFormatException occurred in File: '" + filepath + "' @ KEY: " + key);
             }
         }
         return value;
@@ -167,7 +174,7 @@ public final class PropertiesFile {
         props.put(key, String.valueOf(value));
     }
 
-    public void setLong(String key, long value, String[] comment) {
+    public void setLong(String key, long value, String... comment) {
         props.put(key, String.valueOf(value));
         addComment(key, comment);
     }
@@ -184,7 +191,7 @@ public final class PropertiesFile {
         props.put(key, String.valueOf(value));
     }
 
-    public void setBoolean(String key, boolean value, String[] comment) {
+    public void setBoolean(String key, boolean value, String... comment) {
         props.put(key, String.valueOf(value));
         addComment(key, comment);
     }
@@ -197,12 +204,12 @@ public final class PropertiesFile {
         props.put(key, String.valueOf(ch));
     }
 
-    public void setCharacter(String key, char ch, String[] comment) {
+    public void setCharacter(String key, char ch, String... comment) {
         props.put(key, String.valueOf(ch));
         addComment(key, comment);
     }
 
-    private void addComment(String key, String[] comment) {
+    private void addComment(String key, String... comment) {
         for (int i = 0; i < comment.length; i++) {
             if (!comment[i].startsWith(";") && !comment[i].startsWith("#")) {
                 comment[i] = ";" + comment[i];

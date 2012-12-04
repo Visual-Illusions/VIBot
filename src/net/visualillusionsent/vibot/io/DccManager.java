@@ -37,14 +37,16 @@ public class DccManager {
             long size = -1;
             try {
                 size = Long.parseLong(tokenizer.nextToken());
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 // Stick with the old value.
             }
 
             DccFileTransfer transfer = new DccFileTransfer(_bot, this, nick, login, hostname, type, filename, address, port, size);
             _bot.onIncomingFileTransfer(transfer);
 
-        } else if (type.equals("RESUME")) {
+        }
+        else if (type.equals("RESUME")) {
             int port = Integer.parseInt(tokenizer.nextToken());
             long progress = Long.parseLong(tokenizer.nextToken());
 
@@ -64,7 +66,8 @@ public class DccManager {
                 _bot.sendCTCPCommand(nick, "DCC ACCEPT file.ext " + port + " " + progress);
             }
 
-        } else if (type.equals("ACCEPT")) {
+        }
+        else if (type.equals("ACCEPT")) {
             int port = Integer.parseInt(tokenizer.nextToken());
             // long progress = Long.parseLong(tokenizer.nextToken());
 
@@ -83,7 +86,8 @@ public class DccManager {
                 transfer.doReceive(transfer.getFile(), true);
             }
 
-        } else if (type.equals("CHAT")) {
+        }
+        else if (type.equals("CHAT")) {
             long address = Long.parseLong(tokenizer.nextToken());
             int port = Integer.parseInt(tokenizer.nextToken());
 
@@ -94,7 +98,8 @@ public class DccManager {
                     _bot.onIncomingChatRequest(chat);
                 }
             }.start();
-        } else {
+        }
+        else {
             return false;
         }
 

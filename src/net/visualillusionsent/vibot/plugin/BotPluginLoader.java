@@ -1,95 +1,94 @@
 package net.visualillusionsent.vibot.plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import net.visualillusionsent.vibot.Misc;
-import net.visualillusionsent.vibot.io.Colors;
-import net.visualillusionsent.vibot.plugin.hook.BaseHook;
+import net.visualillusionsent.vibot.Colors;
+import net.visualillusionsent.vibot.Utils;
+import net.visualillusionsent.vibot.commands.CommandParser;
+import net.visualillusionsent.vibot.io.configuration.BotConfig;
+import net.visualillusionsent.vibot.io.exception.VIBotException;
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
 import net.visualillusionsent.vibot.plugin.hook.HookManager;
 
 /**
- * BotPluginLoader.java - Used to load plugins, toggle them, etc.
+ * BotPluginLoader - Used to load plugins, toggle them, etc.
  * 
- * Contains code from CanaryMod PluginLoader.java
- * 
- * @author James (Original Author)
- * @author darkdiplomat
+ * @author Jason (darkdiplomat)
  */
 public class BotPluginLoader {
-
-    private Logger log = Logger.getLogger("VIBot");
-    private static final Object lock = new Object();
     private List<BotPlugin> plugins = new ArrayList<BotPlugin>();
-    // private HashMap<String, PluginInterface> customListeners = new
-    // HashMap<String, PluginInterface>();
     private volatile boolean loaded = false;
+
+    private static final Object lock = new Object();
+    private static BotPluginLoader instance;
 
     /**
      * Creates a plugin loader
      */
-    public BotPluginLoader() {
+    private BotPluginLoader() {}
+
+    public static BotPluginLoader getInstance() {
+        if (instance == null) {
+            instance = new BotPluginLoader();
+        }
+        return instance;
     }
 
     /**
-     * Loads all plugins.
+     * Initially loads all plugins if not already loaded
      */
     public void loadPlugins() {
         if (loaded) {
             return;
         }
-        String[] classes = new String[] { "" };
-        log.info("*** Loading plugins...");
-        if (Misc.getPlugins() != null) {
-            classes = Misc.getPlugins();
-        }
 
-        for (String sclass : classes) {
-            if (sclass.equals("")) {
-                continue;
+        BotLogMan.info("Loading plugins...");
+        String[] plugins = BotConfig.getPlugins();
+        int load = 0;
+        if (plugins != null && plugins.length > 0) {
+            for (String plugin : plugins) {
+                if (plugin.trim().isEmpty()) {
+                    continue;
+                }
+                if (loadPlugin(plugin.trim())) {
+                    load++;
+                }
             }
-            loadPlugin(sclass.trim());
         }
-        log.info("*** Loaded " + plugins.size() + " plugins.");
+        BotLogMan.info("Loaded ".concat(String.valueOf(load)).concat(" plugins."));
         loaded = true;
     }
 
     /**
      * Loads the specified plugin
      * 
-     * @param fileName
-     *            file name of plugin to load
+     * @param pluginName
+     *            name of plugin to load
      * @return if the operation was successful
      */
-    public boolean loadPlugin(String fileName) {
-        if (getPlugin(fileName) != null) {
+    public boolean loadPlugin(String pluginName) {
+        if (getPlugin(pluginName) != null) {
             return false; // Already exists.
         }
-        return load(fileName);
+        return load(pluginName);
     }
 
     /**
      * Reloads the specified plugin
      * 
-     * @param fileName
-     *            file name of plugin to reload
+     * @param pluginName
+     *            name of plugin to reload
      * @return if the operation was successful
      */
-    public boolean reloadPlugin(String fileName) {
-
-        /* Not sure exactly how much of this is necessary */
-        BotPlugin toNull = getPlugin(fileName);
-
+    public boolean reloadPlugin(String pluginName) {
+        BotPlugin toNull = getPlugin(pluginName);
         if (toNull != null) {
             if (toNull.isEnabled()) {
                 toNull.disable();
@@ -99,44 +98,44 @@ public class BotPluginLoader {
             plugins.remove(toNull);
         }
         try {
-            File file = new File("plugins/" + fileName + ".jar");
+            File file = new File("plugins/" + pluginName + ".jar");
             BotClassLoader child = null;
             child = new BotClassLoader(new URL[] { file.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
             child.close();
-        } catch (Exception e) {
         }
+        catch (Exception e) {}
 
         toNull = null;
 
-        return load(fileName);
+        return load(pluginName);
     }
 
-    private boolean load(String fileName) {
-        String filepath = "plugins/" + fileName + ".jar";
+    private boolean load(String pluginName) {
+        String filepath = "plugins/" + pluginName + ".jar";
         try {
             File pluginfile = new File(filepath);
 
             if (!pluginfile.exists()) {
-                log.severe("Failed to find plugin file: plugins/" + fileName + ".jar. Please ensure the file exists");
+                BotLogMan.severe("Failed to find plugin file: plugins/" + pluginName + ".jar. Please ensure the file exists");
                 return false;
             }
-            URLClassLoader child = null;
+            BotClassLoader loader = null;
 
             try {
-                child = new BotClassLoader(new URL[] { pluginfile.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
-            } catch (MalformedURLException ex) {
-                log.log(Level.SEVERE, "Exception while loading class", ex);
+                loader = new BotClassLoader(new URL[] { pluginfile.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
+            }
+            catch (MalformedURLException ex) {
+                BotLogMan.severe("Exception while loading class", ex);
                 return false;
             }
 
             String filepathtemp = getPluginClassPath(pluginfile.getAbsolutePath());
-            filepath = filepathtemp != null ? filepathtemp : fileName;
+            filepath = filepathtemp != null ? filepathtemp : pluginName;
 
-            Class<?> pluginclazz = Class.forName(filepath, true, child);
+            Class<?> pluginclazz = Class.forName(filepath, true, loader);
 
             BotPlugin plugin = (BotPlugin) pluginclazz.newInstance();
-
-            plugin.setName(fileName);
+            plugin.setBotClassLoader(loader);
             plugin.enable();
 
             synchronized (lock) {
@@ -144,29 +143,30 @@ public class BotPluginLoader {
                 plugin.initialize();
             }
 
-        } catch (Throwable ex) {
-            log.log(Level.SEVERE, "Exception while loading plugin (" + filepath + ")", ex);
+        }
+        catch (Throwable ex) {
+            BotLogMan.severe("Exception while loading plugin (" + filepath + ")", ex);
             return false;
         }
         return true;
     }
 
-    @SuppressWarnings("resource")
-    private final String getPluginClassPath(String jarpath) {
+    private final String getPluginClassPath(String jarpath) throws VIBotException {
+        String value = null;
         try {
-            JarFile jarjar = new JarFile(jarpath);
-            Manifest manifest = jarjar.getManifest();
+            @SuppressWarnings("resource")
+            JarFile jar = new JarFile(jarpath);
+            Manifest manifest = jar.getManifest();
             Attributes attr = manifest.getMainAttributes();
-            String value = attr.getValue("Plugin-Class");
+            value = attr.getValue("Plugin-Class");
             if (value == null) {
-                log.warning("Was unable to locate Plugin-Class attribute for Plugin: '".concat(jarpath).concat("'").concat(Misc.LINE_SEP).concat(" Proceeding with assumption that default package is used..."));
+                BotLogMan.warning("Was unable to locate Plugin-Class attribute for Plugin: '".concat(jarpath).concat("'").concat(Utils.LINE_SEP).concat(" Proceeding with assumption that default package is used..."));
             }
-            return value;
         }
-        catch (IOException E) {
-            log.warning("Was unable to read Manifest for Plugin: '".concat(jarpath).concat("'"));
-            return null;
+        catch (Exception e) {
+            throw new VIBotException("Was unable to read Manifest for Plugin: '".concat(jarpath).concat("'"));
         }
+        return value;
     }
 
     /**
@@ -206,7 +206,8 @@ public class BotPluginLoader {
 
         if (str.length() > 1) {
             return str.substring(0, str.length() - 1);
-        } else {
+        }
+        else {
             return "Empty";
         }
     }
@@ -227,12 +228,14 @@ public class BotPluginLoader {
                 plugin.enable();
                 plugin.initialize();
             }
-        } else { // New plugin, perhaps?
+        }
+        else { // New plugin, perhaps?
             File file = new File("plugins/" + name + ".jar");
 
             if (file.exists()) {
                 return loadPlugin(name);
-            } else {
+            }
+            else {
                 return false;
             }
         }
@@ -252,12 +255,8 @@ public class BotPluginLoader {
             if (plugin.isEnabled()) {
                 plugin.toggleEnabled();
                 plugin.disable();
-                List<BaseHook> hooks = HookManager.getInstance().getAllHooks();
-                for(BaseHook hook : hooks){
-                    if(hook.getPlugin().getName().equals(plugin.getName())){
-                        HookManager.removeHook(hook);
-                    }
-                }
+                HookManager.getInstance().removePluginHooks(plugin);
+                CommandParser.getInstance().removePluginCommands(plugin);
             }
         }
     }

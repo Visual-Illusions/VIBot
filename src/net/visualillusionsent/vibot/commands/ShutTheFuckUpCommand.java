@@ -1,15 +1,19 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.Misc;
 import net.visualillusionsent.vibot.User;
 
-@BotCommand(aliases = { "stfu" }, usage = "!stfu", desc = "Quiets the Bot in the channel", adminonly = true)
 final class ShutTheFuckUpCommand extends BaseCommand {
+
+    public ShutTheFuckUpCommand() {
+        super(null, new String[] { "stfu" }, "!stfu", "Quiets the Bot in the channel", 1, -1, false, true, false);
+    }
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
-        Misc.Mute(channel.getName());
+        if (!channel.isMuted()) {
+            channel.toggleMute();
+        }
         return true;
     }
 }

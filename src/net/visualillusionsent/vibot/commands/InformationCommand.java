@@ -7,14 +7,18 @@ import java.io.InputStreamReader;
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
 
-@BotCommand(aliases = { "info" }, usage = "!info", desc = "Gives System Information about this Bot")
 final class InformationCommand extends BaseCommand {
+
+    public InformationCommand() {
+        super(null, new String[] { "info" }, "!info", "Gives System Information about this Bot", 1, -1, false, false, false);
+    }
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
         if (!System.getProperty("os.name").startsWith("Windows")) {
             unixInfo(channel);
-        } else {
+        }
+        else {
             String cpu = System.getenv("PROCESSOR_IDENTIFIER");
             String bits = System.getenv("PROCESSOR_ARCHITECTURE");
             String cores = System.getenv("NUMBER_OF_PROCESSORS");
@@ -47,7 +51,8 @@ final class InformationCommand extends BaseCommand {
                 }
             }
             in.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }

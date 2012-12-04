@@ -1,20 +1,19 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.Misc;
 import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.plugin.BotPluginLoader;
 
-@BotCommand(aliases = { "disableplugin" }, usage = "!disableplugin <plugin>", desc = "Disables a plugin", adminonly = true)
 final class DisablePluginCommand extends BaseCommand {
+
+    public DisablePluginCommand() {
+        super(null, new String[] { "disableplugin" }, "!disableplugin <plugin>", "Disables a plugin", 2, 2, false, false, true);
+    }
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
-        if (!argCheck(2, args)) {
-            user.sendMessage("Usage: " + this.getClass().getAnnotation(BotCommand.class).usage());
-        } else {
-            Misc.getLoader().disablePlugin(args[1]);
-            channel.sendMessage("Plugin disabled!");
-        }
+        BotPluginLoader.getInstance().disablePlugin(args[1]);
+        channel.sendMessage("Plugin disabled!");
         return true;
     }
 }

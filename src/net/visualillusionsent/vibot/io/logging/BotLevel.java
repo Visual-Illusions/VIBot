@@ -6,18 +6,19 @@ public class BotLevel extends Level {
 
     private static final long serialVersionUID = 180437111987L;
 
-    public static final Level INCOMING = new BotLevel("INCOMING", 2000);
-    public static final Level OUTGOING = new BotLevel("OUTGOING", 2100);
-    public static final Level PING = new BotLevel("PING", 2200);
-    public static final Level SERVERPING = new BotLevel("SERVERPING", 2300);
-    public static final Level CHANMESSAGE = new BotLevel("CHANMESSAGE", 2400);
-    public static final Level PRIVMESSAGE = new BotLevel("PRIVMESSAGE", 2500);
-    public static final Level COMMAND = new BotLevel("COMMAND", 2600);
-    public static final Level NOTICE = new BotLevel("NOTICE", 2700);
-    public static final Level JOIN = new BotLevel("JOIN", 2800);
-    public static final Level PART = new BotLevel("PART", 2900);
+    public static final BotLevel INCOMING = new BotLevel("INCOMING", 1);
+    public static final BotLevel OUTGOING = new BotLevel("OUTGOING", 2);
+    public static final BotLevel PING = new BotLevel("PING", 3);
+    public static final BotLevel SERVER_PING = new BotLevel("SERVER PING", 4);
+    public static final BotLevel CHANNEL_MESSAGE = new BotLevel("CHANNEL MESSAGE", 5);
+    public static final BotLevel PRIVATE_MESSAGE = new BotLevel("PRIVATE MESSAGE", 6);
+    public static final BotLevel COMMAND = new BotLevel("COMMAND", 7);
+    public static final BotLevel NOTICE = new BotLevel("NOTICE", 8);
+    public static final BotLevel JOIN = new BotLevel("JOIN", 9);
+    public static final BotLevel PART = new BotLevel("PART", 10);
+    public static final BotLevel CONSOLE_MESSAGE = new BotLevel("CONSOLE MESSAGE", 11);
 
-    public BotLevel(String arg0, int arg1) {
-        super(arg0, arg1);
+    public BotLevel(String name, int ordinal) {
+        super(name, ordinal);
     }
 }

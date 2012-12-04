@@ -1,20 +1,21 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.Misc;
 import net.visualillusionsent.vibot.User;
 
-@BotCommand(aliases = { "ignore" }, usage = "!ignore <user>", desc = "Ignores a user", oponly = true)
 final class IgnoreUserCommand extends BaseCommand {
+    public IgnoreUserCommand() {
+        super(null, new String[] { "ignore" }, "!ignore <user>", "Ignores a user", 2, 2, false, true, false);
+    }
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
-        if (!argCheck(2, args)) {
-            user.sendMessage("Usage: " + this.getClass().getAnnotation(BotCommand.class).usage());
-        } else if (!Misc.isIgnored(channel.getName(), args[1])) {
-            Misc.addIgnored(channel.getName(), args[1]);
+        User ignore = channel.getUser(args[1]);
+        if (!channel.isUserIgnored(ignore)) {
+            channel.ignoreUser(ignore);
             channel.sendMessage("Now ignoring " + args[1]);
-        } else {
+        }
+        else {
             channel.sendMessage("I was already ignoring " + args[1]);
         }
         return true;

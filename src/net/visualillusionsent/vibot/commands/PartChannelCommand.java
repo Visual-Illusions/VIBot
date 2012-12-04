@@ -1,30 +1,38 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.Misc;
 import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.Utils;
+import net.visualillusionsent.vibot.VIBot;
 
-@BotCommand(aliases = { "part" }, usage = "!part [channel] [reason]", desc = "Quites the Bot", adminonly = true)
 final class PartChannelCommand extends BaseCommand {
+
+    public PartChannelCommand() {
+        super(null, new String[] { "part" }, "!part [channel] [reason]", "Makes the bot leave a channel", 1, -1, false, false, true);
+    }
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
         if (args.length > 2) {
             if (!args[1].startsWith("#")) {
-                String reason = Misc.combineSplit(1, args, " ");
-                Misc.partChannel(channel.getName(), reason);
-            } else {
-                String reason = Misc.combineSplit(2, args, " ");
-                Misc.partChannel(args[1], reason);
+                String reason = Utils.combineSplit(1, args, " ");
+                VIBot.partChannel(channel.getName(), reason);
             }
-        } else if (args.length > 1) {
+            else {
+                String reason = Utils.combineSplit(2, args, " ");
+                VIBot.partChannel(args[1], reason);
+            }
+        }
+        else if (args.length > 1) {
             if (args[1].startsWith("#")) {
-                Misc.partChannel(args[1], "disconnect.leaving");
-            } else {
-                Misc.partChannel(channel.getName(), "disconnect.leaving");
+                VIBot.partChannel(args[1], "disconnect.leaving");
             }
-        } else {
-            Misc.partChannel(channel.getName(), "disconnect.leaving");
+            else {
+                VIBot.partChannel(channel.getName(), "disconnect.leaving");
+            }
+        }
+        else {
+            VIBot.partChannel(channel.getName(), "disconnect.leaving");
         }
         return true;
     }

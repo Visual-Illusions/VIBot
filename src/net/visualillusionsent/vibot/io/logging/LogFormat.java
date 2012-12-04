@@ -23,49 +23,7 @@ public final class LogFormat extends SimpleFormatter {
         StringBuilder message = new StringBuilder();
 
         message.append(dateform.format(rec.getMillis()));
-
-        switch (rec.getLevel().intValue()) {
-        case 800:
-            message.append(" [INFO] ");
-            break;
-        case 900:
-            message.append(" [WARNING] ");
-            break;
-        case 1000:
-            message.append(" [SEVERE] ");
-            break;
-        case 2000:
-            message.append(" [INCOMING LINE] ");
-            break;
-        case 2100:
-            message.append(" [OUTGOING LINE] ");
-            break;
-        case 2200:
-            message.append(" [PING] ");
-            break;
-        case 2300:
-            message.append(" [SERVERPING] ");
-            break;
-        case 2400:
-            message.append(" [CHANMESSAGE] ");
-            break;
-        case 2500:
-            message.append(" [PRIVMESSAGE] ");
-            break;
-        case 2600:
-            message.append(" [COMMAND] ");
-            break;
-        case 2700:
-            message.append(" [NOTICE] ");
-            break;
-        case 2800:
-            message.append(" [JOIN] ");
-            break;
-        case 2900:
-            message.append(" [PART] ");
-            break;
-        }
-
+        message.append(" [" + rec.getLevel().getName() + "] ");
         message.append(rec.getMessage());
         message.append(linesep);
 

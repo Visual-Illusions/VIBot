@@ -1,28 +1,45 @@
 package net.visualillusionsent.vibot;
 
-public class User {
+import net.visualillusionsent.vibot.io.configuration.BotConfig;
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
+
+public final class User {
+    private final VIBot bot;
     private String prefix, nick, hostname, login;
 
-    User(String prefix, String nick) {
+    User(String prefix, String nick, VIBot bot) {
         this.prefix = prefix;
         this.nick = nick;
+        this.bot = bot;
     }
 
-    public String getNick() {
+    public User(String prefix, String nick) {
+        this.prefix = prefix;
+        this.nick = nick;
+        this.bot = null;
+    }
+
+    public final String getNick() {
         return nick;
     }
 
-    public String getPrefix() {
+    public final String getPrefix() {
         return prefix;
     }
 
-    public String getHostname() {
+    public final String getHostname() {
         return hostname;
     }
 
     public String getLogin() {
         return login;
     }
+
+    //    ~ for owners – to get this, you need to be +q in the channel
+    //    & for admins – to get this, you need to be +a in the channel
+    //    @ for full operators – to get this, you need to be +o in the channel
+    //    % for half operators – to get this, you need to be +h in the channel
+    //    + for voiced users – to get this, you need to be +v in the channel
 
     public boolean isOp() {
         return prefix.indexOf('@') >= 0;
@@ -33,11 +50,16 @@ public class User {
     }
 
     public boolean isConsole() {
-        return getPrefix().indexOf('$') == 0;
+        return prefix.indexOf('$') == 0;
     }
 
-    public boolean isAdmin() {
-        return Misc.isAdmin(nick);
+    public boolean isBotOwner() {
+        for (String owner : BotConfig.getBotOwners()) {
+            if (owner.equals(nick)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     boolean hasNoHost() {
@@ -77,23 +99,25 @@ public class User {
     }
 
     public void sendMessage(String message) {
-        if (!nick.equals("BOTCONSOLE")) {
-            VIBotMain.bot.sendMessage(nick, message);
-        } else {
-            System.out.println(message);
+        if (bot != null) {
+            bot.sendMessage(nick, message);
+        }
+        else {
+            BotLogMan.consoleMessage(message);
         }
     }
 
     public void sendNotice(String message) {
-        if (!nick.equals("BOTCONSOLE")) {
-            VIBotMain.bot.sendNotice(nick, message);
-        } else {
-            System.out.println(message);
+        if (bot != null) {
+            bot.sendNotice(nick, message);
+        }
+        else {
+            BotLogMan.consoleMessage(message);
         }
     }
 
     public String toString() {
-        return this.getPrefix() + this.getNick();
+        return String.format("User[Nick=%s Prefix=%s]", nick, prefix);
     }
 
     public boolean equals(String nick) {
@@ -110,21 +134,8 @@ public class User {
 
     public int hashCode() {
         int hash = 7;
+        hash = 31 * hash + prefix.hashCode();
         hash = 31 * hash + nick.hashCode();
         return hash;
-    }
-
-    /**
-     * Returns the result of calling the compareTo method on lowercased nicks.
-     * This is useful for sorting lists of User objects.
-     * 
-     * @return the result of calling compareTo on lowercased nicks.
-     */
-    public int compareTo(Object o) {
-        if (o instanceof User) {
-            User other = (User) o;
-            return other.nick.compareTo(nick);
-        }
-        return -1;
     }
 }

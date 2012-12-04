@@ -1,28 +1,12 @@
-/* 
-Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
-
-This file is part of PircBot.
-
-This software is dual-licensed, allowing you to choose between the GNU
-General Public License (GPL) and the www.jibble.org Commercial License.
-Since the GPL may be too restrictive for use in a proprietary application,
-a commercial license is also provided. Full license information can be
-found at http://www.jibble.org/licenses/
-
- */
-
 package net.visualillusionsent.vibot.io;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InterruptedIOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.Socket;
-import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
 import net.visualillusionsent.vibot.VIBot;
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
  * A Thread which reads lines from the IRC server. It then passes these lines to
@@ -30,39 +14,37 @@ import net.visualillusionsent.vibot.VIBot;
  * disconnection from the server and is thus used by the OutputThread to send
  * lines to the server.
  * 
- * @author Paul James Mutton, <a
- *         href="http://www.jibble.org/">http://www.jibble.org/</a>
- * @version 1.5.0 (Build time: Mon Dec 14 20:07:17 2009)
+ * @since VIBot 1.0
+ * @author Jason (darkdiplomat)
  */
 public class InputThread extends Thread {
 
-    private VIBot _bot = null;
-    private Socket _socket = null;
-    private BufferedReader _breader = null;
-    private BufferedWriter _bwriter = null;
-    private boolean _isConnected = true;
-    private boolean _disposed = false;
-    private Logger logger = Logger.getLogger("VIBot");
+    private VIBot bot = null;
+    private Socket socket = null;
+    private BufferedReader breader = null;
+    private BufferedWriter bwriter = null;
+    private boolean isConnected = true;
+    private boolean disposed = false;
 
     public static final int MAX_LINE_LENGTH = 512;
 
     /**
-     * The InputThread reads lines from the IRC server and allows the PircBot to
+     * The InputThread reads lines from the IRC server and allows the VIBot to
      * handle them.
      * 
      * @param bot
-     *            An instance of the underlying PircBot.
+     *            An instance of the underlying VIBot.
      * @param breader
      *            The BufferedReader that reads lines from the server.
      * @param bwriter
      *            The BufferedWriter that sends lines to the server.
      */
     public InputThread(VIBot bot, Socket socket, BufferedReader breader, BufferedWriter bwriter) {
-        _bot = bot;
-        _socket = socket;
-        _breader = breader;
-        _bwriter = bwriter;
-        this.setName(this.getClass() + "-Thread");
+        super("InputThread-Thread");
+        this.bot = bot;
+        this.socket = socket;
+        this.breader = breader;
+        this.bwriter = bwriter;
     }
 
     /**
@@ -73,7 +55,7 @@ public class InputThread extends Thread {
      *            The raw line to send to the IRC server.
      */
     public void sendRawLine(String line) {
-        OutputThread.sendRawLine(_bot, _bwriter, line);
+        OutputThread.sendRawLine(bot, bwriter, line);
     }
 
     /**
@@ -84,7 +66,7 @@ public class InputThread extends Thread {
      * @return True if still connected.
      */
     public boolean isConnected() {
-        return _isConnected;
+        return isConnected;
     }
 
     /**
@@ -103,34 +85,20 @@ public class InputThread extends Thread {
             while (running) {
                 try {
                     String line = null;
-                    while ((line = _breader.readLine()) != null) {
+                    while ((line = breader.readLine()) != null) {
                         try {
-                            _bot.handleLine(line);
-                        } catch (Throwable t) {
-                            // Stick the whole stack trace into a String so we
-                            // can output it nicely.
-                            StringWriter sw = new StringWriter();
-                            PrintWriter pw = new PrintWriter(sw);
-                            t.printStackTrace(pw);
-                            pw.flush();
-                            StringTokenizer tokenizer = new StringTokenizer(sw.toString(), "\r\n");
-                            synchronized (_bot) {
-                                logger.warning("### Your implementation of PircBot is faulty and you have");
-                                logger.warning("### allowed an uncaught Exception or Error to propagate in your");
-                                logger.warning("### code. It may be possible for PircBot to continue operating");
-                                logger.warning("### normally. Here is the stack trace that was produced: -");
-                                logger.warning("### ");
-                                while (tokenizer.hasMoreTokens()) {
-                                    logger.warning("### " + tokenizer.nextToken());
-                                }
-                            }
+                            bot.handleLine(line);
+                        }
+                        catch (Throwable t) {
+                            BotLogMan.warning("An exception occured in the InputThread: ", t);
                         }
                     }
                     if (line == null) {
                         // The server must have disconnected us.
                         running = false;
                     }
-                } catch (InterruptedIOException iioe) {
+                }
+                catch (InterruptedIOException iioe) {
                     // This will happen if we haven't received anything from the
                     // server for a while.
                     // So we shall send it a ping to check that we are still
@@ -139,21 +107,23 @@ public class InputThread extends Thread {
                     // Now we go back to listening for stuff from the server...
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             // Do nothing.
         }
 
         // If we reach this point, then we must have disconnected.
         try {
-            _socket.close();
-        } catch (Exception e) {
+            socket.close();
+        }
+        catch (Exception e) {
             // Just assume the socket was already closed.
         }
 
-        if (!_disposed) {
-            logger.warning("Disconnected from server.");
-            _isConnected = false;
-            _bot.onDisconnect();
+        if (!disposed) {
+            BotLogMan.warning("Disconnected from server.");
+            isConnected = false;
+            new ReconnectionThread(bot).start();
         }
 
     }
@@ -163,9 +133,10 @@ public class InputThread extends Thread {
      */
     public void dispose() {
         try {
-            _disposed = true;
-            _socket.close();
-        } catch (Exception e) {
+            disposed = true;
+            socket.close();
+        }
+        catch (Exception e) {
             // Do nothing.
         }
     }

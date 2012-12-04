@@ -7,8 +7,7 @@ import net.visualillusionsent.vibot.plugin.BotPlugin;
 public abstract class MessageHook extends BaseHook {
 
     public MessageHook(BotPlugin plugin) {
-        super(plugin);
-        HookManager.addHook(this);
+        super(plugin, HookType.MESSAGE);
     }
 
     public abstract void execute(Channel channel, User user, String message);

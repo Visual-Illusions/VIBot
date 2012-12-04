@@ -1,20 +1,19 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.Misc;
 import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.plugin.BotPluginLoader;
 
-@BotCommand(aliases = { "enableplugin" }, usage = "!enableplugin <plugin>", desc = "Enables a plugin", adminonly = true)
 final class EnablePluginCommand extends BaseCommand {
+
+    public EnablePluginCommand() {
+        super(null, new String[] { "enableplugin" }, "!enableplugin <plugin>", "Enables a plugin", 2, 2, false, false, true);
+    }
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
-        if (!argCheck(2, args)) {
-            user.sendMessage("Usage: " + this.getClass().getAnnotation(BotCommand.class).usage());
-        } else {
-            String message = Misc.getLoader().enablePlugin(args[1]) ? "Enabled plugin successfully!" : "An exception occured while enabling plugin...";
-            channel.sendMessage(message);
-        }
+        String message = BotPluginLoader.getInstance().enablePlugin(args[1]) ? "Enabled plugin successfully!" : "An exception occured while enabling plugin...";
+        channel.sendMessage(message);
         return true;
     }
 }
