@@ -1,9 +1,11 @@
 package net.visualillusionsent.vibot.plugin;
 
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import net.visualillusionsent.vibot.io.exception.VIBotException;
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
  * Bot Plugin interface<br>
@@ -98,6 +100,39 @@ public abstract class BotPlugin {
 
     final void close() {
         loader.close();
+    }
+
+    protected final void sendDefaultEnabledMessage() {
+        BotLogMan.info(getName().concat(" v").concat(getVersion()).concat(" enabled!"));
+    }
+
+    protected final void sendDefaultDisabledMessage() {
+        BotLogMan.info(getName().concat(" v").concat(getVersion()).concat(" disabled!"));
+    }
+
+    protected final void sendDefaultInitializeMessage() {
+        BotLogMan.info(getName().concat(" v").concat(getVersion()).concat(" initialized!"));
+    }
+
+    protected final void generateVersion() {
+        String build = "*";
+        version = "*";
+        try {
+            Manifest manifest = getPluginManifest();
+            Attributes mainAttribs = manifest.getMainAttributes();
+            version = mainAttribs.getValue("Specification-Version");
+            build = mainAttribs.getValue("Implementation-Build");
+        }
+        catch (Exception e) {
+            BotLogMan.warning(e.getMessage());
+        }
+        if (version == null) {
+            version = "*";
+        }
+        if (build == null) {
+            build = "*";
+        }
+        version = version.concat(".").concat(build);
     }
 
     public final boolean equals(Object obj) {
