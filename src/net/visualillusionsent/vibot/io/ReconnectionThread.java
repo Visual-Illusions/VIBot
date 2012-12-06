@@ -5,10 +5,10 @@ import net.visualillusionsent.vibot.io.configuration.BotConfig;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
-public final class ReconnectionThread extends Thread {
+final class ReconnectionThread extends Thread {
     private VIBot bot;
-    
-    public ReconnectionThread(VIBot bot){
+
+    public ReconnectionThread(VIBot bot) {
         super("ReconnectionThread-Thread");
         this.bot = bot;
     }
@@ -16,7 +16,7 @@ public final class ReconnectionThread extends Thread {
     public void run() {
         while (!bot.isConnected()) {
             try {
-                System.out.println("Attempting reconnection...");
+                BotLogMan.info("Attempting reconnection...");
                 if (BotConfig.useIdentServer()) {
                     try {
                         new IdentServer(bot);
@@ -28,10 +28,10 @@ public final class ReconnectionThread extends Thread {
                 bot.reconnect();
             }
             catch (Exception e) {
-                System.out.println("Reconnect failed... Trying again in 1 minute...");
+                BotLogMan.warning("Reconnect failed... Trying again in 2 minutes...");
             }
             try {
-                sleep(60000);
+                sleep(1200000);
             }
             catch (InterruptedException e) {}
         }

@@ -1,14 +1,15 @@
-package net.visualillusionsent.vibot.plugin.hook;
+package net.visualillusionsent.vibot.events;
 
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
 import net.visualillusionsent.vibot.plugin.BotPlugin;
 
-public abstract class JoinHook extends BaseHook {
+public abstract class PartEvent extends BaseEvent {
 
-    public JoinHook(BotPlugin plugin) {
-        super(plugin, HookType.JOIN);
+    public PartEvent(BotPlugin plugin, EventPriority priority) {
+        super(plugin, priority, EventType.PART);
     }
 
     public abstract void execute(Channel channel, User user);
+
 }

@@ -1,19 +1,20 @@
 package net.visualillusionsent.vibot.io;
 
-import java.net.Socket;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.IOException;
+import java.net.Socket;
 
+import net.visualillusionsent.utils.IPAddressUtils;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
 
 /**
  * This class is used to allow the bot to interact with a DCC Chat session.
  * <p>
- * This class is based on/contains code from PircBot PircBot is Copyrighted:
- * Paul James Mutton, 2001-2009, http://www.jibble.org/
+ * This class is based on/contains code from PircBot PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/
  * 
  * @since VIBot 1.0
  * @author Jason Jones (darkdiplomat)
@@ -21,8 +22,6 @@ import net.visualillusionsent.vibot.VIBot;
  * @version 1.0
  */
 public class DccChat {
-
-    private VIBot thebot;
     private String nick;
     private String login = null;
     private String hostname = null;
@@ -45,12 +44,10 @@ public class DccChat {
      *            The address to connect to.
      * @param port
      *            The port number to connect to.
-     * 
      * @throws IOException
      *             If the connection cannot be made.
      */
     DccChat(VIBot bot, String nick, String login, String hostname, long address, int port) {
-        thebot = bot;
         this.address = address;
         this.port = port;
         this.nick = nick;
@@ -70,12 +67,10 @@ public class DccChat {
      *            The nick of the user we are sending the request to.
      * @param socket
      *            The socket which will be used for the DCC CHAT session.
-     * 
      * @throws IOException
      *             If the socket cannot be read from.
      */
     public DccChat(VIBot bot, String nick, Socket socket) throws IOException {
-        thebot = bot;
         this.nick = nick;
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -89,8 +84,11 @@ public class DccChat {
     public synchronized void accept() throws IOException {
         if (acceptable) {
             acceptable = false;
-            int[] ip = thebot.longToIp(address);
-            String ipStr = ip[0] + "." + ip[1] + "." + ip[2] + "." + ip[3];
+            String ipStr = "";
+            try {
+                ipStr = IPAddressUtils.ipv4BytestoString(IPAddressUtils.longToIPv4(address));
+            }
+            catch (UtilityException e) {}
             socket = new Socket(ipStr, port);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -104,7 +102,6 @@ public class DccChat {
      * 
      * @return The next line of text from the client. Returns null if the
      *         connection has closed normally.
-     * 
      * @throws IOException
      *             If an I/O error occurs.
      */
@@ -122,7 +119,6 @@ public class DccChat {
      * @param line
      *            The line of text to be sent. This should not include linefeed
      *            characters.
-     * 
      * @throws IOException
      *             If an I/O error occurs.
      */
@@ -152,7 +148,6 @@ public class DccChat {
      * Returns the nick of the other user taking part in this file transfer.
      * 
      * @return the nick of the other user.
-     * 
      */
     public String getNick() {
         return nick;
@@ -162,7 +157,6 @@ public class DccChat {
      * Returns the login of the DCC Chat initiator.
      * 
      * @return the login of the DCC Chat initiator. null if we sent it.
-     * 
      */
     public String getLogin() {
         return login;
@@ -172,7 +166,6 @@ public class DccChat {
      * Returns the hostname of the DCC Chat initiator.
      * 
      * @return the hostname of the DCC Chat initiator. null if we sent it.
-     * 
      */
     public String getHostname() {
         return hostname;

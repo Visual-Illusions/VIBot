@@ -18,25 +18,15 @@ public final class Channel {
 
     private final String name;
     private final VIBot bot;
-    private String topic;
+    private Topic topic;
     private ArrayList<User> users = new ArrayList<User>();
     private ArrayList<User> ignored = new ArrayList<User>();
     private boolean muted = false;
-    
+    public static Channel CONSOLE = new Channel("CONSOLE", null);
 
     Channel(String name, VIBot bot) {
         this.name = name;
         this.bot = bot;
-    }
-
-    /**
-     * Channel constructor, though not meant to be constructed outside of internal code
-     * @param name
-     * the name of the channel to construct
-     */
-    public Channel(String name) {
-        this.name = name;
-        this.bot = null;
     }
 
     final void addUser(User user) {
@@ -51,16 +41,16 @@ public final class Channel {
         users.get(users.indexOf(user)).setNick(newnick);
     }
 
-    final void setTopic(String topic) {
+    final void setTopic(Topic topic) {
         this.topic = topic;
     }
 
     /**
      * Gets the topic for this channel
      * 
-     * @return topic the topic for this channel
+     * @return the topic for this channel
      */
-    public final String getTopic() {
+    public final Topic getTopic() {
         return this.topic;
     }
 
@@ -143,43 +133,46 @@ public final class Channel {
     public final void toggleMute() {
         muted = !muted;
     }
-    
+
     /**
      * Checks if an {@link User} is being ignored in this channel
+     * 
      * @param user
-     * the {@link User} to check
+     *            the {@link User} to check
      * @return {@code true} if {@link User} is being ignored, {@code false} otherwise
      */
-    public boolean isUserIgnored(User user){
+    public final boolean isUserIgnored(User user) {
         return ignored.contains(user);
     }
-    
+
     /**
      * Adds a {@link User} to the Ignore List
+     * 
      * @param user
-     * the {@link User} to ignore
+     *            the {@link User} to ignore
      */
-    public void ignoreUser(User user){
+    public final void ignoreUser(User user) {
         ignored.add(user);
     }
-    
+
     /**
      * Unignores an {@link User}
+     * 
      * @param user
-     * the {@link User} to unignore
+     *            the {@link User} to unignore
      */
-    public void unIgnoreUser(User user){
-        if(isUserIgnored(user)){
+    public final void unIgnoreUser(User user) {
+        if (isUserIgnored(user)) {
             ignored.remove(user);
         }
     }
-    
+
     /**
      * Gets an unmodifiable {@link List} of all ignored {@link User}s in this channel
      * 
      * @return an unmodifiable {@link List} of ignored {@link Users}
      */
-    public List<User> getIgnoreList(){
+    public final List<User> getIgnoreList() {
         return Collections.unmodifiableList(ignored);
     }
 
@@ -201,11 +194,17 @@ public final class Channel {
         return true;
     }
 
-    public String toString() {
-        return String.format("Channel[Name=%s Topic=%s Muted=%b Users=%s Ignored Users=%s]", name, topic, muted, Arrays.toString(users.toArray()), Arrays.toString(ignored.toArray()));
+    public final String toString() {
+        return String.format("Channel[Name=%s Topic=%s Muted=%b Users=%s Ignored_Users=%s]", name, topic.toString(), muted, Arrays.toString(users.toArray()), Arrays.toString(ignored.toArray()));
     }
 
-    public int hashcode() {
-        return 0;
+    public final int hashcode() {
+        int hash = 7;
+        hash = 31 * hash + name.hashCode();
+        hash = 31 * hash + (topic != null ? topic.hashCode() : 0);
+        hash = 31 * hash + Boolean.valueOf(muted).hashCode();
+        hash = 31 * hash + users.hashCode();
+        hash = 31 * hash + ignored.hashCode();
+        return hash;
     }
 }

@@ -1,6 +1,6 @@
 package net.visualillusionsent.vibot.io;
 
-import java.io.*;
+import java.io.BufferedWriter;
 
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
@@ -19,7 +19,7 @@ public class OutputThread extends Thread {
 
     private VIBot bot = null;
     private Queue outQueue = null;
-    
+
     /**
      * Constructs an OutputThread for the underlying VIBot. All messages sent
      * to the IRC server are sent by this OutputThread to avoid hammering the
@@ -74,22 +74,25 @@ public class OutputThread extends Thread {
      */
     public void run() {
         try {
-            boolean running = true;
-            while (running) {
+            while (true) {
                 // Small delay to prevent spamming of the channel
-                Thread.sleep(BotConfig.getMessageDelay());
+                sleep(BotConfig.getMessageDelay());
 
                 String line = outQueue.next();
                 if (line != null) {
                     bot.sendRawLine(line);
                 }
                 else {
-                    running = false;
+                    break;
                 }
             }
         }
         catch (InterruptedException e) {
             // Just let the method return naturally...
         }
+    }
+
+    public void dispose() {
+        this.interrupt();
     }
 }

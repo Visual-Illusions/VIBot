@@ -24,7 +24,8 @@ public class InputThread extends Thread {
     private BufferedReader breader = null;
     private BufferedWriter bwriter = null;
     private boolean isConnected = true;
-    private boolean disposed = false;
+    private volatile boolean disposed = false;
+    private volatile boolean running = true;
 
     public static final int MAX_LINE_LENGTH = 512;
 
@@ -81,7 +82,6 @@ public class InputThread extends Thread {
      */
     public void run() {
         try {
-            boolean running = true;
             while (running) {
                 try {
                     String line = null;
@@ -120,24 +120,29 @@ public class InputThread extends Thread {
             // Just assume the socket was already closed.
         }
 
+        disconnected();
+    }
+
+    private void disconnected() {
         if (!disposed) {
-            BotLogMan.warning("Disconnected from server.");
+            BotLogMan.warning("Disconnected from server...");
             isConnected = false;
             new ReconnectionThread(bot).start();
         }
-
     }
 
     /**
      * Closes the socket without onDisconnect being called subsequently.
      */
     public void dispose() {
+        disposed = true;
+        running = false;
+        interrupt();
         try {
-            disposed = true;
             socket.close();
         }
         catch (Exception e) {
-            // Do nothing.
+            // Just assume the socket was already closed.
         }
     }
 }

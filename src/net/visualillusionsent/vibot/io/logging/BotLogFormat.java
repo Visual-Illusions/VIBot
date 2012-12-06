@@ -7,18 +7,15 @@ import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
 /**
- * LogFormat.java - Logging Formatting class
+ * Bot Logger Formatter
  * 
  * @author darkdiplomat
  */
-public final class LogFormat extends SimpleFormatter {
+final class BotLogFormat extends SimpleFormatter {
     private SimpleDateFormat dateform = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
     private String linesep = System.getProperty("line.separator");
 
-    public LogFormat() {
-        super();
-    }
-
+    @Override
     public final String format(LogRecord rec) {
         StringBuilder message = new StringBuilder();
 

@@ -9,13 +9,13 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import net.visualillusionsent.utils.SystemUtils;
 import net.visualillusionsent.vibot.Colors;
-import net.visualillusionsent.vibot.Utils;
 import net.visualillusionsent.vibot.commands.CommandParser;
+import net.visualillusionsent.vibot.events.EventManager;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
-import net.visualillusionsent.vibot.plugin.hook.HookManager;
 
 /**
  * BotPluginLoader - Used to load plugins, toggle them, etc.
@@ -155,12 +155,12 @@ public class BotPluginLoader {
         String value = null;
         try {
             @SuppressWarnings("resource")
-            JarFile jar = new JarFile(jarpath);
+            JarFile jar = new JarFile(jarpath); //DON'T CLOSE THE JAR, it needs to remain open during this process, it will be closed out on disable
             Manifest manifest = jar.getManifest();
             Attributes attr = manifest.getMainAttributes();
             value = attr.getValue("Plugin-Class");
             if (value == null) {
-                BotLogMan.warning("Was unable to locate Plugin-Class attribute for Plugin: '".concat(jarpath).concat("'").concat(Utils.LINE_SEP).concat(" Proceeding with assumption that default package is used..."));
+                BotLogMan.warning("Was unable to locate Plugin-Class attribute for Plugin: '".concat(jarpath).concat("'").concat(SystemUtils.LINE_SEP).concat(" Proceeding with assumption that default package is used..."));
             }
         }
         catch (Exception e) {
@@ -255,7 +255,7 @@ public class BotPluginLoader {
             if (plugin.isEnabled()) {
                 plugin.toggleEnabled();
                 plugin.disable();
-                HookManager.getInstance().removePluginHooks(plugin);
+                EventManager.getInstance().removePluginHooks(plugin);
                 CommandParser.getInstance().removePluginCommands(plugin);
             }
         }

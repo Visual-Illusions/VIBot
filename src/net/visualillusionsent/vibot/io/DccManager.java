@@ -1,6 +1,7 @@
 package net.visualillusionsent.vibot.io;
 
-import java.util.*;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 import net.visualillusionsent.vibot.VIBot;
 
@@ -43,7 +44,7 @@ public class DccManager {
             }
 
             DccFileTransfer transfer = new DccFileTransfer(_bot, this, nick, login, hostname, type, filename, address, port, size);
-            _bot.onIncomingFileTransfer(transfer);
+            //_bot.onIncomingFileTransfer(transfer);
 
         }
         else if (type.equals("RESUME")) {
@@ -95,7 +96,7 @@ public class DccManager {
 
             new Thread() {
                 public void run() {
-                    _bot.onIncomingChatRequest(chat);
+                    //_bot.onIncomingChatRequest(chat);
                 }
             }.start();
         }

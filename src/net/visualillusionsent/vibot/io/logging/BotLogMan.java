@@ -8,7 +8,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class BotLogMan {
-    private static Logger logger = Logger.getLogger("VIBot");
+    private static Logger logger;
+
+    static {
+        logger = Logger.getLogger("VIBot");
+        File logDir = new File("logs/");
+        if (!logDir.exists()) {
+            logDir.mkdirs();
+        }
+        try {
+            BotLogFormat lf = new BotLogFormat();
+            ConsoleHandler chand = new ConsoleHandler();
+            FileHandler fhand = new FileHandler("logs/botlog%g.log", 52428800, 150, true);
+            chand.setLevel(Level.ALL);
+            fhand.setLevel(Level.ALL);
+            logger.setLevel(Level.ALL);
+            logger.setUseParentHandlers(false);
+            chand.setFormatter(lf);
+            fhand.setFormatter(lf);
+            fhand.setEncoding("UTF-8");
+            chand.setEncoding("UTF-8");
+            logger.addHandler(chand);
+            logger.addHandler(fhand);
+        }
+        catch (IOException e) {
+            logger.warning("Fail to initialize Logging Formats!");
+        }
+    }
 
     public static void consoleMessage(String msg) {
         logger.log(BotLevel.CONSOLE_MESSAGE, msg);
@@ -78,28 +104,4 @@ public final class BotLogMan {
         logger.log(Level.SEVERE, msg, thrown);
     }
 
-    static {
-        File logDir = new File("logs/");
-        if (!logDir.exists()) {
-            logDir.mkdirs();
-        }
-        try {
-            LogFormat lf = new LogFormat();
-            ConsoleHandler chand = new ConsoleHandler();
-            FileHandler fhand = new FileHandler("logs/botlog%g.log", 52428800, 150, true);
-            chand.setLevel(Level.ALL);
-            fhand.setLevel(Level.ALL);
-            logger.setLevel(Level.ALL);
-            logger.setUseParentHandlers(false);
-            chand.setFormatter(lf);
-            fhand.setFormatter(lf);
-            fhand.setEncoding("UTF-8");
-            chand.setEncoding("UTF-8");
-            logger.addHandler(chand);
-            logger.addHandler(fhand);
-        }
-        catch (IOException e) {
-            logger.warning("Fail to initialize Logging Formats!");
-        }
-    }
 }

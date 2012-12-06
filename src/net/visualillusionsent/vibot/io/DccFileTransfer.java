@@ -1,8 +1,16 @@
 package net.visualillusionsent.vibot.io;
 
-import java.net.*;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
+import net.visualillusionsent.utils.IPAddressUtils;
 import net.visualillusionsent.vibot.VIBot;
 
 //TODO
@@ -77,7 +85,6 @@ public class DccFileTransfer {
      * @param resume
      *            True if you wish to try and resume the download instead of
      *            overwriting an existing file.
-     * 
      */
     public synchronized void receive(File file, boolean resume) {
         if (!_received) {
@@ -114,8 +121,7 @@ public class DccFileTransfer {
                 try {
 
                     // Convert the integer address to a proper IP address.
-                    int[] ip = _bot.longToIp(_address);
-                    String ipStr = ip[0] + "." + ip[1] + "." + ip[2] + "." + ip[3];
+                    String ipStr = IPAddressUtils.ipv4BytestoString(IPAddressUtils.longToIPv4(_address));
 
                     // Connect the socket and set a timeout.
                     _socket = new Socket(ipStr, _port);
@@ -163,7 +169,7 @@ public class DccFileTransfer {
                     }
                 }
 
-                _bot.onFileTransferFinished(DccFileTransfer.this, exception);
+                //_bot.onFileTransferFinished(DccFileTransfer.this, exception);
             }
         }.start();
     }
@@ -211,7 +217,7 @@ public class DccFileTransfer {
                         inetAddress = _bot.getInetAddress();
                     }
                     byte[] ip = inetAddress.getAddress();
-                    long ipNum = _bot.ipToLong(ip);
+                    long ipNum = IPAddressUtils.ipv4ToLong(ip);
 
                     // Rename the filename so it has no whitespace in it when we
                     // send it.
@@ -279,7 +285,7 @@ public class DccFileTransfer {
                     }
                 }
 
-                _bot.onFileTransferFinished(DccFileTransfer.this, exception);
+                //_bot.onFileTransferFinished(DccFileTransfer.this, exception);
             }
         }.start();
     }
@@ -309,7 +315,6 @@ public class DccFileTransfer {
      * Returns the nick of the other user taking part in this file transfer.
      * 
      * @return the nick of the other user.
-     * 
      */
     public String getNick() {
         return _nick;
@@ -319,7 +324,6 @@ public class DccFileTransfer {
      * Returns the login of the file sender.
      * 
      * @return the login of the file sender. null if we are sending.
-     * 
      */
     public String getLogin() {
         return _login;
@@ -329,7 +333,6 @@ public class DccFileTransfer {
      * Returns the hostname of the file sender.
      * 
      * @return the hostname of the file sender. null if we are sending.
-     * 
      */
     public String getHostname() {
         return _hostname;
@@ -339,7 +342,6 @@ public class DccFileTransfer {
      * Returns the suggested file to be used for this transfer.
      * 
      * @return the suggested file to be used.
-     * 
      */
     public File getFile() {
         return _file;
@@ -349,7 +351,6 @@ public class DccFileTransfer {
      * Returns the port number to be used when making the connection.
      * 
      * @return the port number.
-     * 
      */
     public int getPort() {
         return _port;
@@ -360,7 +361,6 @@ public class DccFileTransfer {
      * file to us).
      * 
      * @return true if the file transfer is incoming.
-     * 
      */
     public boolean isIncoming() {
         return _incoming;
@@ -371,7 +371,6 @@ public class DccFileTransfer {
      * someone).
      * 
      * @return true if the file transfer is outgoing.
-     * 
      */
     public boolean isOutgoing() {
         return !isIncoming();
@@ -384,7 +383,6 @@ public class DccFileTransfer {
      * 
      * @param millis
      *            The number of milliseconds to wait between packets.
-     * 
      */
     public void setPacketDelay(long millis) {
         _packetDelay = millis;
@@ -394,7 +392,6 @@ public class DccFileTransfer {
      * returns the delay time between each packet that is send or received.
      * 
      * @return the delay between each packet.
-     * 
      */
     public long getPacketDelay() {
         return _packetDelay;

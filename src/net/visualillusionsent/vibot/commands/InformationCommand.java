@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import net.visualillusionsent.utils.SystemUtils;
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
 
@@ -15,22 +16,23 @@ final class InformationCommand extends BaseCommand {
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
-        if (!System.getProperty("os.name").startsWith("Windows")) {
+        if (!SystemUtils.SYSTEM_OS.startsWith("Windows")) {
             unixInfo(channel);
         }
         else {
+            Runtime.getRuntime().gc();
             String cpu = System.getenv("PROCESSOR_IDENTIFIER");
             String bits = System.getenv("PROCESSOR_ARCHITECTURE");
             String cores = System.getenv("NUMBER_OF_PROCESSORS");
-            String ramFree = "Free: " + String.valueOf((float) Runtime.getRuntime().freeMemory() / 1024.0F / 1024.0F) + "Mb";
+            String ramFree = "Free: " + String.format("%.2f %s", ((Runtime.getRuntime().freeMemory() / 1024.0F) / 1024.0F), "Mb");
+            String ramTotal = "Total Allocated: " + String.format("%.2f %s", ((Runtime.getRuntime().totalMemory() / 1024.0F) / 1024.0F), "Mb");
             float maxMemory = (float) Runtime.getRuntime().maxMemory();
-            String ramMax = "Max: " + (maxMemory == Float.MAX_VALUE ? "no limit" : String.valueOf((float) maxMemory / 1024F / 1024F) + "Mb");
-            String ramTotal = "Total: " + String.valueOf((float) Runtime.getRuntime().totalMemory() / 1024F / 1024F) + "Mb";
+            String ramMax = "Max Allowed: " + (maxMemory == Float.MAX_VALUE ? "no limit" : String.valueOf((float) maxMemory / 1024.0F / 1024.0F) + "Mb");
 
-            channel.sendMessage("CPU: " + (cpu != null ? cpu : "PowerPC 750cx (600 MHz)"));
+            channel.sendMessage("CPU: " + cpu);
             channel.sendMessage("Architecture: " + (bits != null ? bits : "x86"));
             channel.sendMessage("Cores: " + (cores != null ? cores : "1"));
-            channel.sendMessage("RAM: " + ramFree + " " + ramMax + " " + ramTotal);
+            channel.sendMessage("RAM: " + ramFree + " " + ramTotal + " " + ramMax);
         }
         return true;
     }

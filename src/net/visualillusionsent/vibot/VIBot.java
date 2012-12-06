@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
@@ -22,7 +21,11 @@ import java.util.jar.Manifest;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
+import net.visualillusionsent.utils.DateUtils;
+import net.visualillusionsent.utils.IPAddressUtils;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.commands.CommandParser;
+import net.visualillusionsent.vibot.events.EventManager;
 import net.visualillusionsent.vibot.io.ConsoleCommandReceiver;
 import net.visualillusionsent.vibot.io.DccChat;
 import net.visualillusionsent.vibot.io.DccFileTransfer;
@@ -37,13 +40,11 @@ import net.visualillusionsent.vibot.io.exception.NickAlreadyInUseException;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 import net.visualillusionsent.vibot.plugin.BotPluginLoader;
-import net.visualillusionsent.vibot.plugin.hook.HookManager;
 
 /**
  * The VIBot main class
  * <p>
  * VIBot is designed to use Java 7 or higher<br>
- * VIBot is designed using PircBot as a reference<br>
  * VIBot contains a Plugin API for adding on to the Bot or to be used as just a stand-alone Channel administration solution
  * 
  * @since VIBot 1.0
@@ -59,9 +60,8 @@ public final class VIBot {
     private InetAddress dccInetAddress = null;
     private DccManager dccManager;
     private ArrayList<Channel> channels = new ArrayList<Channel>();
-    private Hashtable<String, String> topics = new Hashtable<String, String>();
     private int[] dccPorts = null;
-    private HookManager hm;
+    private EventManager manager;
     private static String botVersion = null, build = null;
     private static VIBot instance;
     private static volatile boolean shuttingdown = false;
@@ -69,7 +69,7 @@ public final class VIBot {
     private VIBot() throws VIBotException {
         this.outQueue = new Queue();
         this.dccManager = new DccManager(this);
-        this.hm = HookManager.getInstance();
+        this.manager = EventManager.getInstance();
 
         this.version = "VIBot v" + getBotVersion() + " Java IRC Bot - http://visualillusionsent.net";
     }
@@ -78,12 +78,11 @@ public final class VIBot {
      * The main method to start the VIBot
      * 
      * @param args
-     *            currently takes 0 arguments
+     *            currently uses no arguments
      */
     public static void main(String[] args) {
         BotLogMan.info("Visual Illusions IRC Bot Starting...");
         BotLogMan.info("VIBot Version: ".concat(getBotVersion()));
-        BotLogMan.info("VIMod Build: ".concat(getBuild()));
         CommandParser.getInstance();
         BotConfig.getInstance();
         BotPluginLoader.getInstance().loadPlugins();
@@ -168,6 +167,7 @@ public final class VIBot {
             BotLogMan.warning(e.getMessage());
         }
 
+        botVersion = botVersion.concat(".").concat(getBuild());
         return botVersion;
     }
 
@@ -261,13 +261,6 @@ public final class VIBot {
 
     public static String getBotNick() {
         return instance.getNick();
-    }
-
-    public static void joinChannel(String channel) {
-        if (!channel.startsWith("#")) {
-            return;
-        }
-        instance.join(channel);
     }
 
     public static void partChannel(String channel, String reason) {
@@ -415,8 +408,7 @@ public final class VIBot {
             join(chan);
         }
 
-        this.onConnect();
-
+        manager.callConnectEvent();
     }
 
     /**
@@ -440,20 +432,25 @@ public final class VIBot {
         connect();
     }
 
-    final void join(String channel) {
-        this.sendRawLine("JOIN " + channel);
-    }
-
     /**
-     * Joins a channel with a key.
+     * Joins a channel.
      * 
      * @param channel
      *            The name of the channel to join (eg "#cs").
-     * @param key
-     *            The key that will be used to join the channel.
      */
+    public static void joinChannel(String channel) {
+        if (!channel.startsWith("#")) {
+            return;
+        }
+        instance.join(channel);
+    }
+
     final void join(String channel, String key) {
-        this.join(channel + " " + key);
+        this.join(channel.concat(" ").concat(key));
+    }
+
+    final void join(String channel) {
+        this.sendRawLine("JOIN ".concat(channel));
     }
 
     /**
@@ -859,7 +856,6 @@ public final class VIBot {
      * <p>
      * This method may not be overridden.
      * 
-     * @since VIBot 0.9.8
      * @param nick
      *            The nick of the user we are trying to establish a chat with.
      * @param timeout
@@ -904,7 +900,7 @@ public final class VIBot {
                 inetAddress = getInetAddress();
             }
             byte[] ip = inetAddress.getAddress();
-            long ipNum = ipToLong(ip);
+            long ipNum = IPAddressUtils.ipv4ToLong(ip);
 
             sendCTCPCommand(nick, "DCC CHAT chat " + ipNum + " " + port);
 
@@ -940,7 +936,7 @@ public final class VIBot {
         if (line.startsWith("PING ")) {
             // Respond to the ping and return immediately.
             // logger.log(BotLevel.SERVERPING, line);
-            this.onServerPing(line.substring(5));
+            this.sendRawLine("PONG ".concat(line.substring(5)));
             return;
         }
 
@@ -991,7 +987,7 @@ public final class VIBot {
                 }
                 else {
                     // We don't know what this line means.
-                    this.onUnknown(line);
+                    //this.onUnknown(line);
                     // Return from the method;
                     return;
                 }
@@ -1034,18 +1030,18 @@ public final class VIBot {
                             this.sendRawLine("NOTICE " + sourceNick + " :\u0001VERSION " + version + "\u0001");
                             break;
                         case "ACTION":
-                            // ACTION request, dropped
+                            // ACTION request
                             break;
                         case "PING":
                             // PING request
                             this.sendRawLine("NOTICE " + sourceNick + " :\u0001PING " + request.substring(5) + "\u0001");
-                            this.onPing(sourceNick, sourceLogin, sourceHostname, target, request.substring(5));
+                            //this.onPing(sourceNick, sourceLogin, sourceHostname, target, request.substring(5));
                             BotLogMan.ping(request.substring(5));
                             break;
                         case "TIME":
                             // TIME request
                             this.sendRawLine("NOTICE " + sourceNick + " :\u0001TIME " + new Date().toString() + "\u0001");
-                            this.onTime(sourceNick, sourceLogin, sourceHostname, target);
+                            //this.onTime(sourceNick, sourceLogin, sourceHostname, target);
                             break;
                         case "FINGER":
                             this.sendRawLine("NOTICE " + sourceNick + " :\u0001FINGER " + finger + "\u0001");
@@ -1056,12 +1052,12 @@ public final class VIBot {
                                 boolean success = dccManager.processRequest(sourceNick, sourceLogin, sourceHostname, request);
                                 if (!success) {
                                     // The DccManager didn't know what to do with the line.
-                                    this.onUnknown(line);
+                                    //this.onUnknown(line);
                                 }
                             }
                             else {
                                 // An unknown CTCP message - ignore it.
-                                this.onUnknown(line);
+                                //this.onUnknown(line);
                             }
                             break;
                     }
@@ -1072,30 +1068,29 @@ public final class VIBot {
                     if (message.startsWith(String.valueOf(BotConfig.getCommandPrefix()))) {
                         if ((!channel.isMuted() && !channel.isUserIgnored(user)) || (user.isBotOwner() || user.isOp())) {
                             String[] args = message.substring(1).split(" ");
-                            System.out.println(channel + " " + user);
                             boolean cont = CommandParser.parseBotCommand(channel, user, args);
                             BotLogMan.command(user.getNick() + (cont ? " used " : "attempted ") + " Command " + args[0]);
                         }
                     }
                     else {
-                        hm.callMessageHook(channel, user, message);
+                        manager.callChannelMessageEvent(channel, user, message);
                         BotLogMan.channelMessage("[" + channel.getName() + "] <" + user.getPrefix() + user.getNick() + "> " + message);
                     }
                 }
                 else {
                     // This is a private message to us.
                     String message = line.substring(line.indexOf(" :") + 2);
-                    user = new User("", sourceNick);
+                    user = new User("", sourceNick, this);
                     if (message.startsWith(String.valueOf(BotConfig.getCommandPrefix()))) {
                         String[] args = message.substring(1).split(" ");
                         boolean cont = CommandParser.parseBotCommand(channel, user, args);
                         BotLogMan.command(user.getNick() + (cont ? " used " : "attempted ") + " Command " + args[0]);
                     }
                     else {
-                        hm.callMessageHook(channel, user, message);
+                        manager.callPrivateMessageEvent(channel, user, message);
                         BotLogMan.channelMessage("[PM] <" + user.getPrefix() + user.getNick() + "> " + message);
                     }
-                    this.onPrivateMessage(sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
+                    //this.onPrivateMessage(sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
                 }
                 break;
             case "JOIN":
@@ -1104,7 +1099,7 @@ public final class VIBot {
                     if (channel.getUser(sourceNick) == null) {
                         user = new User("", sourceNick, this);
                         channel.addUser(user);
-                        hm.callJoinHook(channel, user);
+                        manager.callJoinEvent(channel, user);
                     }
                 }
                 else {
@@ -1121,7 +1116,7 @@ public final class VIBot {
                     user = channel.getUser(sourceNick);
                     channel.removeUser(user);
                 }
-                this.onPart(target, sourceNick, sourceLogin, sourceHostname);
+                //this.onPart(target, sourceNick, sourceLogin, sourceHostname);
                 if (user != null) {
                     //BotLogMan.log(BotLevel.PART, "[" + channel.getName() + "] " + user.getNick() + " has parted.");
                 }
@@ -1137,25 +1132,25 @@ public final class VIBot {
                     user = new User("", sourceNick, this);
                     this.renameUser(user, newNick);
                 }
-                this.onNickChange(sourceNick, sourceLogin, sourceHostname, newNick);
+                //this.onNickChange(sourceNick, sourceLogin, sourceHostname, newNick);
                 break;
             case "NOTICE":
                 // Someone is sending a notice.
-                this.onNotice(sourceNick, sourceLogin, sourceHostname, target, line.substring(line.indexOf(" :") + 2));
-                //logger.log(BotLevel.NOTICE, line);
+                //this.onNotice(sourceNick, sourceLogin, sourceHostname, target, line.substring(line.indexOf(" :") + 2));
+                BotLogMan.notice(line);
                 break;
             case "QUIT":
                 // Someone has quit from the IRC server.
-                if (sourceNick.equals(this.getNick())) {
-                    this.removeAllChannels();
-                }
-                else if (line.substring(line.indexOf(" :") + 2).equals("*.net *.split")) {
+                if (line.substring(line.indexOf(" :") + 2).equals("*.net *.split")) {
                     //do nothing
+                }
+                else if (sourceNick.equals(this.getNick())) {
+                    this.removeAllChannels();
                 }
                 else {
                     this.removeUserAll(sourceNick);
                 }
-                this.onQuit(sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
+                //this.onQuit(sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
                 break;
             case "KICK":
                 // Somebody has been kicked from a channel.
@@ -1167,7 +1162,7 @@ public final class VIBot {
                     user = channel.getUser(recipient);
                     channel.removeUser(user);
                 }
-                this.onKick(target, sourceNick, sourceLogin, sourceHostname, recipient, line.substring(line.indexOf(" :") + 2));
+                //this.onKick(target, sourceNick, sourceLogin, sourceHostname, recipient, line.substring(line.indexOf(" :") + 2));
                 break;
             case "MODE":
                 // Somebody is changing the mode on a channel or user.
@@ -1179,27 +1174,25 @@ public final class VIBot {
                 break;
             case "TOPIC":
                 // Someone is changing the topic.
-                channel.setTopic(line.substring(line.indexOf(" :") + 2));
-                this.onTopic(target, line.substring(line.indexOf(" :") + 2), sourceNick, System.currentTimeMillis(), true);
+                Topic topic = new Topic(line.substring(line.indexOf(" :") + 2));
+                try {
+                    topic.setDate(DateUtils.longToDate(System.currentTimeMillis()));
+                }
+                catch (UtilityException e) {}
+
+                topic.setSetBy(sourceNick);
+                channel.setTopic(topic);
                 break;
             case "INVITE":
                 // Somebody is inviting somebody else into a channel.
-                this.onInvite(target, sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
+                //this.onInvite(target, sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
                 break;
             default:
                 // If we reach this point, then we've found something that the
                 // VIBot Doesn't currently deal with.
-                this.onUnknown(line);
+                //this.onUnknown(line);
                 break;
         }
-    }
-
-    /**
-     * This method is called once the VIBot has successfully connected to the
-     * IRC server.
-     */
-    protected void onConnect() {
-
     }
 
     /**
@@ -1218,30 +1211,35 @@ public final class VIBot {
     private final void processServerResponse(int code, String response) {
         int firstSpace = response.indexOf(' ');
         int secondSpace = response.indexOf(' ', firstSpace + 1);
-        int thirdSpace = response.indexOf(' ', secondSpace + 1);
+        //        int thirdSpace = response.indexOf(' ', secondSpace + 1);
         int colon = response.indexOf(':');
         String channel = response.substring(firstSpace + 1, secondSpace);
         String topic = response.substring(colon + 1);
+        Channel chan;
         ReplyConstants rc = ReplyConstants.fromCode(code);
         if (rc != null) {
             switch (rc) {
                 case RPL_LIST:
                     // This is a bit of information about a channel.
 
-                    int userCount = 0;
-                    try {
-                        userCount = Integer.parseInt(response.substring(secondSpace + 1, thirdSpace));
-                    }
-                    catch (NumberFormatException e) {
-                        // Stick with the value of zero.
-                    }
+                    //                    int userCount = 0;
+                    //                    try {
+                    //                        userCount = Integer.parseInt(response.substring(secondSpace + 1, thirdSpace));
+                    //                    }
+                    //                    catch (NumberFormatException e) {
+                    //                        // Stick with the value of zero.
+                    //                    }
 
-                    this.onChannelInfo(channel, userCount, topic);
+                    //this.onChannelInfo(channel, userCount, topic);
                     break;
 
                 case RPL_TOPIC:
                     // This is topic information about a channel we've just joined.
-                    topics.put(channel, topic);
+                    Topic to = new Topic(topic);
+                    chan = getChannel(channel);
+                    if (chan != null) {
+                        chan.setTopic(to);
+                    }
                     break;
 
                 case RPL_TOPICINFO:
@@ -1257,16 +1255,19 @@ public final class VIBot {
                         // Stick with the default value of zero.
                     }
 
-                    topic = (String) topics.get(channel);
-                    topics.remove(channel);
+                    chan = getChannel(channel);
+                    try {
+                        chan.getTopic().setDate(DateUtils.longToDate(date));
+                    }
+                    catch (UtilityException e) {}
 
-                    this.onTopic(channel, topic, setBy, date, false);
+                    chan.getTopic().setSetBy(setBy);
                     break;
                 case RPL_NAMREPLY:
                     // This is a list of nicks in a channel that we've just joined.
                     int channelEndIndex = response.indexOf(" :");
                     channel = response.substring(response.lastIndexOf(' ', channelEndIndex - 1) + 1, channelEndIndex);
-                    Channel chan = getChannel(channel);
+                    chan = getChannel(channel);
                     if (chan == null) {
                         chan = new Channel(channel, this);
                     }
@@ -1312,266 +1313,7 @@ public final class VIBot {
                     break;
             }
         }
-
-        this.onServerResponse(code, response);
     }
-
-    /**
-     * This method is called when we receive a numeric response from the IRC
-     * server.
-     * <p>
-     * Numerics in the range from 001 to 099 are used for client-server connections only and should never travel between servers. Replies generated in response to commands are found in the range from 200 to 399. Error replies are found in the range from 400 to 599.
-     * <p>
-     * For example, we can use this method to discover the topic of a channel when we join it. If we join the channel #test which has a topic of &quot;I am King of Test&quot; then the response will be &quot; <code>VIBot #test :I Am King of Test</code>&quot; with a code of 332 to signify that this is a topic. (This is just an example - note that overriding the <code>onTopic</code> method is an easier way of finding the topic for a channel). Check the IRC RFC for the full list of other command
-     * response codes.
-     * <p>
-     * VIBot implements the interface ReplyConstants, which contains contstants that you may find useful here.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param code
-     *            The three-digit numerical code for the response.
-     * @param response
-     *            The full response from the IRC server.
-     * @see ReplyConstants
-     */
-    protected void onServerResponse(int code, String response) {}
-
-    /**
-     * This method is called when we receive a user list from the server after
-     * joining a channel.
-     * <p>
-     * Shortly after joining a channel, the IRC server sends a list of all users in that channel. The VIBot collects this information and calls this method as soon as it has the full list.
-     * <p>
-     * To obtain the nick of each user in the channel, call the getNick() method on each User object in the array.
-     * <p>
-     * At a later time, you may call the getUsers method to obtain an up to date list of the users in the channel.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 1.0.0
-     * @param channel
-     *            The name of the channel.
-     * @param users
-     *            An array of User objects belonging to this channel.
-     * @see User
-     */
-    protected void onUserList(String channel, User[] users) {}
-
-    /**
-     * This method is called whenever a message is sent to a channel.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param channel
-     *            The channel to which the message was sent.
-     * @param sender
-     *            The nick of the person who sent the message.
-     * @param login
-     *            The login of the person who sent the message.
-     * @param hostname
-     *            The hostname of the person who sent the message.
-     * @param message
-     *            The actual message sent to the channel.
-     */
-    protected void onMessage(String channel, String sender, String login, String hostname, String message) {}
-
-    /**
-     * This method is called whenever a private message is sent to the VIBot.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param sender
-     *            The nick of the person who sent the private message.
-     * @param login
-     *            The login of the person who sent the private message.
-     * @param hostname
-     *            The hostname of the person who sent the private message.
-     * @param message
-     *            The actual message.
-     */
-    protected void onPrivateMessage(String sender, String login, String hostname, String message) {}
-
-    /**
-     * This method is called whenever an ACTION is sent from a user. E.g. such
-     * events generated by typing "/me goes shopping" in most IRC clients.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param sender
-     *            The nick of the user that sent the action.
-     * @param login
-     *            The login of the user that sent the action.
-     * @param hostname
-     *            The hostname of the user that sent the action.
-     * @param target
-     *            The target of the action, be it a channel or our nick.
-     * @param action
-     *            The action carried out by the user.
-     */
-    protected void onAction(String sender, String login, String hostname, String target, String action) {}
-
-    /**
-     * This method is called whenever we receive a notice.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param sourceNick
-     *            The nick of the user that sent the notice.
-     * @param sourceLogin
-     *            The login of the user that sent the notice.
-     * @param sourceHostname
-     *            The hostname of the user that sent the notice.
-     * @param target
-     *            The target of the notice, be it our nick or a channel name.
-     * @param notice
-     *            The notice message.
-     */
-    protected void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice) {}
-
-    /**
-     * This method is called whenever someone (possibly us) joins a channel
-     * which we are on.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param channel
-     *            The channel which somebody joined.
-     * @param sender
-     *            The nick of the user who joined the channel.
-     * @param login
-     *            The login of the user who joined the channel.
-     * @param hostname
-     *            The hostname of the user who joined the channel.
-     */
-    protected void onJoin(String channel, String sender, String login, String hostname) {}
-
-    /**
-     * This method is called whenever someone (possibly us) parts a channel
-     * which we are on.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param channel
-     *            The channel which somebody parted from.
-     * @param sender
-     *            The nick of the user who parted from the channel.
-     * @param login
-     *            The login of the user who parted from the channel.
-     * @param hostname
-     *            The hostname of the user who parted from the channel.
-     */
-    protected void onPart(String channel, String sender, String login, String hostname) {}
-
-    /**
-     * This method is called whenever someone (possibly us) changes nick on any
-     * of the channels that we are on.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param oldNick
-     *            The old nick.
-     * @param login
-     *            The login of the user.
-     * @param hostname
-     *            The hostname of the user.
-     * @param newNick
-     *            The new nick.
-     */
-    protected void onNickChange(String oldNick, String login, String hostname, String newNick) {}
-
-    /**
-     * This method is called whenever someone (possibly us) is kicked from any
-     * of the channels that we are in.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param channel
-     *            The channel from which the recipient was kicked.
-     * @param kickerNick
-     *            The nick of the user who performed the kick.
-     * @param kickerLogin
-     *            The login of the user who performed the kick.
-     * @param kickerHostname
-     *            The hostname of the user who performed the kick.
-     * @param recipientNick
-     *            The unfortunate recipient of the kick.
-     * @param reason
-     *            The reason given by the user who performed the kick.
-     */
-    protected void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {}
-
-    /**
-     * This method is called whenever someone (possibly us) quits from the
-     * server. We will only observe this if the user was in one of the channels
-     * to which we are connected.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param sourceNick
-     *            The nick of the user that quit from the server.
-     * @param sourceLogin
-     *            The login of the user that quit from the server.
-     * @param sourceHostname
-     *            The hostname of the user that quit from the server.
-     * @param reason
-     *            The reason given for quitting the server.
-     */
-    protected void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {}
-
-    /**
-     * This method is called whenever a user sets the topic, or when VIBot joins
-     * a new channel and discovers its topic.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param channel
-     *            The channel that the topic belongs to.
-     * @param topic
-     *            The topic for the channel.
-     * @deprecated As of 1.2.0, replaced by {@link #onTopic(String,String,String,long,boolean)}
-     */
-    protected void onTopic(String channel, String topic) {}
-
-    /**
-     * This method is called whenever a user sets the topic, or when VIBot joins
-     * a new channel and discovers its topic.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param channel
-     *            The channel that the topic belongs to.
-     * @param topic
-     *            The topic for the channel.
-     * @param setBy
-     *            The nick of the user that set the topic.
-     * @param date
-     *            When the topic was set (milliseconds since the epoch).
-     * @param changed
-     *            True if the topic has just been changed, false if the topic
-     *            was already there.
-     */
-    protected void onTopic(String channel, String topic, String setBy, long date, boolean changed) {}
-
-    /**
-     * After calling the listChannels() method in VIBot, the server will start
-     * to send us information about each channel on the server. You may override
-     * this method in order to receive the information about each channel as
-     * soon as it is received.
-     * <p>
-     * Note that certain channels, such as those marked as hidden, may not appear in channel listings.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param channel
-     *            The name of the channel.
-     * @param userCount
-     *            The number of users visible in this channel.
-     * @param topic
-     *            The topic for this channel.
-     * @see #listChannels() listChannels
-     */
-    protected void onChannelInfo(String channel, int userCount, String topic) {}
 
     /**
      * Called when the mode of a channel is set. We process this in order to
@@ -1614,34 +1356,38 @@ public final class VIBot {
             for (int i = 0; i < params[0].length(); i++) {
                 char atPos = params[0].charAt(i);
 
+                switch (atPos) {
+                    case '+':
+                    case '-':
+                        pn = atPos;
+                        break;
+                    case 'o':
+                        if (pn == '+') {
+                            channel.getUser(params[p]).op();
+                        }
+                        else {
+                            channel.getUser(params[p]).deOp();
+                        }
+                        p++;
+                        break;
+                    case 'v':
+                        if (pn == '+') {
+                            channel.getUser(params[p]).voice();
+                        }
+                        else {
+                            channel.getUser(params[p]).deVoice();
+                        }
+                        p++;
+                    case 'k':
+                }
                 if (atPos == '+' || atPos == '-') {
                     pn = atPos;
                 }
                 else if (atPos == 'o') {
-                    if (pn == '+') {
-                        this.updateUser(channel, UserMode.OP, channel.getUser(params[p]));
-                        // onOp(channel, sourceNick, sourceLogin,
-                        // sourceHostname, params[p]);
-                    }
-                    else {
-                        this.updateUser(channel, UserMode.DEOP, channel.getUser(params[p]));
-                        // onDeop(channel, sourceNick, sourceLogin,
-                        // sourceHostname, params[p]);
-                    }
-                    p++;
+
                 }
                 else if (atPos == 'v') {
-                    if (pn == '+') {
-                        this.updateUser(channel, UserMode.VOICE, channel.getUser(params[p]));
-                        // onVoice(channel, sourceNick, sourceLogin,
-                        // sourceHostname, params[p]);
-                    }
-                    else {
-                        this.updateUser(channel, UserMode.DEVOICE, channel.getUser(params[p]));
-                        // onDeVoice(channel, sourceNick, sourceLogin,
-                        // sourceHostname, params[p]);
-                    }
-                    p++;
+
                 }
                 else if (atPos == 'k') {
                     if (pn == '+') {
@@ -1737,740 +1483,10 @@ public final class VIBot {
                     }
                 }
             }
-
-            // this.onMode(channel, sourceNick, sourceLogin, sourceHostname,
-            // mode);
         }
         else {
             // The mode of a user is being changed.
-            String nick = target;
-            this.onUserMode(nick, sourceNick, sourceLogin, sourceHostname, mode);
         }
-    }
-
-    /**
-     * Called when the mode of a channel is set.
-     * <p>
-     * You may find it more convenient to decode the meaning of the mode string by overriding the onOp, onDeOp, onVoice, onDeVoice, onChannelKey, onDeChannelKey, onChannelLimit, onDeChannelLimit, onChannelBan or onDeChannelBan methods as appropriate.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param channel
-     *            The channel that the mode operation applies to.
-     * @param sourceNick
-     *            The nick of the user that set the mode.
-     * @param sourceLogin
-     *            The login of the user that set the mode.
-     * @param sourceHostname
-     *            The hostname of the user that set the mode.
-     * @param mode
-     *            The mode that has been set.
-     */
-    protected void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {}
-
-    /**
-     * Called when the mode of a user is set.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 1.2.0
-     * @param targetNick
-     *            The nick that the mode operation applies to.
-     * @param sourceNick
-     *            The nick of the user that set the mode.
-     * @param sourceLogin
-     *            The login of the user that set the mode.
-     * @param sourceHostname
-     *            The hostname of the user that set the mode.
-     * @param mode
-     *            The mode that has been set.
-     */
-    protected void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) {}
-
-    /**
-     * Called when a user (possibly us) gets granted operator status for a
-     * channel.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param recipient
-     *            The nick of the user that got 'opped'.
-     */
-    protected void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {}
-
-    /**
-     * Called when a user (possibly us) gets operator status taken away.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param recipient
-     *            The nick of the user that got 'deopped'.
-     */
-    protected void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {}
-
-    /**
-     * Called when a user (possibly us) gets voice status granted in a channel.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param recipient
-     *            The nick of the user that got 'voiced'.
-     */
-    protected void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {}
-
-    /**
-     * Called when a user (possibly us) gets voice status removed.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param recipient
-     *            The nick of the user that got 'devoiced'.
-     */
-    protected void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {}
-
-    /**
-     * Called when a channel key is set. When the channel key has been set,
-     * other users may only join that channel if they know the key. Channel keys
-     * are sometimes referred to as passwords.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param key
-     *            The new key for the channel.
-     */
-    protected void onSetChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {}
-
-    /**
-     * Called when a channel key is removed.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param key
-     *            The key that was in use before the channel key was removed.
-     */
-    protected void onRemoveChannelKey(String channel, String sourceNick, String sourceLogin, String sourceHostname, String key) {}
-
-    /**
-     * Called when a user limit is set for a channel. The number of users in the
-     * channel cannot exceed this limit.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param limit
-     *            The maximum number of users that may be in this channel at the
-     *            same time.
-     */
-    protected void onSetChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname, int limit) {}
-
-    /**
-     * Called when the user limit is removed for a channel.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onRemoveChannelLimit(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a user (possibly us) gets banned from a channel. Being banned
-     * from a channel prevents any user with a matching hostmask from joining
-     * the channel. For this reason, most bans are usually directly followed by
-     * the user being kicked :-)
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param hostmask
-     *            The hostmask of the user that has been banned.
-     */
-    protected void onSetChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {}
-
-    /**
-     * Called when a hostmask ban is removed from a channel.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     * @param hostmask
-     */
-    protected void onRemoveChannelBan(String channel, String sourceNick, String sourceLogin, String sourceHostname, String hostmask) {}
-
-    /**
-     * Called when topic protection is enabled for a channel. Topic protection
-     * means that only operators in a channel may change the topic.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onSetTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when topic protection is removed for a channel.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onRemoveTopicProtection(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel is set to only allow messages from users that are
-     * in the channel.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onSetNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel is set to allow messages from any user, even if
-     * they are not actually in the channel.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onRemoveNoExternalMessages(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel is set to 'invite only' mode. A user may only join
-     * the channel if they are invited by someone who is already in the channel.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onSetInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel has 'invite only' removed.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onRemoveInviteOnly(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel is set to 'moderated' mode. If a channel is
-     * moderated, then only users who have been 'voiced' or 'opped' may speak or
-     * change their nicks.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onSetModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel has moderated mode removed.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onRemoveModerated(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel is marked as being in private mode.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onSetPrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel is marked as not being in private mode.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onRemovePrivate(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel is set to be in 'secret' mode. Such channels
-     * typically do not appear on a server's channel listing.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onSetSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when a channel has 'secret' mode removed.
-     * <p>
-     * This is a type of mode change and is also passed to the onMode method in the VIBot class.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param channel
-     *            The channel in which the mode change took place.
-     * @param sourceNick
-     *            The nick of the user that performed the mode change.
-     * @param sourceLogin
-     *            The login of the user that performed the mode change.
-     * @param sourceHostname
-     *            The hostname of the user that performed the mode change.
-     */
-    protected void onRemoveSecret(String channel, String sourceNick, String sourceLogin, String sourceHostname) {}
-
-    /**
-     * Called when we are invited to a channel by a user.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 0.9.5
-     * @param targetNick
-     *            The nick of the user being invited - should be us!
-     * @param sourceNick
-     *            The nick of the user that sent the invitation.
-     * @param sourceLogin
-     *            The login of the user that sent the invitation.
-     * @param sourceHostname
-     *            The hostname of the user that sent the invitation.
-     * @param channel
-     *            The channel that we're being invited to.
-     */
-    protected void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel) {}
-
-    /**
-     * This method used to be called when a DCC SEND request was sent to the
-     * VIBot. Please use the onIncomingFileTransfer method to receive files, as
-     * it has better functionality and supports resuming.
-     * 
-     * @deprecated As of VIBot 1.2.0, use {@link #onIncomingFileTransfer(DccFileTransfer)}
-     */
-    protected void onDccSendRequest(String sourceNick, String sourceLogin, String sourceHostname, String filename, long address, int port, int size) {}
-
-    /**
-     * This method used to be called when a DCC CHAT request was sent to the
-     * VIBot. Please use the onIncomingChatRequest method to accept chats, as it
-     * has better functionality.
-     * 
-     * @deprecated As of VIBot 1.2.0, use {@link #onIncomingChatRequest(DccChat)}
-     */
-    protected void onDccChatRequest(String sourceNick, String sourceLogin, String sourceHostname, long address, int port) {}
-
-    /**
-     * This method is called whenever a DCC SEND request is sent to the VIBot.
-     * This means that a client has requested to send a file to us. This
-     * abstract implementation performs no action, which means that all DCC SEND
-     * requests will be ignored by default. If you wish to receive the file,
-     * then you may override this method and call the receive method on the
-     * DccFileTransfer object, which connects to the sender and downloads the
-     * file.
-     * <p>
-     * Example:
-     * 
-     * <pre>
-     * public void onIncomingFileTransfer(DccFileTransfer transfer) {
-     *     // Use the suggested file name.
-     *     File file = transfer.getFile();
-     *     // Receive the transfer and save it to the file, allowing resuming.
-     *     transfer.receive(file, true);
-     * }
-     * </pre>
-     * <p>
-     * <b>Warning:</b> Receiving an incoming file transfer will cause a file to be written to disk. Please ensure that you make adequate security checks so that this file does not overwrite anything important!
-     * <p>
-     * Each time a file is received, it happens within a new Thread in order to allow multiple files to be downloaded by the VIBot at the same time.
-     * <p>
-     * If you allow resuming and the file already partly exists, it will be appended to instead of overwritten. If resuming is not enabled, the file will be overwritten if it already exists.
-     * <p>
-     * You can throttle the speed of the transfer by calling the setPacketDelay method on the DccFileTransfer object, either before you receive the file or at any moment during the transfer.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 1.2.0
-     * @param transfer
-     *            The DcccFileTransfer that you may accept.
-     * @see DccFileTransfer
-     */
-    public void onIncomingFileTransfer(DccFileTransfer transfer) {}
-
-    /**
-     * This method gets called when a DccFileTransfer has finished. If there was
-     * a problem, the Exception will say what went wrong. If the file was sent
-     * successfully, the Exception will be null.
-     * <p>
-     * Both incoming and outgoing file transfers are passed to this method. You can determine the type by calling the isIncoming or isOutgoing methods on the DccFileTransfer object.
-     * 
-     * @since VIBot 1.2.0
-     * @param transfer
-     *            The DccFileTransfer that has finished.
-     * @param e
-     *            null if the file was transfered successfully, otherwise this
-     *            will report what went wrong.
-     * @see DccFileTransfer
-     */
-    public void onFileTransferFinished(DccFileTransfer transfer, Exception e) {}
-
-    /**
-     * This method will be called whenever a DCC Chat request is received. This
-     * means that a client has requested to chat to us directly rather than via
-     * the IRC server. This is useful for sending many lines of text to and from
-     * the bot without having to worry about flooding the server or any
-     * operators of the server being able to "spy" on what is being said. This
-     * abstract implementation performs no action, which means that all DCC CHAT
-     * requests will be ignored by default.
-     * <p>
-     * If you wish to accept the connection, then you may override this method and call the accept() method on the DccChat object, which connects to the sender of the chat request and allows lines to be sent to and from the bot.
-     * <p>
-     * Your bot must be able to connect directly to the user that sent the request.
-     * <p>
-     * Example:
-     * 
-     * <pre>
-     * public void onIncomingChatRequest(DccChat chat) {
-     *     try {
-     *         // Accept all chat, whoever it's from.
-     *         chat.accept();
-     *         chat.sendLine(&quot;Hello&quot;);
-     *         String response = chat.readLine();
-     *         chat.close();
-     *     }
-     *     catch (IOException e) {}
-     * }
-     * </pre>
-     * 
-     * Each time this method is called, it is called from within a new Thread so that multiple DCC CHAT sessions can run concurrently.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @since VIBot 1.2.0
-     * @param chat
-     *            A DccChat object that represents the incoming chat request.
-     * @see DccChat
-     */
-    public void onIncomingChatRequest(DccChat chat) {}
-
-    /**
-     * This method is called whenever we receive a VERSION request. This
-     * abstract implementation responds with the VIBot's _version string, so if
-     * you override this method, be sure to either mimic its functionality or to
-     * call super.onVersion(...);
-     * 
-     * @param sourceNick
-     *            The nick of the user that sent the VERSION request.
-     * @param sourceLogin
-     *            The login of the user that sent the VERSION request.
-     * @param sourceHostname
-     *            The hostname of the user that sent the VERSION request.
-     * @param target
-     *            The target of the VERSION request, be it our nick or a channel
-     *            name.
-     */
-    protected void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-
-    }
-
-    /**
-     * This method is called whenever we receive a PING request from another
-     * user.
-     * <p>
-     * This abstract implementation responds correctly, so if you override this method, be sure to either mimic its functionality or to call super.onPing(...);
-     * 
-     * @param sourceNick
-     *            The nick of the user that sent the PING request.
-     * @param sourceLogin
-     *            The login of the user that sent the PING request.
-     * @param sourceHostname
-     *            The hostname of the user that sent the PING request.
-     * @param target
-     *            The target of the PING request, be it our nick or a channel
-     *            name.
-     * @param pingValue
-     *            The value that was supplied as an argument to the PING
-     *            command.
-     */
-    protected void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
-        this.sendRawLine("NOTICE " + sourceNick + " :\u0001PING " + pingValue + "\u0001");
-    }
-
-    /**
-     * The actions to perform when a PING request comes from the server.
-     * <p>
-     * This sends back a correct response, so if you override this method, be sure to either mimic its functionality or to call super.onServerPing(response);
-     * 
-     * @param response
-     *            The response that should be given back in your PONG.
-     */
-    protected void onServerPing(String response) {
-        this.sendRawLine("PONG " + response);
-    }
-
-    /**
-     * This method is called whenever we receive a TIME request.
-     * <p>
-     * This abstract implementation responds correctly, so if you override this method, be sure to either mimic its functionality or to call super.onTime(...);
-     * 
-     * @param sourceNick
-     *            The nick of the user that sent the TIME request.
-     * @param sourceLogin
-     *            The login of the user that sent the TIME request.
-     * @param sourceHostname
-     *            The hostname of the user that sent the TIME request.
-     * @param target
-     *            The target of the TIME request, be it our nick or a channel
-     *            name.
-     */
-    protected void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-        this.sendRawLine("NOTICE " + sourceNick + " :\u0001TIME " + new Date().toString() + "\u0001");
-    }
-
-    /**
-     * This method is called whenever we receive a FINGER request.
-     * <p>
-     * This abstract implementation responds correctly, so if you override this method, be sure to either mimic its functionality or to call super.onFinger(...);
-     * 
-     * @param sourceNick
-     *            The nick of the user that sent the FINGER request.
-     * @param sourceLogin
-     *            The login of the user that sent the FINGER request.
-     * @param sourceHostname
-     *            The hostname of the user that sent the FINGER request.
-     * @param target
-     *            The target of the FINGER request, be it our nick or a channel
-     *            name.
-     */
-    protected void onFinger(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-
-    }
-
-    /**
-     * This method is called whenever we receive a line from the server that the
-     * VIBot has not been programmed to recognise.
-     * <p>
-     * The implementation of this method in the VIBot abstract class performs no actions and may be overridden as required.
-     * 
-     * @param line
-     *            The raw line that was received from the server.
-     */
-    protected void onUnknown(String line) {
-        // And then there were none :)
     }
 
     /**
@@ -2491,7 +1507,6 @@ public final class VIBot {
      * <p>
      * The nick returned by this method is maintained only by the VIBot class and is guaranteed to be correct in the context of the IRC server.
      * 
-     * @since VIBot 1.0.0
      * @return The current nick of the bot.
      */
     public String getNick() {
@@ -2545,7 +1560,6 @@ public final class VIBot {
      * If this returns 0, then the Queue is empty and any new message is likely
      * to be sent to the IRC server immediately.
      * 
-     * @since VIBot 0.9.9
      * @return The number of lines in the outgoing message Queue.
      */
     public final int getOutgoingQueueSize() {
@@ -2553,51 +1567,9 @@ public final class VIBot {
     }
 
     /**
-     * A convenient method that accepts an IP address represented as a long and
-     * returns an integer array of size 4 representing the same IP address.
-     * 
-     * @since VIBot 0.9.4
-     * @param address
-     *            the long value representing the IP address.
-     * @return An int[] of size 4.
-     */
-    public int[] longToIp(long address) {
-        int[] ip = new int[4];
-        for (int i = 3; i >= 0; i--) {
-            ip[i] = (int) (address % 256);
-            address = address / 256;
-        }
-        return ip;
-    }
-
-    /**
-     * A convenient method that accepts an IP address represented by a byte[] of
-     * size 4 and returns this as a long representation of the same IP address.
-     * 
-     * @since VIBot 0.9.4
-     * @param address
-     *            the byte[] of size 4 representing the IP address.
-     * @return a long representation of the IP address.
-     */
-    public long ipToLong(byte[] address) {
-        if (address.length != 4) {
-            throw new IllegalArgumentException("byte array must be of length 4");
-        }
-        long ipNum = 0;
-        long multiplier = 1;
-        for (int i = 3; i >= 0; i--) {
-            int byteVal = (address[i] + 256) % 256;
-            ipNum += byteVal * multiplier;
-            multiplier *= 256;
-        }
-        return ipNum;
-    }
-
-    /**
      * Returns the InetAddress used by the VIBot. This can be used to find the
      * I.P. address from which the VIBot is connected to a server.
      * 
-     * @since VIBot 1.4.4
      * @return The current local InetAddress, or null if never connected.
      */
     public InetAddress getInetAddress() {
@@ -2610,7 +1582,6 @@ public final class VIBot {
      * behind a firewall and you need to tell receiving clients to connect to a
      * NAT/router, which then forwards the connection.
      * 
-     * @since VIBot 1.4.4
      * @param dccInetAddress
      *            The new InetAddress, or null to use the default.
      */
@@ -2622,7 +1593,6 @@ public final class VIBot {
      * Returns the InetAddress used when sending DCC chat or file transfers. If
      * this is null, the default InetAddress will be used.
      * 
-     * @since VIBot 1.4.4
      * @return The current DCC InetAddress, or null if left as default.
      */
     public InetAddress getDccInetAddress() {
@@ -2637,7 +1607,6 @@ public final class VIBot {
      * if all ports are already in use. If set to null, <i>any</i> free port
      * number will be used.
      * 
-     * @since VIBot 1.4.4
      * @return An array of port numbers that VIBot can use to send DCC
      *         transfers, or null if any port is allowed.
      */
@@ -2657,7 +1626,6 @@ public final class VIBot {
      * if all ports are already in use. If set to null, <i>any</i> free port
      * number will be used.
      * 
-     * @since VIBot 1.4.4
      * @param ports
      *            The set of port numbers that VIBot may use for DCC transfers,
      *            or null to let it use any free port (default).
@@ -2673,70 +1641,15 @@ public final class VIBot {
     }
 
     /**
-     * Returns true if and only if the object being compared is the exact same
-     * instance as this VIBot. This may be useful if you are writing a multiple
-     * server IRC bot that uses more than one instance of VIBot.
-     * 
-     * @since VIBot 0.9.9
-     * @return true if and only if Object o is a VIBot and equal to this.
-     */
-    public boolean equals(Object o) {
-        // This probably has the same effect as Object.equals, but that may
-        // change...
-        if (o instanceof VIBot) {
-            VIBot other = (VIBot) o;
-            return other == this;
-        }
-        return false;
-    }
-
-    /**
-     * Returns the hashCode of this VIBot. This method can be called by hashed
-     * collection classes and is useful for managing multiple instances of
-     * VIBots in such collections.
-     * 
-     * @since VIBot 0.9.9
-     * @return the hash code for this instance of VIBot.
-     */
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    /**
-     * Returns a String representation of this object. You may find this useful
-     * for debugging purposes, particularly if you are using more than one VIBot
-     * instance to achieve multiple server connectivity. The format of this
-     * String may change between different versions of VIBot but is currently
-     * something of the form <br>
-     * <code>
-     *   VIBot[ Version=x.y.z Connected=%b Server{irc.esper.net}
-     *   Port{6667}
-     *   Password{}
-     * </code>
-     * 
-     * @since VIBot 1.0
-     * @return a String representation of this object.
-     */
-    public String toString() {
-        return String.format("VIBot[Version=%s Connected=%b Server=%s Port=%d", getBotVersion(), isConnected(), BotConfig.getServer(), BotConfig.getServerPort());
-    }
-
-    /**
-     * Disposes of all thread resources used by this VIBot. This may be useful
-     * when writing bots or clients that use multiple servers (and therefore
-     * multiple VIBot instances) or when integrating a VIBot with an existing
-     * program.
-     * <p>
-     * Each VIBot runs its own threads for dispatching messages from its outgoing message queue and receiving messages from the server. Calling dispose() ensures that these threads are stopped, thus freeing up system resources and allowing the VIBot object to be garbage collected if there are no other references to it.
-     * <p>
-     * Once a VIBot object has been disposed, it should not be used again. Attempting to use a VIBot that has been disposed may result in unpredictable behaviour.
-     * 
-     * @since 1.2.2
+     * Disposes of all thread resources used by this VIBot.
      */
     public synchronized void dispose() {
-        // System.out.println("disposing...");
-        outputThread.interrupt();
-        inputThread.dispose();
+        try {
+            inputThread.dispose();
+            outputThread.dispose();
+        }
+        catch (Exception e) {}
+        instance = null;
     }
 
     /**
@@ -2773,27 +1686,6 @@ public final class VIBot {
         }
     }
 
-    private final void updateUser(Channel channel, UserMode userMode, User user) {
-        channel.removeUser(user);
-
-        switch (userMode) {
-            case OP:
-                user.Op();
-                break;
-            case DEOP:
-                user.deOp();
-                break;
-            case VOICE:
-                user.Voice();
-                break;
-            case DEVOICE:
-                user.deVoice();
-                break;
-        }
-
-        channel.addUser(user);
-    }
-
     public final Channel getChannel(String chan) {
         synchronized (channels) {
             for (Channel channel : channels) {
@@ -2805,7 +1697,49 @@ public final class VIBot {
         return null;
     }
 
-    public final List<Channel> getChannels() {
+    final List<Channel> getChannels() {
         return Collections.unmodifiableList(channels);
+    }
+
+    /**
+     * Returns true if and only if the object being compared is the exact same
+     * instance as this VIBot. This may be useful if you are writing a multiple
+     * server IRC bot that uses more than one instance of VIBot.
+     * 
+     * @return {@code true} if and only if Object obj is a VIBot and equal to this.
+     */
+    public final boolean equals(Object obj) {
+        if (!(obj instanceof VIBot)) {
+            return false;
+        }
+        VIBot other = (VIBot) obj;
+        return other == this;
+    }
+
+    /**
+     * Returns the hashCode of this VIBot. This method can be called by hashed
+     * collection classes and is useful for managing multiple instances of
+     * VIBots in such collections.
+     * 
+     * @return the hash code for this instance of VIBot.
+     */
+    public final int hashCode() {
+        return super.hashCode();
+    }
+
+    /**
+     * Returns a String representation of this object. You may find this useful
+     * for debugging purposes, particularly if you are using more than one VIBot
+     * instance to achieve multiple server connectivity. The format of this
+     * String may change between different versions of VIBot but is currently
+     * something of the form <br>
+     * <code>
+     *   VIBot[Version=x.y.z Nick=%s Connected=%b Server=%s Port=%d]
+     * </code>
+     * 
+     * @return a String representation of this object.
+     */
+    public final String toString() {
+        return String.format("VIBot[Version=%s Nick=%s Connected=%b Server=%s Port=%d]", getBotVersion(), nick, isConnected(), BotConfig.getServer(), BotConfig.getServerPort());
     }
 }

@@ -1,8 +1,9 @@
 package net.visualillusionsent.vibot.commands;
 
+import net.visualillusionsent.utils.StringUtils;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
-import net.visualillusionsent.vibot.Utils;
 import net.visualillusionsent.vibot.VIBot;
 
 final class PartChannelCommand extends BaseCommand {
@@ -13,26 +14,34 @@ final class PartChannelCommand extends BaseCommand {
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
+        String reason = "disconnect.leaving";
         if (args.length > 2) {
             if (!args[1].startsWith("#")) {
-                String reason = Utils.combineSplit(1, args, " ");
+                try {
+                    reason = StringUtils.joinString(args, " ", 1);
+                }
+                catch (UtilityException e) {}
                 VIBot.partChannel(channel.getName(), reason);
             }
             else {
-                String reason = Utils.combineSplit(2, args, " ");
+                try {
+                    reason = StringUtils.joinString(args, " ", 2);
+                }
+                catch (UtilityException e) {}
+
                 VIBot.partChannel(args[1], reason);
             }
         }
         else if (args.length > 1) {
             if (args[1].startsWith("#")) {
-                VIBot.partChannel(args[1], "disconnect.leaving");
+                VIBot.partChannel(args[1], reason);
             }
             else {
-                VIBot.partChannel(channel.getName(), "disconnect.leaving");
+                VIBot.partChannel(channel.getName(), reason);
             }
         }
         else {
-            VIBot.partChannel(channel.getName(), "disconnect.leaving");
+            VIBot.partChannel(channel.getName(), reason);
         }
         return true;
     }

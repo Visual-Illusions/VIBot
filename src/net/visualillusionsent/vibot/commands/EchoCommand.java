@@ -1,8 +1,9 @@
 package net.visualillusionsent.vibot.commands;
 
+import net.visualillusionsent.utils.StringUtils;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
-import net.visualillusionsent.vibot.Utils;
 
 final class EchoCommand extends BaseCommand {
 
@@ -12,7 +13,13 @@ final class EchoCommand extends BaseCommand {
 
     @Override
     public boolean execute(Channel channel, User user, String[] args) {
-        String message = Utils.combineSplit(1, args, " ");
+        String message = "";
+        try {
+            message = StringUtils.joinString(args, " ", 1);
+        }
+        catch (UtilityException e) {
+            message = e.getMessage(); //This shouldn't ever happen but you never know...
+        }
         channel.sendMessage(message);
         return true;
     }

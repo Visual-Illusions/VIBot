@@ -18,8 +18,6 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * @author darkdiplomat
  */
 public final class ConsoleCommandReceiver extends Thread {
-    private final User user = new User("$", "BOT");
-    private final Channel console = new Channel("CONSOLE");
     private final BufferedReader consoleread = new BufferedReader(new InputStreamReader(System.in));
 
     public ConsoleCommandReceiver() {
@@ -38,7 +36,7 @@ public final class ConsoleCommandReceiver extends Thread {
                     }
 
                     String[] args = inLine.split(" ");
-                    if (!CommandParser.parseBotCommand(console, user, args)) {
+                    if (!CommandParser.parseBotCommand(Channel.CONSOLE, User.BOT_CONSOLE, args)) {
                         String chan = inLine.split(" ")[0];
                         if (chan.startsWith("#")) {
                             if (inLine.length() > (chan.length() + 1)) {

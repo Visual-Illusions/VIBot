@@ -1,5 +1,10 @@
 package net.visualillusionsent.vibot.plugin;
 
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
+import net.visualillusionsent.vibot.io.exception.VIBotException;
+
 /**
  * Bot Plugin interface<br>
  * Extend this class to create plugins for VIBot
@@ -7,14 +12,12 @@ package net.visualillusionsent.vibot.plugin;
  * @author Jason (darkdiplomat)
  */
 public abstract class BotPlugin {
-    private String name = "BotPluginImpl";
+    private String name;
     private boolean enabled = true;
     protected String version = null;
     private BotClassLoader loader = null;
 
-    public BotPlugin() {
-        this.name = this.getClass().getSimpleName();
-    }
+    public BotPlugin() {}
 
     /**
      * Runs the Plugins enable code to check if enabling can happen
@@ -59,6 +62,9 @@ public abstract class BotPlugin {
      * @return String name
      */
     public final String getName() {
+        if (name == null) {
+            this.name = this.getClass().getSimpleName();
+        }
         return name;
     }
 
@@ -74,6 +80,18 @@ public abstract class BotPlugin {
         return version;
     }
 
+    public final Manifest getPluginManifest() throws VIBotException {
+        String jarpath = "plugins/".concat(getName()).concat(".jar");
+        try {
+            @SuppressWarnings("resource")
+            JarFile jar = new JarFile(jarpath);
+            return jar.getManifest();
+        }
+        catch (Exception e) {
+            throw new VIBotException("Unable to retrieve Manifest for Plugin: ".concat(getName()).concat("! (Missing?)"), e);
+        }
+    }
+
     final void setBotClassLoader(BotClassLoader loader) {
         this.loader = loader;
     }
@@ -87,7 +105,7 @@ public abstract class BotPlugin {
             return false;
         }
         BotPlugin toCheck = (BotPlugin) obj;
-        if (!toCheck.getName().equals(name)) {
+        if (!toCheck.getName().equals(getName())) {
             return false;
         }
         if (!toCheck.getVersion().equals(version)) {
