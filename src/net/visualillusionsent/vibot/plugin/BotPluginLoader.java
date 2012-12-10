@@ -1,3 +1,20 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ */
 package net.visualillusionsent.vibot.plugin;
 
 import java.io.File;
@@ -111,6 +128,7 @@ public class BotPluginLoader {
     }
 
     private boolean load(String pluginName) {
+        BotPlugin plugin = null;
         String filepath = "plugins/" + pluginName + ".jar";
         try {
             File pluginfile = new File(filepath);
@@ -134,18 +152,21 @@ public class BotPluginLoader {
 
             Class<?> pluginclazz = Class.forName(filepath, true, loader);
 
-            BotPlugin plugin = (BotPlugin) pluginclazz.newInstance();
+            plugin = (BotPlugin) pluginclazz.newInstance();
             plugin.setBotClassLoader(loader);
-            plugin.enable();
-
-            synchronized (lock) {
-                plugins.add(plugin);
-                plugin.initialize();
+            if (plugin.enable()) {
+                synchronized (lock) {
+                    plugins.add(plugin);
+                    plugin.initialize();
+                }
             }
 
         }
         catch (Throwable ex) {
             BotLogMan.severe("Exception while loading plugin (" + filepath + ")", ex);
+            if (plugin != null && plugin.isEnabled()) {
+                plugin.toggleEnabled();
+            }
             return false;
         }
         return true;
@@ -225,12 +246,15 @@ public class BotPluginLoader {
         if (plugin != null) {
             if (!plugin.isEnabled()) {
                 plugin.toggleEnabled();
-                plugin.enable();
-                plugin.initialize();
+                if (plugin.enable()) {
+                    plugin.initialize();
+                    return true;
+                }
             }
+            return false;
         }
         else { // New plugin, perhaps?
-            File file = new File("plugins/" + name + ".jar");
+            File file = new File("plugins/".concat(name).concat(".jar"));
 
             if (file.exists()) {
                 return loadPlugin(name);
@@ -239,7 +263,6 @@ public class BotPluginLoader {
                 return false;
             }
         }
-        return true;
     }
 
     /**

@@ -1,8 +1,27 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ */
 package net.visualillusionsent.vibot.io.configuration;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 
+import net.visualillusionsent.utils.PropertiesFile;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
@@ -21,10 +40,18 @@ public final class BotConfig {
     private char cmd_Prefix = '!';
     private boolean autonickchange = true, ident = true, log_pingpong = false, log_server_pingpong = false;
     private int serv_port = 6667, ident_port = 113;
+    private int[] dcc_ports = new int[] {};
     private long messageDelay = 750;
 
     private BotConfig() {
-        load();
+        try {
+            load();
+        }
+        catch (UtilityException e) {
+            BotLogMan.severe("Properties File Issue: ", e);
+            System.exit(2);
+            return;
+        }
     }
 
     public static BotConfig getInstance() {
@@ -36,8 +63,10 @@ public final class BotConfig {
 
     /**
      * Loads the configuration
+     * 
+     * @throws UtilityException
      */
-    private void load() {
+    private void load() throws UtilityException {
         File file = new File("botprops.ini");
         if (!file.exists()) {
             BotLogMan.warning("First Launch detected! Initializing properties and shutting down...");
@@ -49,28 +78,29 @@ public final class BotConfig {
 
         props = new PropertiesFile("botprops.ini");
         CheckKeys();
-        botname = parseString("VIBot", "Bot-Name");
-        login = parseString("VIBot", "Login-Name");
+        botname = props.getString("Bot-Name");
+        login = props.getString("Login-Name");
         autonickchange = props.getBoolean("AutoNickChange");
-        nickserv_pass = parseString(null, "NickServ-Password");
-        server = parseString("my.server.name", "Server");
-        server_pass = parseString(null, "Server-Password");
+        nickserv_pass = props.getString("NickServ-Password");
+        server = props.getString("Server");
+        server_pass = props.getString("Server-Password");
         serv_port = props.getInt("Server-Port");
         ident = props.getBoolean("Use-Ident-Server");
         ident_port = props.getInt("Ident-Port");
         channels = props.getString("Channels").split(",");
-        join_message = parseString(null, "Join-Message");
-        part_message = parseString(null, "Part-Message");
-        quit_message = parseString(null, "Quit-Message");
+        join_message = props.getString("Join-Message");
+        part_message = props.getString("Part-Message");
+        quit_message = props.getString("Quit-Message");
         messageDelay = props.getInt("Message-Delay");
         cmd_Prefix = props.getCharacter("Command-Prefix");
-        bot_owners = parseString("darkdiplomat,darkdiplomat|away", "Bot-Owner-Nicks").split(",");
-        plugins = parseString("", "Plugins").split(",");
+        bot_owners = props.getStringArray("Bot-Owner-Nicks");
+        plugins = props.getString("Plugins").split(",");
+        dcc_ports = props.getIntArray("dcc-ports");
         checkEncoding();
         BotLogMan.info("Properties Loaded...");
     }
 
-    private void CheckKeys() {
+    private void CheckKeys() throws UtilityException {
         boolean keymissing = false;
         //botname
         if (!props.containsKey("Bot-Name")) {
@@ -157,40 +187,31 @@ public final class BotConfig {
             props.setString("Plugins", "", "List of Plugins to load by default. Seperate plugins with a Comma (,)");
             keymissing = true;
         }
+        //encoding
+        if (!props.containsKey("Encoding")) {
+            props.setString("Encoding", "UTF-8");
+        }
         if (keymissing) {
             props.save();
         }
     }
 
-    private String parseString(String def, String key) {
-        String toRet = props.getString(key);
-
-        if (toRet == null) {
-            toRet = def;
-        }
-
-        return toRet;
-    }
-
-    private void checkEncoding() {
+    private void checkEncoding() throws UtilityException {
         String encode = props.getString("Encoding");
-        if (encode == null) {
-            encoding = "UTF-8";
-            return;
-        }
         try {
             "".getBytes(encode);
+            encoding = encode;
         }
         catch (UnsupportedEncodingException e) {
             BotLogMan.warning("Invaild Encoding... Using UTF-8");
             encoding = "UTF-8";
         }
     }
-    
-    public static boolean autoNickChange(){
+
+    public static boolean autoNickChange() {
         return getInstance().autonickchange;
     }
-    
+
     public static boolean useIdentServer() {
         return getInstance().ident;
     }
@@ -198,19 +219,38 @@ public final class BotConfig {
     public static char getCommandPrefix() {
         return getInstance().cmd_Prefix;
     }
-    
+
     public static int getIdentPort() {
         return getInstance().ident_port;
     }
-    
+
     public static int getServerPort() {
         return getInstance().serv_port;
     }
 
-    public static long getMessageDelay(){
+    /**
+     * Returns the set of port numbers to be used when sending a DCC chat or
+     * file transfer. This is useful when you are behind a firewall and need to
+     * set up port forwarding. The array of port numbers is traversed in
+     * sequence until a free port is found to listen on. A DCC tranfer will fail
+     * if all ports are already in use. If set to null, <i>any</i> free port
+     * number will be used.
+     * 
+     * @return An array of port numbers that VIBot can use to send DCC
+     *         transfers, or null if any port is allowed.
+     */
+    public static int[] getDccPorts() {
+        if (getInstance().dcc_ports == null || getInstance().dcc_ports.length == 0) {
+            return null;
+        }
+        // Clone the array to prevent external modification.
+        return (int[]) getInstance().dcc_ports.clone();
+    }
+
+    public static long getMessageDelay() {
         return getInstance().messageDelay;
     }
-    
+
     public static String getBotName() {
         return getInstance().botname;
     }
@@ -230,32 +270,32 @@ public final class BotConfig {
     public static String getJoinMessage() {
         return getInstance().join_message;
     }
-    
+
     public static String getPartMessage() {
         return getInstance().part_message;
     }
-    
-    public static String getQuitMessage(){
+
+    public static String getQuitMessage() {
         return getInstance().quit_message;
     }
 
     public static String getLogin() {
         return getInstance().login;
     }
-    
+
     public static String getEncoding() {
         return getInstance().encoding;
     }
 
     public static String[] getPlugins() {
-        return getInstance().plugins;
+        return (String[]) getInstance().plugins.clone();
     }
 
     public static String[] getChannels() {
-        return getInstance().channels;
+        return (String[]) getInstance().channels.clone();
     }
 
     public static String[] getBotOwners() {
-        return getInstance().bot_owners;
+        return (String[]) getInstance().bot_owners.clone();
     }
 }

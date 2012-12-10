@@ -1,19 +1,50 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ *
+ * Parts of this file are derived from PircBot
+ * Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
+ *
+ * PircBot is dual-licensed, allowing you to choose between the GNU
+ * General Public License (GPL) and the www.jibble.org Commercial License.
+ * Since the GPL may be too restrictive for use in a proprietary application,
+ * a commercial license is also provided. Full license information can be
+ * found at http://www.jibble.org/licenses/
+ */
 package net.visualillusionsent.vibot.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 
-import net.visualillusionsent.utils.IPAddressUtils;
+import net.visualillusionsent.utils.TaskManager;
+import net.visualillusionsent.vibot.User;
 import net.visualillusionsent.vibot.VIBot;
 
-//TODO
+/**
+ * This class is used to administer a DCC file transfer.
+ * <p>
+ * This class is contains code derived from PircBot <br>
+ * PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/<br>
+ * and dual Licensed under the GNU General Public License/www.jibble.org Commercial License
+ * 
+ * @since VIBot 1.0
+ * @author Jason Jones (darkdiplomat)
+ * @author Paul James Mutton (PircBot)
+ * @version 1.0
+ */
 public class DccFileTransfer {
 
     /**
@@ -21,58 +52,50 @@ public class DccFileTransfer {
      */
     public static final int BUFFER_SIZE = 1024;
 
-    private VIBot _bot;
-    private DccManager _manager;
-    private String _nick;
-    private String _login = null;
-    private String _hostname = null;
-    private String _type;
-    private long _address;
-    private int _port;
-    private long _size;
-    private boolean _received;
-
-    private Socket _socket = null;
-    private long _progress = 0;
-    private File _file = null;
-    private int _timeout = 0;
-    private boolean _incoming;
-    private long _packetDelay = 0;
-
-    private long _startTime = 0;
+    private VIBot bot;
+    private DccManager manager;
+    private User user;
+    private String type;
+    private long address;
+    private int port;
+    private long size;
+    private boolean received;
+    private Socket socket = null;
+    private long progress = 0;
+    private File file = null;
+    private int timeout = 0;
+    private boolean incoming;
+    private long packetDelay = 0;
+    private long startTime = 0;
 
     /**
      * Constructor used for receiving files.
      */
-    DccFileTransfer(VIBot bot, DccManager manager, String nick, String login, String hostname, String type, String filename, long address, int port, long size) {
-        _bot = bot;
-        _manager = manager;
-        _nick = nick;
-        _login = login;
-        _hostname = hostname;
-        _type = type;
-        _file = new File(filename);
-        _address = address;
-        _port = port;
-        _size = size;
-        _received = false;
-
-        _incoming = true;
+    DccFileTransfer(VIBot bot, DccManager manager, User user, String type, String filename, long address, int port, long size) {
+        this.bot = bot;
+        this.manager = manager;
+        this.user = user;
+        this.type = type;
+        this.file = new File(filename);
+        this.address = address;
+        this.port = port;
+        this.size = size;
+        this.received = false;
+        this.incoming = true;
     }
 
     /**
      * Constructor used for sending files.
      */
-    public DccFileTransfer(VIBot bot, DccManager manager, File file, String nick, int timeout) {
-        _bot = bot;
-        _manager = manager;
-        _nick = nick;
-        _file = file;
-        _size = file.length();
-        _timeout = timeout;
-        _received = true;
-
-        _incoming = false;
+    public DccFileTransfer(VIBot bot, DccManager manager, File file, User user, int timeout) {
+        this.bot = bot;
+        this.manager = manager;
+        this.user = user;
+        this.file = file;
+        this.size = file.length();
+        this.timeout = timeout;
+        this.received = true;
+        this.incoming = false;
     }
 
     /**
@@ -87,22 +110,22 @@ public class DccFileTransfer {
      *            overwriting an existing file.
      */
     public synchronized void receive(File file, boolean resume) {
-        if (!_received) {
-            _received = true;
-            _file = file;
+        if (!received) {
+            received = true;
+            this.file = file;
 
-            if (_type.equals("SEND") && resume) {
-                _progress = file.length();
-                if (_progress == 0) {
+            if (type.equals("SEND") && resume) {
+                progress = file.length();
+                if (progress == 0) {
                     doReceive(file, false);
                 }
                 else {
-                    _bot.sendCTCPCommand(_nick, "DCC RESUME file.ext " + _port + " " + _progress);
-                    _manager.addAwaitingResume(this);
+                    bot.sendCTCPCommand(user.getNick(), "DCC RESUME file.ext ".concat(String.valueOf(port)).concat(" ").concat(String.valueOf(progress)));
+                    manager.addAwaitingResume(this);
                 }
             }
             else {
-                _progress = file.length();
+                progress = file.length();
                 doReceive(file, resume);
             }
         }
@@ -112,230 +135,30 @@ public class DccFileTransfer {
      * Receive the file in a new thread.
      */
     void doReceive(final File file, final boolean resume) {
-        new Thread() {
-            public void run() {
-
-                BufferedOutputStream foutput = null;
-                Exception exception = null;
-
-                try {
-
-                    // Convert the integer address to a proper IP address.
-                    String ipStr = IPAddressUtils.ipv4BytestoString(IPAddressUtils.longToIPv4(_address));
-
-                    // Connect the socket and set a timeout.
-                    _socket = new Socket(ipStr, _port);
-                    _socket.setSoTimeout(30 * 1000);
-                    _startTime = System.currentTimeMillis();
-
-                    // No longer possible to resume this transfer once it's
-                    // underway.
-                    _manager.removeAwaitingResume(DccFileTransfer.this);
-
-                    BufferedInputStream input = new BufferedInputStream(_socket.getInputStream());
-                    BufferedOutputStream output = new BufferedOutputStream(_socket.getOutputStream());
-
-                    // Following line fixed for jdk 1.1 compatibility.
-                    foutput = new BufferedOutputStream(new FileOutputStream(file.getCanonicalPath(), resume));
-
-                    byte[] inBuffer = new byte[BUFFER_SIZE];
-                    byte[] outBuffer = new byte[4];
-                    int bytesRead = 0;
-                    while ((bytesRead = input.read(inBuffer, 0, inBuffer.length)) != -1) {
-                        foutput.write(inBuffer, 0, bytesRead);
-                        _progress += bytesRead;
-                        // Send back an acknowledgement of how many bytes we
-                        // have got so far.
-                        outBuffer[0] = (byte) ((_progress >> 24) & 0xff);
-                        outBuffer[1] = (byte) ((_progress >> 16) & 0xff);
-                        outBuffer[2] = (byte) ((_progress >> 8) & 0xff);
-                        outBuffer[3] = (byte) ((_progress >> 0) & 0xff);
-                        output.write(outBuffer);
-                        output.flush();
-                        delay();
-                    }
-                    foutput.flush();
-                }
-                catch (Exception e) {
-                    exception = e;
-                }
-                finally {
-                    try {
-                        foutput.close();
-                        _socket.close();
-                    }
-                    catch (Exception anye) {
-                        // Do nothing.
-                    }
-                }
-
-                //_bot.onFileTransferFinished(DccFileTransfer.this, exception);
-            }
-        }.start();
+        TaskManager.executeTask(new FileReceive(this, resume));
     }
 
     /**
      * Method to send the file inside a new thread.
      */
     public void doSend(final boolean allowResume) {
-        new Thread() {
-            public void run() {
-
-                BufferedInputStream finput = null;
-                Exception exception = null;
-
-                try {
-
-                    ServerSocket ss = null;
-
-                    int[] ports = _bot.getDccPorts();
-                    if (ports == null) {
-                        // Use any free port.
-                        ss = new ServerSocket(0);
-                    }
-                    else {
-                        for (int i = 0; i < ports.length; i++) {
-                            try {
-                                ss = new ServerSocket(ports[i]);
-                                // Found a port number we could use.
-                                break;
-                            }
-                            catch (Exception e) {
-                                // Do nothing; go round and try another port.
-                            }
-                        }
-                        if (ss == null) {
-                            // No ports could be used.
-                            throw new IOException("All ports returned by getDccPorts() are in use.");
-                        }
-                    }
-
-                    ss.setSoTimeout(_timeout);
-                    _port = ss.getLocalPort();
-                    InetAddress inetAddress = _bot.getDccInetAddress();
-                    if (inetAddress == null) {
-                        inetAddress = _bot.getInetAddress();
-                    }
-                    byte[] ip = inetAddress.getAddress();
-                    long ipNum = IPAddressUtils.ipv4ToLong(ip);
-
-                    // Rename the filename so it has no whitespace in it when we
-                    // send it.
-                    // .... I really should do this a bit more nicely at some
-                    // point ....
-                    String safeFilename = _file.getName().replace(' ', '_');
-                    safeFilename = safeFilename.replace('\t', '_');
-
-                    if (allowResume) {
-                        _manager.addAwaitingResume(DccFileTransfer.this);
-                    }
-
-                    // Send the message to the user, telling them where to
-                    // connect to in order to get the file.
-                    _bot.sendCTCPCommand(_nick, "DCC SEND " + safeFilename + " " + ipNum + " " + _port + " " + _file.length());
-
-                    // The client may now connect to us and download the file.
-                    _socket = ss.accept();
-                    _socket.setSoTimeout(30000);
-                    _startTime = System.currentTimeMillis();
-
-                    // No longer possible to resume this transfer once it's
-                    // underway.
-                    if (allowResume) {
-                        _manager.removeAwaitingResume(DccFileTransfer.this);
-                    }
-
-                    // Might as well close the server socket now; it's finished
-                    // with.
-                    ss.close();
-
-                    BufferedOutputStream output = new BufferedOutputStream(_socket.getOutputStream());
-                    BufferedInputStream input = new BufferedInputStream(_socket.getInputStream());
-                    finput = new BufferedInputStream(new FileInputStream(_file));
-
-                    // Check for resuming.
-                    if (_progress > 0) {
-                        long bytesSkipped = 0;
-                        while (bytesSkipped < _progress) {
-                            bytesSkipped += finput.skip(_progress - bytesSkipped);
-                        }
-                    }
-
-                    byte[] outBuffer = new byte[BUFFER_SIZE];
-                    byte[] inBuffer = new byte[4];
-                    int bytesRead = 0;
-                    while ((bytesRead = finput.read(outBuffer, 0, outBuffer.length)) != -1) {
-                        output.write(outBuffer, 0, bytesRead);
-                        output.flush();
-                        input.read(inBuffer, 0, inBuffer.length);
-                        _progress += bytesRead;
-                        delay();
-                    }
-                }
-                catch (Exception e) {
-                    exception = e;
-                }
-                finally {
-                    try {
-                        finput.close();
-                        _socket.close();
-                    }
-                    catch (Exception e) {
-                        // Do nothing.
-                    }
-                }
-
-                //_bot.onFileTransferFinished(DccFileTransfer.this, exception);
-            }
-        }.start();
+        TaskManager.executeTask(new FileSend(this, timeout, allowResume));
     }
 
     /**
      * Package mutator for setting the progress of the file transfer.
      */
     void setProgress(long progress) {
-        _progress = progress;
+        this.progress = progress;
     }
 
     /**
-     * Delay between packets.
-     */
-    private void delay() {
-        if (_packetDelay > 0) {
-            try {
-                Thread.sleep(_packetDelay);
-            }
-            catch (InterruptedException e) {
-                // Do nothing.
-            }
-        }
-    }
-
-    /**
-     * Returns the nick of the other user taking part in this file transfer.
+     * Returns the {@link User} taking part in this file transfer.
      * 
      * @return the nick of the other user.
      */
-    public String getNick() {
-        return _nick;
-    }
-
-    /**
-     * Returns the login of the file sender.
-     * 
-     * @return the login of the file sender. null if we are sending.
-     */
-    public String getLogin() {
-        return _login;
-    }
-
-    /**
-     * Returns the hostname of the file sender.
-     * 
-     * @return the hostname of the file sender. null if we are sending.
-     */
-    public String getHostname() {
-        return _hostname;
+    public User getUser() {
+        return user;
     }
 
     /**
@@ -344,7 +167,7 @@ public class DccFileTransfer {
      * @return the suggested file to be used.
      */
     public File getFile() {
-        return _file;
+        return file;
     }
 
     /**
@@ -353,7 +176,7 @@ public class DccFileTransfer {
      * @return the port number.
      */
     public int getPort() {
-        return _port;
+        return port;
     }
 
     /**
@@ -363,7 +186,7 @@ public class DccFileTransfer {
      * @return true if the file transfer is incoming.
      */
     public boolean isIncoming() {
-        return _incoming;
+        return incoming;
     }
 
     /**
@@ -385,7 +208,7 @@ public class DccFileTransfer {
      *            The number of milliseconds to wait between packets.
      */
     public void setPacketDelay(long millis) {
-        _packetDelay = millis;
+        packetDelay = millis;
     }
 
     /**
@@ -394,7 +217,7 @@ public class DccFileTransfer {
      * @return the delay between each packet.
      */
     public long getPacketDelay() {
-        return _packetDelay;
+        return packetDelay;
     }
 
     /**
@@ -404,7 +227,7 @@ public class DccFileTransfer {
      *         this value.
      */
     public long getSize() {
-        return _size;
+        return size;
     }
 
     /**
@@ -415,7 +238,7 @@ public class DccFileTransfer {
      * @return the progress of the transfer.
      */
     public long getProgress() {
-        return _progress;
+        return progress;
     }
 
     /**
@@ -435,7 +258,7 @@ public class DccFileTransfer {
      */
     public void close() {
         try {
-            _socket.close();
+            socket.close();
         }
         catch (Exception e) {
             // Let the DCC manager worry about anything that may go wrong.
@@ -450,7 +273,7 @@ public class DccFileTransfer {
      * @return data transfer rate in bytes per second.
      */
     public long getTransferRate() {
-        long time = (System.currentTimeMillis() - _startTime) / 1000;
+        long time = (System.currentTimeMillis() - startTime) / 1000;
         if (time <= 0) {
             return 0;
         }
@@ -463,6 +286,30 @@ public class DccFileTransfer {
      * @return the address of the sender as a long.
      */
     public long getNumericalAddress() {
-        return _address;
+        return address;
+    }
+
+    DccManager getManager() {
+        return manager;
+    }
+
+    void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    Socket getSocket() {
+        return socket;
+    }
+
+    void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    void setPort(int port) {
+        this.port = port;
+    }
+
+    VIBot getBot() {
+        return bot;
     }
 }

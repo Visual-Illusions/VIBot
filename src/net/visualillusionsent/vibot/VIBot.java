@@ -1,3 +1,29 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ *
+ * Parts of this file are derived from PircBot
+ * Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
+ *
+ * PircBot is dual-licensed, allowing you to choose between the GNU
+ * General Public License (GPL) and the www.jibble.org Commercial License.
+ * Since the GPL may be too restrictive for use in a proprietary application,
+ * a commercial license is also provided. Full license information can be
+ * found at http://www.jibble.org/licenses/
+ */
 package net.visualillusionsent.vibot;
 
 import java.io.BufferedReader;
@@ -46,9 +72,14 @@ import net.visualillusionsent.vibot.plugin.BotPluginLoader;
  * <p>
  * VIBot is designed to use Java 7 or higher<br>
  * VIBot contains a Plugin API for adding on to the Bot or to be used as just a stand-alone Channel administration solution
+ * <p>
+ * This class is contains code derived from PircBot <br>
+ * PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/<br>
+ * and dual Licensed under the GNU General Public License/www.jibble.org Commercial License
  * 
  * @since VIBot 1.0
  * @author Jason (darkdiplomat)
+ * @author Paul James Mutton (PircBot)
  */
 public final class VIBot {
     private final String version, channelPrefixes = "#", finger = "Do you get off on fingering bots?!";
@@ -60,7 +91,6 @@ public final class VIBot {
     private InetAddress dccInetAddress = null;
     private DccManager dccManager;
     private ArrayList<Channel> channels = new ArrayList<Channel>();
-    private int[] dccPorts = null;
     private EventManager manager;
     private static String botVersion = null, build = null;
     private static VIBot instance;
@@ -829,20 +859,10 @@ public final class VIBot {
      * @return The DccFileTransfer that can be used to monitor this transfer.
      * @see DccFileTransfer
      */
-    public final DccFileTransfer dccSendFile(File file, String nick, int timeout) {
-        DccFileTransfer transfer = new DccFileTransfer(this, dccManager, file, nick, timeout);
+    public final DccFileTransfer dccSendFile(File file, User user, int timeout) {
+        DccFileTransfer transfer = new DccFileTransfer(this, dccManager, file, user, timeout);
         transfer.doSend(true);
         return transfer;
-    }
-
-    /**
-     * Receives a file that is being sent to us by a DCC SEND request. Please
-     * use the onIncomingFileTransfer method to receive files.
-     * 
-     * @deprecated As of VIBot 1.2.0, use {@link #onIncomingFileTransfer(DccFileTransfer)}
-     */
-    protected final void dccReceiveFile(File file, long address, int port, int size) {
-        throw new RuntimeException("dccReceiveFile is deprecated, please use sendFile");
     }
 
     /**
@@ -865,12 +885,12 @@ public final class VIBot {
      *         text. Returns <b>null</b> if the connection could not be made.
      * @see DccChat
      */
-    public final DccChat dccSendChatRequest(String nick, int timeout) {
+    public final DccChat dccSendChatRequest(User user, int timeout) {
         DccChat chat = null;
         try {
             ServerSocket ss = null;
 
-            int[] ports = getDccPorts();
+            int[] ports = BotConfig.getDccPorts();
             if (ports == null) {
                 // Use any free port.
                 ss = new ServerSocket(0);
@@ -902,7 +922,7 @@ public final class VIBot {
             byte[] ip = inetAddress.getAddress();
             long ipNum = IPAddressUtils.ipv4ToLong(ip);
 
-            sendCTCPCommand(nick, "DCC CHAT chat " + ipNum + " " + port);
+            sendCTCPCommand(user.getNick(), "DCC CHAT chat " + ipNum + " " + port);
 
             // The client may now connect to us to chat.
             Socket socket = ss.accept();
@@ -910,7 +930,7 @@ public final class VIBot {
             // Close the server socket now that we've finished with it.
             ss.close();
 
-            chat = new DccChat(this, nick, socket);
+            chat = new DccChat(this, user, socket);
         }
         catch (Exception e) {
             // Do nothing.
@@ -1049,7 +1069,10 @@ public final class VIBot {
                         default:
                             if ((tokenizer = new StringTokenizer(request)).countTokens() >= 5 && tokenizer.nextToken().equals("DCC")) {
                                 // This is a DCC request.
-                                boolean success = dccManager.processRequest(sourceNick, sourceLogin, sourceHostname, request);
+                                user = new User("", sourceNick, this);
+                                user.setHost(sourceHostname);
+                                user.setLogin(sourceLogin);
+                                boolean success = dccManager.processRequest(user, request);
                                 if (!success) {
                                     // The DccManager didn't know what to do with the line.
                                     //this.onUnknown(line);
@@ -1090,7 +1113,6 @@ public final class VIBot {
                         manager.callPrivateMessageEvent(channel, user, message);
                         BotLogMan.channelMessage("[PM] <" + user.getPrefix() + user.getNick() + "> " + message);
                     }
-                    //this.onPrivateMessage(sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
                 }
                 break;
             case "JOIN":
@@ -1597,47 +1619,6 @@ public final class VIBot {
      */
     public InetAddress getDccInetAddress() {
         return dccInetAddress;
-    }
-
-    /**
-     * Returns the set of port numbers to be used when sending a DCC chat or
-     * file transfer. This is useful when you are behind a firewall and need to
-     * set up port forwarding. The array of port numbers is traversed in
-     * sequence until a free port is found to listen on. A DCC tranfer will fail
-     * if all ports are already in use. If set to null, <i>any</i> free port
-     * number will be used.
-     * 
-     * @return An array of port numbers that VIBot can use to send DCC
-     *         transfers, or null if any port is allowed.
-     */
-    public int[] getDccPorts() {
-        if (dccPorts == null || dccPorts.length == 0) {
-            return null;
-        }
-        // Clone the array to prevent external modification.
-        return (int[]) dccPorts.clone();
-    }
-
-    /**
-     * Sets the choice of port numbers that can be used when sending a DCC chat
-     * or file transfer. This is useful when you are behind a firewall and need
-     * to set up port forwarding. The array of port numbers is traversed in
-     * sequence until a free port is found to listen on. A DCC tranfer will fail
-     * if all ports are already in use. If set to null, <i>any</i> free port
-     * number will be used.
-     * 
-     * @param ports
-     *            The set of port numbers that VIBot may use for DCC transfers,
-     *            or null to let it use any free port (default).
-     */
-    public void setDccPorts(int[] ports) {
-        if (ports == null || ports.length == 0) {
-            dccPorts = null;
-        }
-        else {
-            // Clone the array to prevent external modification.
-            dccPorts = (int[]) ports.clone();
-        }
     }
 
     /**

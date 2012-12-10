@@ -1,3 +1,20 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ */
 package net.visualillusionsent.vibot;
 
 import java.util.HashMap;
@@ -10,7 +27,7 @@ import java.util.HashMap;
  * @author Jason (darkdiplomat)
  */
 public enum ReplyConstants {
-    
+
     // Error Replies.
     ERR_NOSUCHNICK(401),
     ERR_NOSUCHSERVER(402),
@@ -56,7 +73,7 @@ public enum ReplyConstants {
     ERR_NOOPERHOST(491),
     ERR_UMODEUNKNOWNFLAG(501),
     ERR_USERSDONTMATCH(502),
-    
+
     // Command Responses.
     RPL_TRACELINK(200),
     RPL_TRACECONNECTING(201),
@@ -133,7 +150,7 @@ public enum ReplyConstants {
     RPL_USERS(393),
     RPL_ENDOFUSERS(394),
     RPL_NOUSERS(395),
-    
+
     // Reserved Numerics.
     RPL_TRACECLASS(209),
     RPL_STATSQLINE(217),
@@ -153,19 +170,19 @@ public enum ReplyConstants {
     ERR_NOSERVICEHOST(492);
 
     private static HashMap<Integer, ReplyConstants> map;
-    
-    private ReplyConstants(int code){
+
+    private ReplyConstants(int code) {
         addCode(Integer.valueOf(code), this);
     }
-    
-    private void addCode(Integer code, ReplyConstants rp){
+
+    private void addCode(Integer code, ReplyConstants rp) {
         if (map == null) {
             map = new HashMap<Integer, ReplyConstants>();
         }
         map.put(code, rp);
     }
-    
-    public static ReplyConstants fromCode(int code){
+
+    public static ReplyConstants fromCode(int code) {
         return map.get(code);
     }
 }

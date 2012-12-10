@@ -1,7 +1,37 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ *
+ * Parts of this file are derived from PircBot
+ * Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
+ *
+ * PircBot is dual-licensed, allowing you to choose between the GNU
+ * General Public License (GPL) and the www.jibble.org Commercial License.
+ * Since the GPL may be too restrictive for use in a proprietary application,
+ * a commercial license is also provided. Full license information can be
+ * found at http://www.jibble.org/licenses/
+ */
 package net.visualillusionsent.vibot.io;
 
-import java.net.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
@@ -13,13 +43,9 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * server provides a means to determine the identity of a user of a particular
  * TCP connection.
  * <p>
- * Most IRC servers attempt to contact the ident server on connecting hosts in
- * order to determine the user's identity. A few IRC servers will not allow you
- * to connect unless this information is provided.
+ * Most IRC servers attempt to contact the ident server on connecting hosts in order to determine the user's identity. A few IRC servers will not allow you to connect unless this information is provided.
  * <p>
- * So when a VIBot is run on a machine that does not run an ident server, it may
- * be necessary to provide a "faked" response by starting up its own ident
- * server and sending out apparently correct responses.
+ * So when a VIBot is run on a machine that does not run an ident server, it may be necessary to provide a "faked" response by starting up its own ident server and sending out apparently correct responses.
  * 
  * @since VIBot 1.0
  * @author Jason Jones (darkdiplomat)
@@ -31,9 +57,7 @@ public class IdentServer extends Thread {
      * Constructs and starts an instance of an IdentServer that will respond to
      * a client with the provided login.
      * <p>
-     * The ident server will wait for up to 120 seconds before shutting down.
-     * Otherwise, it will shut down as soon as it has responded to an ident
-     * request.
+     * The ident server will wait for up to 120 seconds before shutting down. Otherwise, it will shut down as soon as it has responded to an ident request.
      * 
      * @param bot
      *            The VIBot instance that will be used to log to.

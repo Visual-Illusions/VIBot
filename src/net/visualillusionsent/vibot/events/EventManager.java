@@ -1,3 +1,20 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ */
 package net.visualillusionsent.vibot.events;
 
 import java.util.ArrayList;
@@ -7,6 +24,8 @@ import java.util.List;
 
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.io.DccChat;
+import net.visualillusionsent.vibot.io.DccFileTransfer;
 import net.visualillusionsent.vibot.plugin.BotPlugin;
 
 public class EventManager {
@@ -73,6 +92,22 @@ public class EventManager {
         synchronized (registeredEvents) {
             for (BaseEvent connectEvent : registeredEvents.get(EventType.CONNECT)) {
                 ((ConnectEvent) connectEvent).execute();
+            }
+        }
+    }
+
+    public void callFileTransferFinishedEvent(DccFileTransfer transfer, Exception ex) {
+        synchronized (registeredEvents) {
+            for (BaseEvent fileTransferFinishedEvent : registeredEvents.get(EventType.FILE_TRANSFER_FINISHED)) {
+                ((FileTransferFinishedEvent) fileTransferFinishedEvent).execute(transfer, ex);
+            }
+        }
+    }
+
+    public void callIncomingChatRequestEvent(DccChat chat) {
+        synchronized (registeredEvents) {
+            for (BaseEvent incomingChatRequestEvent : registeredEvents.get(EventType.INCOMING_CHAT_REQUEST)) {
+                ((IncomingChatRequestEvent) incomingChatRequestEvent).execute(chat);
             }
         }
     }

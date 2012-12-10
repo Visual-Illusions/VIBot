@@ -1,9 +1,28 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ */
 package net.visualillusionsent.vibot.plugin;
 
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import net.visualillusionsent.utils.PropertiesFile;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
@@ -18,6 +37,8 @@ public abstract class BotPlugin {
     private boolean enabled = true;
     protected String version = null;
     private BotClassLoader loader = null;
+    private PropertiesFile plugin_cfg = null;
+    private PropertiesFile plugin_props = null;
 
     public BotPlugin() {}
 
@@ -77,12 +98,12 @@ public abstract class BotPlugin {
      */
     public final String getVersion() {
         if (version == null) {
-            version = "*UNKNOWN-VERSION*";
+            version = "0.0";
         }
         return version;
     }
 
-    public final Manifest getPluginManifest() throws VIBotException {
+    public final Manifest getPluginManifest() {
         String jarpath = "plugins/".concat(getName()).concat(".jar");
         try {
             @SuppressWarnings("resource")
@@ -115,8 +136,8 @@ public abstract class BotPlugin {
     }
 
     protected final void generateVersion() {
-        String build = "*";
-        version = "*";
+        String build = "0";
+        version = "0";
         try {
             Manifest manifest = getPluginManifest();
             Attributes mainAttribs = manifest.getMainAttributes();
@@ -127,12 +148,37 @@ public abstract class BotPlugin {
             BotLogMan.warning(e.getMessage());
         }
         if (version == null) {
-            version = "*";
+            version = "0";
         }
         if (build == null) {
-            build = "*";
+            build = "0";
         }
         version = version.concat(".").concat(build);
+    }
+
+    public final PropertiesFile getPluginConfiguration() throws UtilityException {
+        if (plugin_cfg == null) {
+            plugin_cfg = new PropertiesFile(String.format("plugins/%s.jar", getName()), "plugin.cfg");
+        }
+        return plugin_cfg;
+    }
+
+    public final PropertiesFile getPluginProperties() throws UtilityException {
+        if (plugin_props == null) {
+            plugin_props = new PropertiesFile(String.format("plugins/%s/%s.ini", getName(), getName().toLowerCase()));
+        }
+        return plugin_cfg;
+    }
+
+    /**
+     * Used to get plugin specific configuration files
+     * 
+     * @param file
+     * @return
+     * @throws UtilityException
+     */
+    public final PropertiesFile getPluginConfigFile(String file) throws UtilityException {
+        return new PropertiesFile(String.format("plugins/%s/%s.ini", getName(), file));
     }
 
     public final boolean equals(Object obj) {

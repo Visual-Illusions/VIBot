@@ -1,7 +1,25 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ */
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.Channel;
 import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.plugin.BotPlugin;
 
 public abstract class BaseCommand {
@@ -26,8 +44,10 @@ public abstract class BaseCommand {
      *            minimum number of arguments required
      * @param maxParam
      *            maximum number of arguments
+     * @throws VIBotException
+     *             if unable to read the plugin configuration file
      */
-    public BaseCommand(BotPlugin plugin, String[] aliases, String usage, String desc, int minParam, int maxParam, boolean requireVoice, boolean requireOp, boolean requireOwner) {
+    public BaseCommand(BotPlugin plugin, String[] aliases, String usage, String desc, int minParam, int maxParam, boolean requireVoice, boolean requireOp, boolean requireOwner) throws VIBotException {
         this.plugin = plugin;
         this.aliases = aliases;
         this.usage = usage;

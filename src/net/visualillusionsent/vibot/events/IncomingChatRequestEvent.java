@@ -17,20 +17,18 @@
  */
 package net.visualillusionsent.vibot.events;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.io.DccChat;
 import net.visualillusionsent.vibot.plugin.BotPlugin;
 
-public abstract class PartEvent extends BaseEvent {
+public abstract class IncomingChatRequestEvent extends BaseEvent {
 
-    public PartEvent(BotPlugin plugin) {
-        super(plugin, EventType.PART);
+    public IncomingChatRequestEvent(BotPlugin plugin, EventPriority priority) {
+        super(plugin, priority, EventType.INCOMING_CHAT_REQUEST);
     }
 
-    public PartEvent(BotPlugin plugin, EventPriority priority) {
-        super(plugin, priority, EventType.PART);
+    public IncomingChatRequestEvent(BotPlugin plugin) {
+        super(plugin, EventType.INCOMING_CHAT_REQUEST);
     }
 
-    public abstract void execute(Channel channel, User user);
-
+    public abstract void execute(DccChat chat);
 }

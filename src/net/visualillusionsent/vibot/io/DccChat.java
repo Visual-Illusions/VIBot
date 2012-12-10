@@ -1,3 +1,29 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ *
+ * Parts of this file are derived from PircBot
+ * Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
+ *
+ * PircBot is dual-licensed, allowing you to choose between the GNU
+ * General Public License (GPL) and the www.jibble.org Commercial License.
+ * Since the GPL may be too restrictive for use in a proprietary application,
+ * a commercial license is also provided. Full license information can be
+ * found at http://www.jibble.org/licenses/
+ */
 package net.visualillusionsent.vibot.io;
 
 import java.io.BufferedReader;
@@ -9,12 +35,15 @@ import java.net.Socket;
 
 import net.visualillusionsent.utils.IPAddressUtils;
 import net.visualillusionsent.utils.UtilityException;
+import net.visualillusionsent.vibot.User;
 import net.visualillusionsent.vibot.VIBot;
 
 /**
  * This class is used to allow the bot to interact with a DCC Chat session.
  * <p>
- * This class is based on/contains code from PircBot PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/
+ * This class is contains code derived from PircBot <br>
+ * PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/<br>
+ * and dual Licensed under the GNU General Public License/www.jibble.org Commercial License
  * 
  * @since VIBot 1.0
  * @author Jason Jones (darkdiplomat)
@@ -22,9 +51,7 @@ import net.visualillusionsent.vibot.VIBot;
  * @version 1.0
  */
 public class DccChat {
-    private String nick;
-    private String login = null;
-    private String hostname = null;
+    private User user;
     private BufferedReader reader;
     private BufferedWriter writer;
     private Socket socket;
@@ -47,12 +74,10 @@ public class DccChat {
      * @throws IOException
      *             If the connection cannot be made.
      */
-    DccChat(VIBot bot, String nick, String login, String hostname, long address, int port) {
+    DccChat(VIBot bot, User user, long address, int port) {
         this.address = address;
         this.port = port;
-        this.nick = nick;
-        this.login = login;
-        this.hostname = hostname;
+        this.user = user;
         this.acceptable = true;
     }
 
@@ -70,8 +95,8 @@ public class DccChat {
      * @throws IOException
      *             If the socket cannot be read from.
      */
-    public DccChat(VIBot bot, String nick, Socket socket) throws IOException {
-        this.nick = nick;
+    public DccChat(VIBot bot, User user, Socket socket) throws IOException {
+        this.user = user;
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -145,30 +170,12 @@ public class DccChat {
     }
 
     /**
-     * Returns the nick of the other user taking part in this file transfer.
+     * Returns the User taking part in this file transfer.
      * 
      * @return the nick of the other user.
      */
-    public String getNick() {
-        return nick;
-    }
-
-    /**
-     * Returns the login of the DCC Chat initiator.
-     * 
-     * @return the login of the DCC Chat initiator. null if we sent it.
-     */
-    public String getLogin() {
-        return login;
-    }
-
-    /**
-     * Returns the hostname of the DCC Chat initiator.
-     * 
-     * @return the hostname of the DCC Chat initiator. null if we sent it.
-     */
-    public String getHostname() {
-        return hostname;
+    public User getUser() {
+        return user;
     }
 
     /**

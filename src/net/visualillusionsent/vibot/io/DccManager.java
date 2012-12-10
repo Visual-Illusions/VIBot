@@ -1,24 +1,62 @@
+/* 
+ * Copyright 2012 Visual Illusions Entertainment.
+ *  
+ * This file is part of VIBot.
+ *
+ * VIBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * If not, see http://www.gnu.org/licenses/lgpl.html
+ *
+ * Parts of this file are derived from PircBot
+ * Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
+ *
+ * PircBot is dual-licensed, allowing you to choose between the GNU
+ * General Public License (GPL) and the www.jibble.org Commercial License.
+ * Since the GPL may be too restrictive for use in a proprietary application,
+ * a commercial license is also provided. Full license information can be
+ * found at http://www.jibble.org/licenses/
+ */
 package net.visualillusionsent.vibot.io;
 
+import java.util.LinkedList;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
+import net.visualillusionsent.vibot.User;
 import net.visualillusionsent.vibot.VIBot;
+import net.visualillusionsent.vibot.events.EventManager;
 
+/**
+ * This class is used to process DCC events from the server.
+ * <p>
+ * This class is contains code derived from PircBot <br>
+ * PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/<br>
+ * and dual Licensed under the GNU General Public License/www.jibble.org Commercial License
+ * 
+ * @since VIBot 1.0
+ * @author Jason (darkdiplomat)
+ * @author Paul James Mutton (PircBot)
+ */
 public class DccManager {
 
-    private VIBot _bot;
-    @SuppressWarnings("rawtypes")
-    private Vector _awaitingResume = new Vector();
+    private VIBot bot;
+    private LinkedList<DccFileTransfer> awaitingResume = new LinkedList<DccFileTransfer>();
 
     /**
      * Constructs a DccManager to look after all DCC SEND and CHAT events.
      * 
      * @param bot
-     *            The PircBot whose DCC events this class will handle.
+     *            The VIBot whose DCC events this class will handle.
      */
     public DccManager(VIBot bot) {
-        _bot = bot;
+        this.bot = bot;
     }
 
     /**
@@ -26,85 +64,86 @@ public class DccManager {
      * 
      * @return True if the type of request was handled successfully.
      */
-    public boolean processRequest(String nick, String login, String hostname, String request) {
+    public boolean processRequest(User user, String request) {
         StringTokenizer tokenizer = new StringTokenizer(request);
         tokenizer.nextToken();
         String type = tokenizer.nextToken();
         String filename = tokenizer.nextToken();
 
-        if (type.equals("SEND")) {
-            long address = Long.parseLong(tokenizer.nextToken());
-            int port = Integer.parseInt(tokenizer.nextToken());
-            long size = -1;
-            try {
-                size = Long.parseLong(tokenizer.nextToken());
-            }
-            catch (Exception e) {
-                // Stick with the old value.
-            }
+        DccFileTransfer transfer = null;
+        long address;
+        int port;
+        switch (type) {
+            case "SEND":
+                address = Long.parseLong(tokenizer.nextToken());
+                port = Integer.parseInt(tokenizer.nextToken());
+                long size = -1;
+                try {
+                    size = Long.parseLong(tokenizer.nextToken());
+                }
+                catch (Exception e) {
+                    // Stick with the old value.
+                }
 
-            DccFileTransfer transfer = new DccFileTransfer(_bot, this, nick, login, hostname, type, filename, address, port, size);
-            //_bot.onIncomingFileTransfer(transfer);
+                transfer = new DccFileTransfer(bot, this, user, type, filename, address, port, size);
+                //bot.onIncomingFileTransfer(transfer);
+                return true;
 
-        }
-        else if (type.equals("RESUME")) {
-            int port = Integer.parseInt(tokenizer.nextToken());
-            long progress = Long.parseLong(tokenizer.nextToken());
+            case "RESUME":
+                port = Integer.parseInt(tokenizer.nextToken());
+                long progress = Long.parseLong(tokenizer.nextToken());
 
-            DccFileTransfer transfer = null;
-            synchronized (_awaitingResume) {
-                for (int i = 0; i < _awaitingResume.size(); i++) {
-                    transfer = (DccFileTransfer) _awaitingResume.elementAt(i);
-                    if (transfer.getNick().equals(nick) && transfer.getPort() == port) {
-                        _awaitingResume.removeElementAt(i);
-                        break;
+                transfer = null;
+                synchronized (awaitingResume) {
+                    for (int index = 0; index < awaitingResume.size(); index++) {
+                        transfer = awaitingResume.get(index);
+                        if (transfer.getUser().equals(user) && transfer.getPort() == port) {
+                            awaitingResume.remove(index);
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (transfer != null) {
-                transfer.setProgress(progress);
-                _bot.sendCTCPCommand(nick, "DCC ACCEPT file.ext " + port + " " + progress);
-            }
+                if (transfer != null) {
+                    transfer.setProgress(progress);
+                    bot.sendCTCPCommand(user.getNick(), "DCC ACCEPT file.ext ".concat(String.valueOf(port)).concat(" ").concat(String.valueOf(progress)));
+                }
+                return true;
 
-        }
-        else if (type.equals("ACCEPT")) {
-            int port = Integer.parseInt(tokenizer.nextToken());
-            // long progress = Long.parseLong(tokenizer.nextToken());
+            case "ACCEPT":
+                port = Integer.parseInt(tokenizer.nextToken());
+                // long progress = Long.parseLong(tokenizer.nextToken());
 
-            DccFileTransfer transfer = null;
-            synchronized (_awaitingResume) {
-                for (int i = 0; i < _awaitingResume.size(); i++) {
-                    transfer = (DccFileTransfer) _awaitingResume.elementAt(i);
-                    if (transfer.getNick().equals(nick) && transfer.getPort() == port) {
-                        _awaitingResume.removeElementAt(i);
-                        break;
+                transfer = null;
+                synchronized (awaitingResume) {
+                    for (int index = 0; index < awaitingResume.size(); index++) {
+                        transfer = awaitingResume.get(index);
+                        if (transfer.getUser().equals(user) && transfer.getPort() == port) {
+                            awaitingResume.remove(index);
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (transfer != null) {
-                transfer.doReceive(transfer.getFile(), true);
-            }
-
-        }
-        else if (type.equals("CHAT")) {
-            long address = Long.parseLong(tokenizer.nextToken());
-            int port = Integer.parseInt(tokenizer.nextToken());
-
-            final DccChat chat = new DccChat(_bot, nick, login, hostname, address, port);
-
-            new Thread() {
-                public void run() {
-                    //_bot.onIncomingChatRequest(chat);
+                if (transfer != null) {
+                    transfer.doReceive(transfer.getFile(), true);
                 }
-            }.start();
-        }
-        else {
-            return false;
-        }
+                return true;
 
-        return true;
+            case "CHAT":
+                address = Long.parseLong(tokenizer.nextToken());
+                port = Integer.parseInt(tokenizer.nextToken());
+
+                final DccChat chat = new DccChat(bot, user, address, port);
+
+                new Thread() {
+                    public void run() {
+                        EventManager.getInstance().callIncomingChatRequestEvent(chat);
+                    }
+                }.start();
+            default:
+                return false;
+        }
     }
 
     /**
@@ -113,10 +152,9 @@ public class DccManager {
      * @param transfer
      *            the DccFileTransfer that may be resumed.
      */
-    @SuppressWarnings("unchecked")
     void addAwaitingResume(DccFileTransfer transfer) {
-        synchronized (_awaitingResume) {
-            _awaitingResume.addElement(transfer);
+        synchronized (awaitingResume) {
+            awaitingResume.add(transfer);
         }
     }
 
@@ -124,6 +162,6 @@ public class DccManager {
      * Remove this transfer from the list of those awaiting resuming.
      */
     void removeAwaitingResume(DccFileTransfer transfer) {
-        _awaitingResume.removeElement(transfer);
+        awaitingResume.remove(transfer);
     }
 }
