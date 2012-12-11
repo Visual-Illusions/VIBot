@@ -35,7 +35,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -50,6 +49,7 @@ import java.util.logging.Logger;
 import net.visualillusionsent.utils.DateUtils;
 import net.visualillusionsent.utils.IPAddressUtils;
 import net.visualillusionsent.utils.UtilityException;
+import net.visualillusionsent.utils.VersionChecker;
 import net.visualillusionsent.vibot.commands.CommandParser;
 import net.visualillusionsent.vibot.events.EventManager;
 import net.visualillusionsent.vibot.io.ConsoleCommandReceiver;
@@ -94,14 +94,14 @@ public final class VIBot {
     private EventManager manager;
     private static String botVersion = null, build = null;
     private static VIBot instance;
+    private static VersionChecker vc;
     private static volatile boolean shuttingdown = false;
 
     private VIBot() throws VIBotException {
         this.outQueue = new Queue();
         this.dccManager = new DccManager(this);
         this.manager = EventManager.getInstance();
-
-        this.version = "VIBot v" + getBotVersion() + " Java IRC Bot - http://visualillusionsent.net";
+        this.version = "VIBot v".concat(getBotVersion()).concat(" Java IRC Bot");
     }
 
     /**
@@ -113,6 +113,10 @@ public final class VIBot {
     public static void main(String[] args) {
         BotLogMan.info("Visual Illusions IRC Bot Starting...");
         BotLogMan.info("VIBot Version: ".concat(getBotVersion()));
+        vc = new VersionChecker("VIBot", getBotVersion(), "http://visualillusionsent.net/vibot/vibot_versions.php?name=VIBot");
+        if (!vc.isLatest()) {
+            BotLogMan.info(vc.getUpdateAvailibleMessage());
+        }
         CommandParser.getInstance();
         BotConfig.getInstance();
         BotPluginLoader.getInstance().loadPlugins();
@@ -166,14 +170,36 @@ public final class VIBot {
         return instance.getChannels();
     }
 
+    /**
+     * Gets the VIBot's manifest file from the .jar
+     * 
+     * @return manifest of VIBot
+     * @throws VIBotException
+     *             if there was an issue getting the manifest
+     */
     public static final Manifest getBotManifest() throws VIBotException {
+        Manifest toRet = null;
+        VIBotException vibe = null;
+        JarFile jar = null;
         try {
-            URL url = Thread.currentThread().getContextClassLoader().getResource(JarFile.MANIFEST_NAME);
-            return new Manifest(url.openStream());
+            jar = new JarFile(System.getProperty("java.class.path"));
+            toRet = jar.getManifest();
         }
         catch (Exception e) {
-            throw new VIBotException("Unable to retrieve Manifest! (Missing?)", e);
+            vibe = new VIBotException("Unable to retrieve Manifest! (Missing?)", e);
         }
+        finally {
+            if (jar != null) {
+                try {
+                    jar.close();
+                }
+                catch (IOException e) {}
+            }
+            if (vibe != null) {
+                throw vibe;
+            }
+        }
+        return toRet;
     }
 
     /**

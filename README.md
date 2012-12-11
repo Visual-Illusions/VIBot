@@ -1,6 +1,5 @@
 # VIBot #
 #### Visual Illusions Java IRC Bot ####
-##### &copy; 2012 [Visual Illusions Entertainment](http://visualillusionsent.net/ "vi")
 
 ## Compiling ##
 Add a new project from existing sources in whatever IDE you use. 

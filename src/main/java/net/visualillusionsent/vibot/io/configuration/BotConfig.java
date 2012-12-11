@@ -18,6 +18,9 @@
 package net.visualillusionsent.vibot.io.configuration;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import net.visualillusionsent.utils.PropertiesFile;
@@ -38,7 +41,7 @@ public final class BotConfig {
     private String botname, login, server, server_pass, nickserv_pass, join_message, part_message, quit_message, encoding;
     private String[] plugins = new String[] { "" }, channels = new String[] { "" }, bot_owners = new String[] { "" };
     private char cmd_Prefix = '!';
-    private boolean autonickchange = true, ident = true, log_pingpong = false, log_server_pingpong = false;
+    private boolean autonickchange = true, ident = true;//, log_pingpong = false, log_server_pingpong = false;
     private int serv_port = 6667, ident_port = 113;
     private int[] dcc_ports = new int[] {};
     private long messageDelay = 750;
@@ -69,15 +72,13 @@ public final class BotConfig {
     private void load() throws UtilityException {
         File file = new File("botprops.ini");
         if (!file.exists()) {
-            BotLogMan.warning("First Launch detected! Initializing properties and shutting down...");
-            props = new PropertiesFile("botprops.ini");
-            CheckKeys();
+            BotLogMan.warning("First Launch detected! Initializing properties and exiting. Be sure to set your properties before restarting.");
+            migrateProps();
             System.exit(0);
             return;
         }
 
         props = new PropertiesFile("botprops.ini");
-        CheckKeys();
         botname = props.getString("Bot-Name");
         login = props.getString("Login-Name");
         autonickchange = props.getBoolean("AutoNickChange");
@@ -100,99 +101,36 @@ public final class BotConfig {
         BotLogMan.info("Properties Loaded...");
     }
 
-    private void CheckKeys() throws UtilityException {
-        boolean keymissing = false;
-        //botname
-        if (!props.containsKey("Bot-Name")) {
-            props.setString("Bot-Name", "VIBot", "This is the Nick of the Bot");
-            keymissing = true;
+    private void migrateProps() throws UtilityException {
+        InputStream in = null;
+        FileWriter out = null;
+        try {
+            File outputFile = new File("botprops.ini");
+            in = getClass().getClassLoader().getResourceAsStream("resources/defaultbotprops.ini");
+            out = new FileWriter(outputFile);
+            int c;
+            while ((c = in.read()) != -1) {
+                out.write(c);
+            }
         }
-        //login
-        if (!props.containsKey("Login-Name")) {
-            props.setString("Login-Name", "VIBot", "Sets the login of the Bot (not the nick)");
-            keymissing = true;
+        catch (IOException e) {
+            BotLogMan.severe("Unable to create properties file!");
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            }
+            catch (IOException e2) {}
         }
-        //autonickchange
-        if (!props.containsKey("AutoNickChange")) {
-            props.setBoolean("AutoNickChange", true, "Sets if the bot's nick should change if already in use at connect");
-            keymissing = true;
-        }
-        //nickserv_pass
-        if (!props.containsKey("NickServ-Password")) {
-            props.setString("NickServ-Password", "", "Password to log identify with NickServ if needed");
-            keymissing = true;
-        }
-        //server
-        if (!props.containsKey("Server")) {
-            props.setString("Server", "my.server.name", "This is the IRC Server to connect to", "Can be an IP address or URL");
-            keymissing = true;
-        }
-        //server_pass
-        if (!props.containsKey("Server-Password")) {
-            props.setString("Server-Password", "", "Password to log into server if needed");
-            keymissing = true;
-        }
-        //serv_port
-        if (!props.containsKey("Server-Port")) {
-            props.setInt("Server-Port", 6667, "Port in which to connect to the IRC Server");
-            keymissing = true;
-        }
-        //ident
-        if (!props.containsKey("Use-Ident-Server")) {
-            props.setBoolean("Use-Ident-Server", true);
-            keymissing = true;
-        }
-        //ident-port
-        if (!props.containsKey("Ident-Port")) {
-            props.setInt("Ident-Port", 113, "The port to use with the Ident Server");
-            keymissing = true;
-        }
-        //channels
-        if (!props.containsKey("Channels")) {
-            props.setString("Channels", "", "Channels to join separated by a Comma (,)");
-            keymissing = true;
-        }
-        //join_message
-        if (!props.containsKey("Join-Message")) {
-            props.setString("Join-Message", "Have no fear, VIBot is here!", "Message to send when joining a channel");
-            keymissing = true;
-        }
-        //part_message
-        if (!props.containsKey("Part-Message")) {
-            props.setString("Part-Message", "'Till we meet again...", "Message to send when parting a channel");
-            keymissing = true;
-        }
-        //quit_message
-        if (!props.containsKey("Quit-Message")) {
-            props.setString("Quit-Message", "That's it, I QUIT!", "Message to send when disconnecting from the server");
-            keymissing = true;
-        }
-        //messageDelay
-        if (!props.containsKey("Message-Delay")) {
-            props.setLong("Message-Delay", 750, "The delay in milliseconds between message sendings (so as to not spam the IRC)");
-            keymissing = true;
-        }
-        //cmd_prefix
-        if (!props.containsKey("Command-Prefix")) {
-            props.setCharacter("Command-Prefix", '!');
-            keymissing = true;
-        }
-        //bot_owners
-        if (!props.containsKey("Bot-Owner-Nicks")) {
-            props.setString("Bot-Owner-Nicks", "", "List of admins (used for commands not sent from a channel)");
-            keymissing = true;
-        }
-        //plugins
-        if (!props.containsKey("Plugins")) {
-            props.setString("Plugins", "", "List of Plugins to load by default. Seperate plugins with a Comma (,)");
-            keymissing = true;
-        }
-        //encoding
-        if (!props.containsKey("Encoding")) {
-            props.setString("Encoding", "UTF-8");
-        }
-        if (keymissing) {
-            props.save();
+        finally {
+            try {
+                in.close();
+                out.close();
+            }
+            catch (IOException ioe) {}
         }
     }
 

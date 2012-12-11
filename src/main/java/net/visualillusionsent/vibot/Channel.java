@@ -212,7 +212,7 @@ public final class Channel {
     }
 
     public final String toString() {
-        return String.format("Channel[Name=%s Topic=%s Muted=%b Users=%s Ignored_Users=%s]", name, topic.toString(), muted, Arrays.toString(users.toArray()), Arrays.toString(ignored.toArray()));
+        return String.format("Channel[Name=%s Topic=%s Muted=%b Users=%s Ignored Users=%s]", name, topic.toString(), muted, Arrays.toString(users.toArray()), Arrays.toString(ignored.toArray()));
     }
 
     public final int hashcode() {

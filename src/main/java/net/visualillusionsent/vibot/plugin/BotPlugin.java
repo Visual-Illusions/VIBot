@@ -17,6 +17,7 @@
  */
 package net.visualillusionsent.vibot.plugin;
 
+import java.io.IOException;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -105,14 +106,28 @@ public abstract class BotPlugin {
 
     public final Manifest getPluginManifest() {
         String jarpath = "plugins/".concat(getName()).concat(".jar");
+        Manifest toRet = null;
+        VIBotException vibe = null;
+        JarFile jar = null;
         try {
-            @SuppressWarnings("resource")
-            JarFile jar = new JarFile(jarpath);
-            return jar.getManifest();
+            jar = new JarFile(jarpath);
+            toRet = jar.getManifest();
         }
         catch (Exception e) {
-            throw new VIBotException("Unable to retrieve Manifest for Plugin: ".concat(getName()).concat("! (Missing?)"), e);
+            vibe = new VIBotException("Unable to retrieve Manifest! (Missing?)", e);
         }
+        finally {
+            if (jar != null) {
+                try {
+                    jar.close();
+                }
+                catch (IOException e) {}
+            }
+            if (vibe != null) {
+                throw vibe;
+            }
+        }
+        return toRet;
     }
 
     final void setBotClassLoader(BotClassLoader loader) {
@@ -158,16 +173,16 @@ public abstract class BotPlugin {
 
     public final PropertiesFile getPluginConfiguration() throws UtilityException {
         if (plugin_cfg == null) {
-            plugin_cfg = new PropertiesFile(String.format("plugins/%s.jar", getName()), "plugin.cfg");
+            plugin_cfg = new PropertiesFile(String.format("plugins/%s.jar", this.getName()), "plugin.cfg");
         }
         return plugin_cfg;
     }
 
     public final PropertiesFile getPluginProperties() throws UtilityException {
         if (plugin_props == null) {
-            plugin_props = new PropertiesFile(String.format("plugins/%s/%s.ini", getName(), getName().toLowerCase()));
+            plugin_props = new PropertiesFile(String.format("plugins/%s/%s.ini", this.getName(), this.getName().toLowerCase()));
         }
-        return plugin_cfg;
+        return plugin_props;
     }
 
     /**

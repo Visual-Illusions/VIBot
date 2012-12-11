@@ -30,6 +30,7 @@ import java.io.File;
 import java.net.Socket;
 
 import net.visualillusionsent.utils.TaskManager;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.User;
 import net.visualillusionsent.vibot.VIBot;
 
@@ -135,14 +136,20 @@ public class DccFileTransfer {
      * Receive the file in a new thread.
      */
     void doReceive(final File file, final boolean resume) {
-        TaskManager.executeTask(new FileReceive(this, resume));
+        try {
+            TaskManager.executeTask(new FileReceive(this, resume));
+        }
+        catch (UtilityException e) {}
     }
 
     /**
      * Method to send the file inside a new thread.
      */
     public void doSend(final boolean allowResume) {
-        TaskManager.executeTask(new FileSend(this, timeout, allowResume));
+        try {
+            TaskManager.executeTask(new FileSend(this, timeout, allowResume));
+        }
+        catch (UtilityException e) {}
     }
 
     /**
