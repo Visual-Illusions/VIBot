@@ -24,6 +24,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.visualillusionsent.vibot.io.configuration.BotConfig;
+
 public final class BotLogMan {
     private static Logger logger;
 
@@ -57,8 +59,10 @@ public final class BotLogMan {
         logger.log(BotLevel.CONSOLE_MESSAGE, msg);
     }
 
-    public static void unknownIncoming(String msg) {
-        logger.log(BotLevel.INCOMING, msg);
+    public static void incoming(String msg) {
+        if (BotConfig.getDebug()) {
+            logger.log(BotLevel.INCOMING, msg);
+        }
     }
 
     public static void outgoing(String msg) {

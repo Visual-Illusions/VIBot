@@ -28,6 +28,7 @@ package net.visualillusionsent.vibot.io;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
@@ -35,7 +36,6 @@ import java.net.Socket;
 
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
-import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
@@ -61,9 +61,9 @@ public class IdentServer extends Thread {
      * 
      * @param bot
      *            The VIBot instance that will be used to log to.
-     * @throws VIBotException
+     * @throws IOException
      */
-    public IdentServer(VIBot bot) throws VIBotException {
+    public IdentServer(VIBot bot) throws IOException {
         super("IdentServer-Thread");
         int port = BotConfig.getIdentPort();
         try {
@@ -71,7 +71,7 @@ public class IdentServer extends Thread {
             ss.setSoTimeout(120000);
         }
         catch (Exception e) {
-            throw new VIBotException("Could not start the ident server on port ".concat(String.valueOf(port)).concat("."), e);
+            throw new IOException("Could not start the ident server on port ".concat(String.valueOf(port)).concat("."), e);
         }
 
         BotLogMan.info("Ident server running on port ".concat(String.valueOf(BotConfig.getIdentPort())).concat(" for the next 120 seconds..."));

@@ -22,7 +22,7 @@ import net.visualillusionsent.vibot.io.configuration.BotConfig;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
-final class ReconnectionThread extends Thread {
+public final class ReconnectionThread extends Thread {
     private VIBot bot;
 
     public ReconnectionThread(VIBot bot) {

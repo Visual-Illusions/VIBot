@@ -17,18 +17,19 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
-import net.visualillusionsent.vibot.plugin.BotPluginLoader;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class DisablePluginCommand extends BaseCommand {
+public final class DisablePluginCommand extends BaseCommand {
 
     public DisablePluginCommand() {
         super(null, new String[] { "disableplugin" }, "!disableplugin <plugin>", "Disables a plugin", 2, 2, false, false, true);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
         BotPluginLoader.getInstance().disablePlugin(args[1]);
         channel.sendMessage("Plugin disabled!");
         return true;

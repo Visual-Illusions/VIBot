@@ -17,16 +17,17 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class IgnoreUserCommand extends BaseCommand {
+public final class IgnoreUserCommand extends BaseCommand {
     public IgnoreUserCommand() {
         super(null, new String[] { "ignore" }, "!ignore <user>", "Ignores a user", 2, 2, false, true, false);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
         User ignore = channel.getUser(args[1]);
         if (!channel.isUserIgnored(ignore)) {
             channel.ignoreUser(ignore);

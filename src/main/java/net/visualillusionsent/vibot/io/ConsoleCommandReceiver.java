@@ -21,11 +21,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.commands.CommandParser;
+import net.visualillusionsent.vibot.api.plugin.CommandParser;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
@@ -57,7 +57,8 @@ public final class ConsoleCommandReceiver extends Thread {
                         String chan = inLine.split(" ")[0];
                         if (chan.startsWith("#")) {
                             if (inLine.length() > (chan.length() + 1)) {
-                                VIBot.sendBotMessage(chan, inLine.substring(chan.length() + 1));
+                                //VIBot.sendBotMessage(chan, inLine.substring(chan.length() + 1));
+                                //TODO???
                             }
                         }
                     }

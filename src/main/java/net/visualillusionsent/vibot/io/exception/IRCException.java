@@ -3,7 +3,7 @@ package net.visualillusionsent.vibot.io.exception;
 /**
  * IRCException class
  */
-public class IRCException extends Exception {
+public final class IRCException extends RuntimeException {
     private static final long serialVersionUID = 301909112012L;
 
     /**

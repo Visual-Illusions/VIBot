@@ -19,17 +19,18 @@ package net.visualillusionsent.vibot.commands;
 
 import java.util.List;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class ListIgnoresCommand extends BaseCommand {
+public final class ListIgnoresCommand extends BaseCommand {
 
     public ListIgnoresCommand() {
         super(null, new String[] { "listignore" }, "!listignore", "List of users being ignored in the channel", 1, -1, false, true, false);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
         List<User> ignore = channel.getIgnoreList();
         if (!ignore.isEmpty()) {
             StringBuilder sb = new StringBuilder();

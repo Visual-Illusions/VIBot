@@ -22,10 +22,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import net.visualillusionsent.utils.SystemUtils;
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class InformationCommand extends BaseCommand {
+public final class InformationCommand extends BaseCommand {
 
     public InformationCommand() {
         super(null, new String[] { "info" }, "!info", "Gives System Information about this Bot", 1, -1, false, false, false);

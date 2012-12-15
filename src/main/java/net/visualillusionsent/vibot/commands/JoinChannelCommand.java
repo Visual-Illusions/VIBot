@@ -17,18 +17,19 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
 import net.visualillusionsent.vibot.VIBot;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class JoinChannelCommand extends BaseCommand {
+public final class JoinChannelCommand extends BaseCommand {
 
     public JoinChannelCommand() {
         super(null, new String[] { "join" }, "!join <channel>", "Joins a channel if exists and can", 2, 2, false, false, true);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
         if (!args[1].startsWith("#")) {
             user.sendMessage("Channels need to start with a '#'!");
         }

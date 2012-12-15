@@ -17,18 +17,19 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.Topic;
-import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.Topic;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class TopicCommand extends BaseCommand {
+public final class TopicCommand extends BaseCommand {
 
     public TopicCommand() {
         super(null, new String[] { "topic" }, "!topic", "Shows the channel's topic", 1, -1, false, false, false);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
         if (channel.getName().startsWith("#")) {
             if (channel.getTopic() != null) {
                 Topic topic = channel.getTopic();
@@ -40,7 +41,7 @@ final class TopicCommand extends BaseCommand {
             }
         }
         else {
-            user.sendMessage("You need to be in a channel to display the topic!");
+            user.sendNotice("You need to be in a channel to display the topic!");
         }
         return true;
     }

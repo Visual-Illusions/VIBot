@@ -17,18 +17,27 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.utils.DateUtils;
+import net.visualillusionsent.utils.UtilityException;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class PingCommand extends BaseCommand {
+public final class PingCommand extends BaseCommand {
 
     public PingCommand() {
         super(null, new String[] { "ping" }, "!ping", "Sends a Pong", 1, -1, false, false, false);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
-        channel.sendMessage("| . :  |");
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
+        try {
+            channel.sendMessage("PONG: ".concat(DateUtils.longToDate(System.currentTimeMillis()).toString()));
+        }
+        catch (UtilityException ue) {
+            //Shouldn't happen but just incase
+            channel.sendMessage("PONG: ".concat(ue.getLocalizeMessage()));
+        }
         return true;
     }
 

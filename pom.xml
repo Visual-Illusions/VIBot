@@ -2,12 +2,38 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>VIBot</groupId>
     <artifactId>VIBot</artifactId>
-    <version>1.0.1</version>
+    <version>1.0</version>
     <name>VIBot</name>
     <description>Visual Illusions Entertainment Java IRC Bot</description>
+    <properties>
+        <!-- UTF-8 Encoding! -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
+            <!-- Build Number Generator -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.0-beta-3</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <format>{0,number}</format>
+                    <items>
+                        <item>buildNumber0</item>
+                    </items>
+                </configuration>
+            </plugin>
             <!-- Compile -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -24,15 +50,17 @@
                 <version>2.3.1</version>
                 <configuration>
                     <archive>
-                        <addMavenDescriptor>true</addMavenDescriptor>
+                        <addMavenDescriptor>false</addMavenDescriptor>
                         <manifest>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>false</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>false</addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
+                            <Version>${project.version}</Version>
+                            <Build>${buildNumber}</Build>
                             <Main-Class>net.visualillusionsent.vibot.VIBot</Main-Class>
-                            <Implementation-Build>${buildNumber}</Implementation-Build>
-                            <Class-Path> lib/VIUtils.jar</Class-Path>
+                            <Class-Path>lib/VIUtils.jar</Class-Path>
+                            <Sealed>true</Sealed>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -57,7 +85,7 @@
                         </goals>
                     </execution>
                     <execution>
-                       <id>verify</id>
+                      <id>verify</id>
                       <goals>
                           <goal>verify</goal>
                        </goals>

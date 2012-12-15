@@ -32,8 +32,9 @@
       use="true"
       useexternalfile="true"
       version="true"
-      doctitle="VIBot - Visual Illusions Java IRC Bot">
-      <link href="http://docs.oracle.com/javase/7/docs/api/"/>
+      doctitle="VIBot - Visual Illusions Java IRC Bot"
+      additionalparam='-tag code.derivative:a:"Source Code Derivative:"'>
+    	  <link href="http://docs.oracle.com/javase/7/docs/api/"/>
     </javadoc>
   </target>
 

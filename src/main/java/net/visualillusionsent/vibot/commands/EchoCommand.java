@@ -19,17 +19,18 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.utils.UtilityException;
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class EchoCommand extends BaseCommand {
+public final class EchoCommand extends BaseCommand {
 
     public EchoCommand() {
         super(null, new String[] { "echo" }, "!echo <message>", "Echoes the message", 2, -1, true, false, false);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
         String message = "";
         try {
             message = StringUtils.joinString(args, " ", 1);

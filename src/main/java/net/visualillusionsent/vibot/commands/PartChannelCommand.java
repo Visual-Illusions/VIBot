@@ -19,18 +19,19 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.utils.UtilityException;
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
 import net.visualillusionsent.vibot.VIBot;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class PartChannelCommand extends BaseCommand {
+public final class PartChannelCommand extends BaseCommand {
 
     public PartChannelCommand() {
         super(null, new String[] { "part" }, "!part [channel] [reason]", "Makes the bot leave a channel", 1, -1, false, false, true);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
         String reason = "disconnect.leaving";
         if (args.length > 2) {
             if (!args[1].startsWith("#")) {

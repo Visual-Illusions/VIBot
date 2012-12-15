@@ -1,0 +1,10 @@
+# This file NEEDS to be in UTF-8 format!
+# This file is also the default Language file and needs to be included
+bot.start1=
+bot.start2=
+bot.terminate=
+bot.stop.error=
+manifest.error=
+nick.error=
+io.error=
+irc.error=

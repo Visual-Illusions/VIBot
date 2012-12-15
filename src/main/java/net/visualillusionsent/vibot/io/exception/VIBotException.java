@@ -17,7 +17,7 @@
  */
 package net.visualillusionsent.vibot.io.exception;
 
-public class VIBotException extends RuntimeException {
+public final class VIBotException extends RuntimeException {
     private static final long serialVersionUID = 021436122012L;
 
     public VIBotException(String msg) {

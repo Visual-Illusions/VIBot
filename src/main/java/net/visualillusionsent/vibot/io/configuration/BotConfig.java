@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 
 import net.visualillusionsent.utils.PropertiesFile;
 import net.visualillusionsent.utils.UtilityException;
+import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
@@ -41,7 +42,7 @@ public final class BotConfig {
     private String botname, login, server, server_pass, nickserv_pass, join_message, part_message, quit_message, encoding;
     private String[] plugins = new String[] { "" }, channels = new String[] { "" }, bot_owners = new String[] { "" };
     private char cmd_Prefix = '!';
-    private boolean autonickchange = true, ident = true;//, log_pingpong = false, log_server_pingpong = false;
+    private boolean autonickchange = true, ident = true;
     private int serv_port = 6667, ident_port = 113;
     private int[] dcc_ports = new int[] {};
     private long messageDelay = 750;
@@ -52,7 +53,7 @@ public final class BotConfig {
         }
         catch (UtilityException e) {
             BotLogMan.severe("Properties File Issue: ", e);
-            System.exit(2);
+            VIBot.terminate(2);
             return;
         }
     }
@@ -152,6 +153,10 @@ public final class BotConfig {
 
     public static boolean useIdentServer() {
         return getInstance().ident;
+    }
+
+    public static boolean getDebug() {
+        return true;
     }
 
     public static char getCommandPrefix() {

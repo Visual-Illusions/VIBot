@@ -17,17 +17,18 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.Channel;
-import net.visualillusionsent.vibot.User;
+import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
 
-final class OkThanksCommand extends BaseCommand {
+public final class OkThanksCommand extends BaseCommand {
 
     public OkThanksCommand() {
         super(null, new String[] { "kthx" }, "!kthx", "Un-Quites the Bot", 1, -1, false, true, false);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final synchronized boolean execute(Channel channel, User user, String[] args) {
         if (channel.isMuted()) {
             channel.toggleMute();
         }
