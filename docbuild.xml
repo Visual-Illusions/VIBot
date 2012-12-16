@@ -4,7 +4,7 @@
       This script will build the VIBot JavaDocs and zip them
   </description>
   <property name="docs" location="./docs" />
-  <property name="src" location="./src" />
+  <property name="src" location="src/main/java/" />
 
   <target name="verifyRequirements" description="Checks if the necessary requirements for building Handler are fulfilled">
     <available classname="javax.script.ScriptContext" property="JDK7.present" />
@@ -21,7 +21,7 @@
 
   <target name="javadoc" depends="init" description="Generate javadocs">
     <javadoc author="true"
-      packagenames="net.visualillusionsent.*"
+      packagenames="net.visualillusionsent.vibot.*"
       sourcepath="${src}"
       source="1.7"
       private="true"
@@ -34,6 +34,7 @@
       version="true"
       doctitle="VIBot - Visual Illusions Java IRC Bot"
       additionalparam='-tag code.derivative:a:"Source Code Derivative:"'>
+    	  <link href="http://docs.visualillusionsent.net/VIUtils/"/>
     	  <link href="http://docs.oracle.com/javase/7/docs/api/"/>
     </javadoc>
   </target>

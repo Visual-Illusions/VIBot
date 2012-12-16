@@ -29,8 +29,8 @@ package net.visualillusionsent.vibot.io.dcc;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
-import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.plugin.events.EventManager;
+import net.visualillusionsent.vibot.io.irc.IRCConnection;
 import net.visualillusionsent.vibot.io.irc.User;
 
 /**
@@ -46,7 +46,7 @@ import net.visualillusionsent.vibot.io.irc.User;
  */
 public class DccManager {
 
-    private VIBot bot;
+    private IRCConnection irc_conn;
     private LinkedList<DccFileTransfer> awaitingResume = new LinkedList<DccFileTransfer>();
 
     /**
@@ -55,8 +55,8 @@ public class DccManager {
      * @param bot
      *            The VIBot whose DCC events this class will handle.
      */
-    public DccManager(VIBot bot) {
-        this.bot = bot;
+    public DccManager(IRCConnection irc_conn) {
+        this.irc_conn = irc_conn;
     }
 
     /**
@@ -85,7 +85,7 @@ public class DccManager {
                     // Stick with the old value.
                 }
 
-                transfer = new DccFileTransfer(bot, this, user, type, filename, address, port, size);
+                transfer = new DccFileTransfer(irc_conn, this, user, type, filename, address, port, size);
                 //bot.onIncomingFileTransfer(transfer);
                 return true;
 
@@ -134,7 +134,7 @@ public class DccManager {
                 address = Long.parseLong(tokenizer.nextToken());
                 port = Integer.parseInt(tokenizer.nextToken());
 
-                final DccChat chat = new DccChat(bot, user, address, port);
+                final DccChat chat = new DccChat(irc_conn, user, address, port);
 
                 new Thread() {
                     public void run() {

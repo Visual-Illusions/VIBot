@@ -15,12 +15,14 @@
  * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
-package net.visualillusionsent.vibot.api.plugin;
+package net.visualillusionsent.vibot;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.commands.DisablePluginCommand;
 import net.visualillusionsent.vibot.commands.DisconnectCommand;
 import net.visualillusionsent.vibot.commands.EchoCommand;
@@ -45,11 +47,23 @@ import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
-public class CommandParser {
+/**
+ * Command parsing class
+ * <p>
+ * Handle parsing of {@link BaseCommand}s supplied to the {@link VIBot}<br>
+ * 
+ * @author Jason (darkdiplomat)
+ * @see net.visualillusionsent.vibot.commands
+ */
+public final class CommandParser {
     private static CommandParser instance;
     private static final Object lock = new Object();
     private final LinkedHashMap<String, BaseCommand> commands;
 
+    /**
+     * Constructs a new {@code CommandParser}<br>
+     * Should not be constructed externally
+     */
     private CommandParser() {
         if (instance != null) {
             throw new IllegalStateException("Only one CommandParser instance may be created at a time.");
@@ -58,12 +72,12 @@ public class CommandParser {
     }
 
     /**
-     * Add a command to the server list.
+     * Adds a {@link BaseCommand} to the server list.
      * 
-     * @param name
      * @param cmd
+     *            the {@link BaseCommand} to add
      */
-    public void add(BaseCommand cmd) {
+    public final void add(BaseCommand cmd) {
         if (cmd != null) {
             for (String alias : cmd.getAliases()) {
                 if (!commands.containsValue(alias)) {
@@ -76,7 +90,12 @@ public class CommandParser {
         }
     }
 
-    public static CommandParser getInstance() {
+    /**
+     * Gets the {@code CommandParser} instance
+     * 
+     * @return {@code CommandParser} instance
+     */
+    public static final CommandParser getInstance() {
         if (instance == null) {
             instance = new CommandParser();
             new DisablePluginCommand();
@@ -84,10 +103,10 @@ public class CommandParser {
             new EchoCommand();
             new EnablePluginCommand();
             new HelpCommand();
+            new IdentifyCommand();
             new IgnoreUserCommand();
             new InformationCommand();
             new JoinChannelCommand();
-            new IdentifyCommand();
             new ListIgnoresCommand();
             new ListPluginsCommand();
             new NickChangeCommand();
@@ -106,13 +125,17 @@ public class CommandParser {
      * Performs a lookup for a command of the given name and executes it if
      * found. Returns false if command not found.
      * 
-     * @param command
-     * @param caller
+     * @param channel
+     *            the {@link Channel} the {@link BaseCommand} is used from
+     * @param user
+     *            the {@link User} using the the {@link BaseCommand}
      * @param args
-     * @return
+     *            the arguments for the {@link BaseCommand}
+     * @return {@code true} if is parsed successfully
      * @throws VIBotException
+     *             if an exception occurrs while parsing the command
      */
-    public static boolean parseBotCommand(Channel channel, User user, String[] args) throws VIBotException {
+    public static final boolean parseBotCommand(Channel channel, User user, String[] args) throws VIBotException {
         synchronized (lock) {
             BaseCommand cmd = getInstance().getCommand(args[0]);
             if (cmd != null) {
@@ -140,10 +163,25 @@ public class CommandParser {
         return false;
     }
 
-    public BaseCommand getCommand(String command) {
+    /**
+     * Gets the {@link BaseCommand} by name from the commands map
+     * 
+     * @param command
+     *            the name of the {@link BaseCommand} to get
+     * @return the {@link BaseCommand} if found; {@code null} otherwise
+     */
+    private final BaseCommand getCommand(String command) {
         return commands.get(command);
     }
 
+    /**
+     * Prints out the help list to the {@link User} based on their status in the channel
+     * 
+     * @param channel
+     *            the {@link Channel} help is being called from
+     * @param user
+     *            the {@link User} calling for help
+     */
     public static final void printHelp(Channel channel, User user) {
         synchronized (lock) {
             user.sendNotice("-- Help List for you in Channel: " + channel.getName() + " --");
@@ -179,7 +217,13 @@ public class CommandParser {
         }
     }
 
-    public void removePluginCommands(BotPlugin plugin) {
+    /**
+     * Removes all {@link BaseCommand}s associated with the {@link BotPlugin}
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} to remove {@link BaseCommand}s for
+     */
+    public final void removePluginCommands(BotPlugin plugin) {
         synchronized (lock) {
             List<String> toRemove = new ArrayList<String>();
             for (String cmdName : commands.keySet()) {

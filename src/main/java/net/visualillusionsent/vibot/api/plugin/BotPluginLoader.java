@@ -18,8 +18,10 @@
 package net.visualillusionsent.vibot.api.plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -27,6 +29,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import net.visualillusionsent.utils.SystemUtils;
+import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.plugin.events.EventManager;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
@@ -35,7 +38,9 @@ import net.visualillusionsent.vibot.io.irc.Colors;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
- * BotPluginLoader - Used to load plugins, toggle them, etc.
+ * Bot Plugin Loader
+ * <p>
+ * Used to load, enable, disable, reload plugins.
  * 
  * @author Jason (darkdiplomat)
  */
@@ -115,10 +120,7 @@ public final class BotPluginLoader {
             plugins.remove(toNull);
         }
         try {
-            File file = new File("plugins/" + pluginName + ".jar");
-            BotClassLoader child = null;
-            child = new BotClassLoader(new URL[] { file.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
-            child.close();
+            toNull.close();
         }
         catch (Exception e) {}
 
@@ -137,10 +139,10 @@ public final class BotPluginLoader {
                 BotLogMan.severe("Failed to find plugin file: plugins/" + pluginName + ".jar. Please ensure the file exists");
                 return false;
             }
-            BotClassLoader loader = null;
+            URLClassLoader loader = null;
 
             try {
-                loader = new BotClassLoader(new URL[] { pluginfile.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
+                loader = new URLClassLoader(new URL[] { pluginfile.toURI().toURL() }, Thread.currentThread().getContextClassLoader());
             }
             catch (MalformedURLException ex) {
                 BotLogMan.severe("Exception while loading class", ex);
@@ -151,9 +153,8 @@ public final class BotPluginLoader {
             filepath = filepathtemp != null ? filepathtemp : pluginName;
 
             Class<?> pluginclazz = Class.forName(filepath, true, loader);
-
             plugin = (BotPlugin) pluginclazz.newInstance();
-            plugin.setBotClassLoader(loader);
+            plugin.setClassLoader(loader);
             if (plugin.enable()) {
                 synchronized (lock) {
                     plugins.add(plugin);
@@ -174,9 +175,9 @@ public final class BotPluginLoader {
 
     private final String getPluginClassPath(String jarpath) throws VIBotException {
         String value = null;
+        JarFile jar = null;
         try {
-            @SuppressWarnings("resource")
-            JarFile jar = new JarFile(jarpath); //DON'T CLOSE THE JAR, it needs to remain open during this process, it will be closed out on disable
+            jar = new JarFile(jarpath); //DON'T CLOSE THE JAR, it needs to remain open during this process, it will be closed out on disable
             Manifest manifest = jar.getManifest();
             Attributes attr = manifest.getMainAttributes();
             value = attr.getValue("Plugin-Class");
@@ -187,6 +188,10 @@ public final class BotPluginLoader {
         catch (Exception e) {
             throw new VIBotException("Was unable to read Manifest for Plugin: '".concat(jarpath).concat("'"));
         }
+        try {
+            jar.close();
+        }
+        catch (IOException e) {}
         return value;
     }
 

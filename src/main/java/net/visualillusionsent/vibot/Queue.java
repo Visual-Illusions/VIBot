@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
  * act as a queue - that is, data can be added to one end of the
  * queue and data can be requested from the head end of the queue.
  * This class is thread safe for multiple producers and a single
- * consumer. The next() method will block until there is data in
+ * consumer. The {@link #next()} method will wait until there is data in
  * the queue.
  * <p>
  * This class contains code derived from PircBot<br>
@@ -45,26 +45,33 @@ import java.util.NoSuchElementException;
  * @version 1.1
  * @author Jason (darkdiplomat)
  * @author Paul James Mutton (PircBot)
+ * @code.derivative PircBot
  */
-public class Queue {
+public final class Queue {
     /**
      * The {@link LinkedList} of queued messages
      */
-    private LinkedList<String> queue = new LinkedList<String>();
+    private LinkedList<String> queue;
 
     /**
-     * Constructs a Queue object of unlimited size.
+     * Constructs a {@code Queue} object.
      */
-    public Queue() {}
+    public Queue() {
+        queue = new LinkedList<String>();
+    }
 
     /**
-     * Adds a message to the end of the Queue.
+     * Adds a message to the end of the {@code Queue}.
      * 
      * @param msg
-     *            The Message to be added to the Queue.
-     * @code.derivative PircBot
+     *            The message to be added to the {@code Queue}.
+     * @throws NullPointerException
+     *             If the message is null
      */
     public final void add(String msg) {
+        if (msg == null) {
+            throw new NullPointerException("Message cannot be null.");
+        }
         synchronized (queue) {
             queue.add(msg);
             queue.notify();
@@ -72,13 +79,17 @@ public class Queue {
     }
 
     /**
-     * Adds a Message to the front of the Queue.
+     * Adds a message to the front of the {@code Queue}.
      * 
      * @param msg
-     *            The Message to be added to the Queue.
-     * @code.derivative PircBot
+     *            The message to be added to the {@code Queue}.
+     * @throws NullPointerException
+     *             If the message is null
      */
     public final void addFront(String msg) {
+        if (msg == null) {
+            throw new NullPointerException("Message cannot be null.");
+        }
         synchronized (queue) {
             queue.addFirst(msg);
             queue.notify();
@@ -86,21 +97,21 @@ public class Queue {
     }
 
     /**
-     * Returns the Message at the front of the Queue.<br>
-     * This message is then removed from the Queue.<br>
-     * If the Queue is empty,<br>
-     * then this method shall block until there is an Object in the Queue to return.
+     * Returns the message at the front of the {@code Queue}.
+     * This message is then removed from the {@code Queue}.
+     * If the {@code Queue} is empty,
+     * then this method shall wait until there is a message in the {@code Queue} to return.
      * 
-     * @return The next message from the front of the queue.
-     * @code.derivative PircBot
+     * @return The next message from the front of the {@code Queue}.
+     * @throws InternalError
+     *             If a Race Hazard occurs while reading the queue.
      */
     public final String next() {
-
         String msg = null;
 
         // Wait if the Queue is empty.
         synchronized (queue) {
-            if (queue.size() == 0) {
+            if (queue.isEmpty()) {
                 try {
                     queue.wait();
                 }
@@ -109,51 +120,45 @@ public class Queue {
                     return null;
                 }
             }
-
-            // Return the Object.
-            try {
-                msg = queue.getFirst();
-                queue.removeFirst();
-            }
-            catch (NoSuchElementException nsee) {
-                throw new InternalError("Race hazard in LinkedList object.");
-            }
         }
 
+        // Return the message.
+        try {
+            msg = queue.getFirst();
+            queue.removeFirst();
+        }
+        catch (NoSuchElementException nsee) {
+            throw new InternalError("Race hazard in LinkedList object.");
+        }
         return msg;
     }
 
     /**
-     * Returns true if the Queue is not empty. If another
-     * Thread empties the Queue before <b>next()</b> is
-     * called, then the call to <b>next()</b> shall block
-     * until the Queue has been populated again.
+     * Returns {@code true} if the {@code Queue} is not empty. If another {@link Thread} empties the {@code Queue} before {@link #next()} is
+     * called, then the call to {@link #next()} shall wait
+     * until the {@code Queue} has been populated again.
      * 
-     * @return {@code true} only if the Queue not empty.
-     * @code.derivative PircBot
+     * @return {@code true} only if the {@code Queue} not empty.
      */
     public final boolean hasNext() {
-        return (this.size() != 0);
+        return !queue.isEmpty();
     }
 
     /**
-     * Clears the contents of the Queue.
-     * 
-     * @code.derivative PircBot
+     * Clears the contents of the {@code Queue}.
      */
-    public void clear() {
+    public final void clear() {
         synchronized (queue) {
             queue.clear();
         }
     }
 
     /**
-     * Returns the size of the Queue.
+     * Returns the size of the {@code Queue}.
      * 
-     * @return The current size of the queue.
-     * @code.derivative PircBot
+     * @return The current size of the {@code Queue}.
      */
-    public int size() {
+    public final int size() {
         return queue.size();
     }
 }

@@ -31,7 +31,7 @@ import java.net.Socket;
 
 import net.visualillusionsent.utils.TaskManager;
 import net.visualillusionsent.utils.UtilityException;
-import net.visualillusionsent.vibot.VIBot;
+import net.visualillusionsent.vibot.io.irc.IRCConnection;
 import net.visualillusionsent.vibot.io.irc.User;
 
 /**
@@ -53,7 +53,7 @@ public class DccFileTransfer {
      */
     public static final int BUFFER_SIZE = 1024;
 
-    private VIBot bot;
+    private IRCConnection irc_conn;
     private DccManager manager;
     private User user;
     private String type;
@@ -72,8 +72,8 @@ public class DccFileTransfer {
     /**
      * Constructor used for receiving files.
      */
-    DccFileTransfer(VIBot bot, DccManager manager, User user, String type, String filename, long address, int port, long size) {
-        this.bot = bot;
+    DccFileTransfer(IRCConnection irc_conn, DccManager manager, User user, String type, String filename, long address, int port, long size) {
+        this.irc_conn = irc_conn;
         this.manager = manager;
         this.user = user;
         this.type = type;
@@ -88,8 +88,8 @@ public class DccFileTransfer {
     /**
      * Constructor used for sending files.
      */
-    public DccFileTransfer(VIBot bot, DccManager manager, File file, User user, int timeout) {
-        this.bot = bot;
+    public DccFileTransfer(IRCConnection irc_conn, DccManager manager, File file, User user, int timeout) {
+        this.irc_conn = irc_conn;
         this.manager = manager;
         this.user = user;
         this.file = file;
@@ -316,7 +316,7 @@ public class DccFileTransfer {
         this.port = port;
     }
 
-    VIBot getBot() {
-        return bot;
+    IRCConnection getIRCConnection() {
+        return irc_conn;
     }
 }

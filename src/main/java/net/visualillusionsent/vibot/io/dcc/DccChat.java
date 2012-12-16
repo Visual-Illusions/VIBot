@@ -35,7 +35,7 @@ import java.net.Socket;
 
 import net.visualillusionsent.utils.IPAddressUtils;
 import net.visualillusionsent.utils.UtilityException;
-import net.visualillusionsent.vibot.VIBot;
+import net.visualillusionsent.vibot.io.irc.IRCConnection;
 import net.visualillusionsent.vibot.io.irc.User;
 
 /**
@@ -74,7 +74,7 @@ public class DccChat {
      * @throws IOException
      *             If the connection cannot be made.
      */
-    DccChat(VIBot bot, User user, long address, int port) {
+    DccChat(IRCConnection irc_conn, User user, long address, int port) {
         this.address = address;
         this.port = port;
         this.user = user;
@@ -95,7 +95,7 @@ public class DccChat {
      * @throws IOException
      *             If the socket cannot be read from.
      */
-    public DccChat(VIBot bot, User user, Socket socket) throws IOException {
+    public DccChat(IRCConnection irc_conn, User user, Socket socket) throws IOException {
         this.user = user;
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

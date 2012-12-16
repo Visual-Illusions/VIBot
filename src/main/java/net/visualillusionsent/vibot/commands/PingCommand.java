@@ -19,7 +19,7 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.utils.DateUtils;
 import net.visualillusionsent.utils.UtilityException;
-import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.api.BaseCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 

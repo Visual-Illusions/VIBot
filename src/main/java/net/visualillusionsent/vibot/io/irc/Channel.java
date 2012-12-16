@@ -75,15 +75,16 @@ public final class Channel {
     /**
      * CONSOLE Channel instance
      */
-    public static Channel CONSOLE = new Channel("CONSOLE", null);
+    public static final Channel CONSOLE;
 
     private static final Map<String, Boolean> allowedBotModes;
 
     static {
         HashMap<String, Boolean> temp = new HashMap<String, Boolean>();
-        temp.put("OP", false);
-        temp.put("VOICE", false);
+        temp.put("OP", Boolean.FALSE);
+        temp.put("VOICE", Boolean.FALSE);
         allowedBotModes = (Map<String, Boolean>) Collections.unmodifiableMap(temp);
+        CONSOLE = new Channel("CONSOLE", null);
     }
 
     /**
@@ -457,11 +458,11 @@ public final class Channel {
     }
 
     public void opBot() {
-        botModes.put("OP", true);
+        botModes.put("OP", Boolean.TRUE);
     }
 
     public void deOpBot() {
-        botModes.put("OP", false);
+        botModes.put("OP", Boolean.FALSE);
     }
 
     public boolean isBotVoice() {
@@ -469,11 +470,11 @@ public final class Channel {
     }
 
     public void voiceBot() {
-        botModes.put("VOICE", true);
+        botModes.put("VOICE", Boolean.TRUE);
     }
 
     public void deVoiceBot() {
-        botModes.put("VOICE", false);
+        botModes.put("VOICE", Boolean.FALSE);
     }
 
     /**

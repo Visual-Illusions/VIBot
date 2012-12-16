@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import net.visualillusionsent.utils.SystemUtils;
-import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.api.BaseCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 

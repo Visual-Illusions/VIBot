@@ -21,8 +21,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.plugin.CommandParser;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
@@ -36,6 +36,7 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  */
 public final class ConsoleCommandReceiver extends Thread {
     private final BufferedReader consoleread = new BufferedReader(new InputStreamReader(System.in));
+    private final Channel console = Channel.CONSOLE;
 
     public ConsoleCommandReceiver() {
         super("ConsoleCommandReceiver-Thread");
@@ -47,13 +48,13 @@ public final class ConsoleCommandReceiver extends Thread {
             String inLine = null;
             try {
                 while ((inLine = consoleread.readLine()) != null) {
-                    if (inLine.isEmpty()) {
+                    if (inLine.isEmpty() || !VIBot.isConnected()) {
                         System.out.println("");
                         continue;
                     }
 
                     String[] args = inLine.split(" ");
-                    if (!CommandParser.parseBotCommand(Channel.CONSOLE, User.BOT_CONSOLE, args)) {
+                    if (!CommandParser.parseBotCommand(console, User.BOT_CONSOLE, args)) {
                         String chan = inLine.split(" ")[0];
                         if (chan.startsWith("#")) {
                             if (inLine.length() > (chan.length() + 1)) {

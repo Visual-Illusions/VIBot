@@ -55,9 +55,9 @@ class FileSend extends Thread {
 
             ss.setSoTimeout(timeout);
             transfer.setPort(ss.getLocalPort());
-            InetAddress inetAddress = transfer.getBot().getDccInetAddress();
+            InetAddress inetAddress = transfer.getIRCConnection().getDccInetAddress();
             if (inetAddress == null) {
-                inetAddress = transfer.getBot().getInetAddress();
+                inetAddress = transfer.getIRCConnection().getInetAddress();
             }
             byte[] ip = inetAddress.getAddress();
             long ipNum = IPAddressUtils.ipv4ToLong(ip);
@@ -72,7 +72,7 @@ class FileSend extends Thread {
 
             // Send the message to the user, telling them where to
             // connect to in order to get the file.
-            //transfer.getBot().sendCTCPCommand(transfer.getUser().getNick(), "DCC SEND ".concat(safeFilename).concat(" ").concat(String.valueOf(ipNum)).concat(" ").concat(String.valueOf(transfer.getPort())).concat(" ").concat(String.valueOf(transfer.getFile().length())));
+            transfer.getIRCConnection().sendCTCPCommand(transfer.getUser().getNick(), "DCC SEND ".concat(safeFilename).concat(" ").concat(String.valueOf(ipNum)).concat(" ").concat(String.valueOf(transfer.getPort())).concat(" ").concat(String.valueOf(transfer.getFile().length())));
 
             // The client may now connect to us and download the file.
             transfer.setSocket(ss.accept());

@@ -1,6 +1,12 @@
 # VIBot #
 #### Visual Illusions Java IRC Bot ####
 
+## About ##
+VIBot is designed to use Java 7 or higher
+and contains a Plugin API for adding on to the Bot or to be used as just a stand-alone Channel administration solution.
+Classes and source code contained within VIBot are licensed under the GNU Lesser General Public License unless otherwise noted as being PircBot source code derivative,
+in which the licenses of PircBot are then applied.
+
 ## Compiling ##
 Add a new project from existing sources in whatever IDE you use. 
 Add VIUtils.jar as a library.
@@ -21,16 +27,10 @@ VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANT
 without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along with VIBot.
-If not, see [http://www.gnu.org/licenses/lgpl.html](http://www.gnu.org/licenses/lgpl.html "lgpl")
+You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+If not, see [http://www.gnu.org/licenses/lgpl.html](http://www.gnu.org/licenses/lgpl.html "lgplv3")
 
-![LGPL](http://visualillusionsent.net/img/lgplv3logo.png)
+Plugins designed for VIBot are hearby released of any licenses imposed on the VIBot sources and are the property of the Plugin Author to license as they wish.
 
-Parts of VIBot are derived from PircBot
-&copy; Paul James Mutton, 2001-2009, [http://www.jibble.org/](http://www.jibble.org/ "jibble")
-
-PircBot is dual-licensed, allowing you to choose between the GNU
-General Public License (GPL) and the www.jibble.org Commercial License.
-Since the GPL may be too restrictive for use in a proprietary application,
-a commercial license is also provided. Full license information can be
-found at http://www.jibble.org/licenses/
+PircBot is Copyrighted: Paul James Mutton, 2001-2009, [http://www.jibble.org/](http://www.jibble.org/ "jibble")
+and dual Licensed under the [GNU General Public License](http://www.gnu.org/licenses/gpl.html "gpl")/[www.jibble.org Commercial License](http://www.jibble.org/licenses/commercial-license.php "jibble_commericial")

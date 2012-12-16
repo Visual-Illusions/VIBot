@@ -28,8 +28,10 @@ package net.visualillusionsent.vibot.io.irc;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,13 +40,16 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import net.visualillusionsent.utils.DateUtils;
+import net.visualillusionsent.utils.IPAddressUtils;
 import net.visualillusionsent.utils.UtilityException;
+import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.Queue;
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.plugin.CommandParser;
 import net.visualillusionsent.vibot.api.plugin.events.EventManager;
 import net.visualillusionsent.vibot.io.ReconnectionThread;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
+import net.visualillusionsent.vibot.io.dcc.DccChat;
+import net.visualillusionsent.vibot.io.dcc.DccFileTransfer;
 import net.visualillusionsent.vibot.io.dcc.DccManager;
 import net.visualillusionsent.vibot.io.exception.IRCException;
 import net.visualillusionsent.vibot.io.exception.NickAlreadyInUseException;
@@ -63,6 +68,7 @@ public final class IRCConnection {
     private final DccManager dccManager;
     private final EventManager manager;
 
+    private InetAddress dccInetAddress;
     private ArrayList<Channel> channels;
     private boolean connected = false;
     private volatile boolean disposed = false;
@@ -89,7 +95,7 @@ public final class IRCConnection {
         this.input_thread = new IRCInput(this);
         this.output_thread = new IRCOutput(this);
         this.channels = new ArrayList<Channel>();
-        this.dccManager = new DccManager(bot);
+        this.dccManager = new DccManager(this);
         this.manager = EventManager.getInstance();
         lockdown = this;
     }
@@ -368,7 +374,7 @@ public final class IRCConnection {
                     throw new IRCException("Could not log into the IRC server: " + line);
                 }
             }
-            bot.setNick(nick);
+            bot.setNick(nick, this);
 
         }
         connected = true;
@@ -609,7 +615,7 @@ public final class IRCConnection {
                 String newNick = target;
                 if (sourceNick.equals(bot.getNick())) {
                     // Update our nick if it was us that changed nick.
-                    bot.setNick(newNick);
+                    bot.setNick(newNick, this);
                 }
                 else {
                     user = channel.getUser(sourceNick);
@@ -886,7 +892,7 @@ public final class IRCConnection {
         String[] parsed = response.split(" ");
         int firstSpace = response.indexOf(' ');
         int secondSpace = response.indexOf(' ', firstSpace + 1);
-        //        int thirdSpace = response.indexOf(' ', secondSpace + 1);
+        // int thirdSpace = response.indexOf(' ', secondSpace + 1);
         int colon = response.indexOf(':');
         String channel = response.substring(firstSpace + 1, secondSpace);
         String topic = response.substring(colon + 1);
@@ -938,6 +944,7 @@ public final class IRCConnection {
 
                     chan.getTopic().setSetBy(setBy);
                     break;
+
                 case RPL_NAMREPLY:
                     // This is a list of nicks in a channel that we've just joined.
                     int channelEndIndex = response.indexOf(" :");
@@ -1030,7 +1037,123 @@ public final class IRCConnection {
         }
     }
 
-    public DccManager getDCCManager() {
-        return dccManager;
+    /**
+     * Sends a file to another user. Resuming is supported. The other user must
+     * be able to connect directly to your bot to be able to receive the file.
+     * <p>
+     * You may throttle the speed of this file transfer by calling the setPacketDelay method on the DccFileTransfer that is returned.
+     * <p>
+     * This method may not be overridden.
+     * 
+     * @param file
+     *            The file to send.
+     * @param nick
+     *            The user to whom the file is to be sent.
+     * @param timeout
+     *            The number of milliseconds to wait for the recipient to
+     *            acccept the file (we recommend about 120000).
+     * @return The DccFileTransfer that can be used to monitor this transfer.
+     * @see DccFileTransfer
+     */
+    public final DccFileTransfer dccSendFile(File file, User user, int timeout) {
+        DccFileTransfer transfer = new DccFileTransfer(this, dccManager, file, user, timeout);
+        transfer.doSend(true);
+        return transfer;
+    }
+
+    /**
+     * Attempts to establish a DCC CHAT session with a client. This method
+     * issues the connection request to the client and then waits for the client
+     * to respond. If the connection is successfully made, then a DccChat object
+     * is returned by this method. If the connection is not made within the time
+     * limit specified by the timeout value, then null is returned.
+     * <p>
+     * It is <b>strongly recommended</b> that you call this method within a new Thread, as it may take a long time to return.
+     * <p>
+     * This method may not be overridden.
+     * 
+     * @param nick
+     *            The nick of the user we are trying to establish a chat with.
+     * @param timeout
+     *            The number of milliseconds to wait for the recipient to accept
+     *            the chat connection (we recommend about 120000).
+     * @return a DccChat object that can be used to send and recieve lines of
+     *         text. Returns <b>null</b> if the connection could not be made.
+     * @see DccChat
+     */
+    public final DccChat dccSendChatRequest(User user, int timeout) {
+        DccChat chat = null;
+        try {
+            ServerSocket ss = null;
+
+            int[] ports = BotConfig.getDccPorts();
+            if (ports == null) {
+                // Use any free port.
+                ss = new ServerSocket(0);
+            }
+            else {
+                for (int i = 0; i < ports.length; i++) {
+                    try {
+                        ss = new ServerSocket(ports[i]);
+                        // Found a port number we could use.
+                        break;
+                    }
+                    catch (Exception e) {
+                        // Do nothing; go round and try another port.
+                    }
+                }
+                if (ss == null) {
+                    // No ports could be used.
+                    throw new IOException("All ports returned by getDccPorts() are in use.");
+                }
+            }
+
+            ss.setSoTimeout(timeout);
+            int port = ss.getLocalPort();
+
+            InetAddress inetAddress = getDccInetAddress();
+            if (inetAddress == null) {
+                inetAddress = getInetAddress();
+            }
+            byte[] ip = inetAddress.getAddress();
+            long ipNum = IPAddressUtils.ipv4ToLong(ip);
+
+            sendCTCPCommand(user.getNick(), "DCC CHAT chat " + ipNum + " " + port);
+
+            // The client may now connect to us to chat.
+            Socket socket = ss.accept();
+
+            // Close the server socket now that we've finished with it.
+            ss.close();
+
+            chat = new DccChat(this, user, socket);
+        }
+        catch (Exception e) {
+            // Do nothing.
+        }
+        return chat;
+    }
+
+    /**
+     * Sets the InetAddress to be used when sending DCC chat or file transfers.
+     * This can be very useful when you are running a bot on a machine which is
+     * behind a firewall and you need to tell receiving clients to connect to a
+     * NAT/router, which then forwards the connection.
+     * 
+     * @param dccInetAddress
+     *            The new InetAddress, or null to use the default.
+     */
+    public void setDccInetAddress(InetAddress dccInetAddress) {
+        this.dccInetAddress = dccInetAddress;
+    }
+
+    /**
+     * Returns the InetAddress used when sending DCC chat or file transfers. If
+     * this is null, the default InetAddress will be used.
+     * 
+     * @return The current DCC InetAddress, or null if left as default.
+     */
+    public InetAddress getDccInetAddress() {
+        return dccInetAddress;
     }
 }

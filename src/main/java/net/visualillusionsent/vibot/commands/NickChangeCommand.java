@@ -18,7 +18,7 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.plugin.BaseCommand;
+import net.visualillusionsent.vibot.api.BaseCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
@@ -30,7 +30,7 @@ public final class NickChangeCommand extends BaseCommand {
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        VIBot.changeNick(args[1]);
+        VIBot.changeBotNick(args[1]);
         return true;
     }
 }

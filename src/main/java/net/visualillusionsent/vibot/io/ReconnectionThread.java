@@ -31,7 +31,7 @@ public final class ReconnectionThread extends Thread {
     }
 
     public void run() {
-        while (!bot.isConnected()) {
+        while (!VIBot.isConnected() && !VIBot.isShuttingDown()) {
             try {
                 BotLogMan.info("Attempting reconnection...");
                 if (BotConfig.useIdentServer()) {
