@@ -114,7 +114,7 @@
   		<groupId>net.visualillusionsent</groupId>
   		<artifactId>viutils</artifactId>
   		<version>1.0</version>
-  		<systemPath>${user.home}\.m2\repository\net\visualillusionsent\viutils\1.0.0\viutils-1.0.0.jar</systemPath>
+  		<systemPath>${user.home}/.m2/repository/net/visualillusionsent/viutils/1.0.0/viutils-1.0.0.jar</systemPath>
   		<scope>system</scope>
   	</dependency>
   </dependencies>
