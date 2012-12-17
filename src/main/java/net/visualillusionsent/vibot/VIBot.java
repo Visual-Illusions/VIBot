@@ -575,43 +575,19 @@ public final class VIBot {
         try {
             Manifest manifest = getBotManifest();
             Attributes mainAttribs = manifest.getMainAttributes();
-            version = mainAttribs.getValue("Version");
+            version = mainAttribs.getValue("Implementation-Version");
             if (version == null) {
-                version = "*";
+                version = "*.*.*";
             }
         }
         catch (Exception e) {
             BotLogMan.warning(e.getMessage());
         }
 
-        version = version.concat(".").concat(getBuild());
-        if (version.equals("*.*")) {
+        if (version.equals("*.*.*")) {
             version = "UNDEFINED";
         }
         return version;
-    }
-
-    /**
-     * Get the VIBot build number. (values specified in the manifest)
-     * 
-     * @return the Build number of this VIBot
-     */
-    public static final String getBuild() {
-        if (build != null) {
-            return build;
-        }
-        try {
-            Manifest manifest = getBotManifest();
-            Attributes mainAttribs = manifest.getMainAttributes();
-            build = mainAttribs.getValue("Build");
-            if (build == null) {
-                build = "*";
-            }
-        }
-        catch (Exception e) {
-            BotLogMan.warning(e.getMessage());
-        }
-        return build;
     }
 
     /**
