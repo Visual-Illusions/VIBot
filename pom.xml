@@ -10,7 +10,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <sourceDirectory>src/main/java/</sourceDirectory>
     <plugins>
       <!-- Compile -->
       <plugin>
@@ -35,7 +35,7 @@
             </manifest>
             <manifestEntries>
               <Main-Class>net.visualillusionsent.vibot.VIBot</Main-Class>
-              <Class-Path>lib/VIUtils.jar</Class-Path>
+              <Class-Path>lib/viutils-1.0.0.jar</Class-Path>
               <Sealed>true</Sealed>
             </manifestEntries>
           </archive>
@@ -77,11 +77,11 @@
   </organization>
   <scm>
     <url>http://dev.visualillusionsent.net/VIBot</url>
-  	<connection>GitLab</connection>
+  	<connection>Gitlab</connection>
   	<developerConnection>darkdiplomat</developerConnection>
   </scm>
   <issueManagement>
-    <system>GitLab</system>
+    <system>Gitlab</system>
   	<url>http://dev.visualillusionsent.net/VIBot</url>
   </issueManagement>
   <inceptionYear>2012</inceptionYear>
@@ -89,7 +89,7 @@
   	<dependency>
   		<groupId>net.visualillusionsent</groupId>
   		<artifactId>viutils</artifactId>
-  		<version>1.0</version>
+  		<version>1.0.0</version>
   		<systemPath>${user.home}/.m2/repository/net/visualillusionsent/viutils/1.0.0/viutils-1.0.0.jar</systemPath>
   		<scope>system</scope>
   	</dependency>
