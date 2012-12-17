@@ -42,19 +42,38 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * <p>
  * Used to load, enable, disable, reload plugins.
  * 
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  */
 public final class BotPluginLoader {
-    private List<BotPlugin> plugins = new ArrayList<BotPlugin>();
-    private volatile boolean loaded = false;
 
+    /**
+     * The list of {@link BotPlugin}s
+     */
+    private List<BotPlugin> plugins;
+
+    /**
+     * Whether the {@code BotPluginLoader} has been loaded
+     */
+    private boolean loaded = false;
+
+    /**
+     * Synchronizing lock object
+     */
     private static final Object lock = new Object();
+
+    /**
+     * {@code BotPluginLoader} instance
+     */
     private static BotPluginLoader instance;
 
     /**
      * Creates a plugin loader
      */
-    private BotPluginLoader() {}
+    private BotPluginLoader() {
+        plugins = new ArrayList<BotPlugin>();
+    }
 
     public final static BotPluginLoader getInstance() {
         if (instance == null) {
@@ -77,9 +96,15 @@ public final class BotPluginLoader {
         if (plugins != null && plugins.length > 0) {
             for (String plugin : plugins) {
                 if (plugin.trim().isEmpty()) {
+                    //No name to load
                     continue;
                 }
-                if (loadPlugin(plugin.trim())) {
+                else if (getPlugin(plugin.trim()) != null) {
+                    //Duplicate Entry
+                    continue;
+                }
+                else if (loadPlugin(plugin.trim())) {
+                    //Loaded
                     load++;
                 }
             }
@@ -97,13 +122,14 @@ public final class BotPluginLoader {
      */
     public final boolean loadPlugin(String pluginName) {
         if (getPlugin(pluginName) != null) {
-            return false; // Already exists.
+            // Already exists, don't load again.
+            return false;
         }
         return load(pluginName);
     }
 
     /**
-     * Reloads the specified plugin
+     * Reloads the specified {@link BotPlugin}
      * 
      * @param pluginName
      *            name of plugin to reload
@@ -129,14 +155,21 @@ public final class BotPluginLoader {
         return load(pluginName);
     }
 
+    /**
+     * Loads a {@link BotPlugin}
+     * 
+     * @param pluginName
+     *            the name of the {@link BotPlugin} to be loaded
+     * @return {@code true} if succesfully loaded and initialized; {@code false} otherwise
+     */
     private final boolean load(String pluginName) {
         BotPlugin plugin = null;
-        String filepath = "plugins/" + pluginName + ".jar";
+        String filepath = String.format("plugins/%s.jar", pluginName);
         try {
             File pluginfile = new File(filepath);
 
             if (!pluginfile.exists()) {
-                BotLogMan.severe("Failed to find plugin file: plugins/" + pluginName + ".jar. Please ensure the file exists");
+                BotLogMan.severe("Failed to find plugin file: plugins/".concat(pluginName).concat(".jar. Please ensure the file exists"));
                 return false;
             }
             URLClassLoader loader = null;
@@ -164,7 +197,7 @@ public final class BotPluginLoader {
 
         }
         catch (Throwable ex) {
-            BotLogMan.severe("Exception while loading plugin (" + filepath + ")", ex);
+            BotLogMan.severe("Exception while loading plugin (".concat(filepath).concat(")"), ex);
             if (plugin != null && plugin.isEnabled()) {
                 plugin.toggleEnabled();
             }
@@ -173,11 +206,20 @@ public final class BotPluginLoader {
         return true;
     }
 
+    /**
+     * Gets the {@link BotPlugin}'s main class
+     * 
+     * @param jarpath
+     *            the path to the {@link BotPlugin}
+     * @return the {@link BotPlugin}'s main class
+     * @throws VIBotException
+     *             if unable to read the manifest for the plugin
+     */
     private final String getPluginClassPath(String jarpath) throws VIBotException {
         String value = null;
         JarFile jar = null;
         try {
-            jar = new JarFile(jarpath); //DON'T CLOSE THE JAR, it needs to remain open during this process, it will be closed out on disable
+            jar = new JarFile(jarpath);
             Manifest manifest = jar.getManifest();
             Attributes attr = manifest.getMainAttributes();
             value = attr.getValue("Plugin-Class");
@@ -196,11 +238,11 @@ public final class BotPluginLoader {
     }
 
     /**
-     * Returns the specified plugin
+     * Returns the specified {@link BotPlugin}
      * 
      * @param name
-     *            name of plugin
-     * @return plugin
+     *            name of {@link BotPlugin}
+     * @return {@link BotPlugin} if found; {@code null} otherwise
      */
     public final BotPlugin getPlugin(String name) {
         synchronized (lock) {
@@ -214,9 +256,9 @@ public final class BotPluginLoader {
     }
 
     /**
-     * Returns a string list of plugins
+     * Returns a string list of {@link BotPlugin}s
      * 
-     * @return String of plugins
+     * @return String of {@link BotPlugin}s
      */
     public final String getPluginList() {
         StringBuilder sb = new StringBuilder();
@@ -239,11 +281,11 @@ public final class BotPluginLoader {
     }
 
     /**
-     * Enables the specified plugin (Or adds and enables it)
+     * Enables the specified {@link BotPlugin} (Or adds and enables it)
      * 
      * @param name
-     *            name of plugin to enable
-     * @return whether or not this plugin was enabled
+     *            name of the {@link BotPlugin} to enable
+     * @return {@code true} if enabled; {@code false} otherwise
      */
     public final boolean enablePlugin(String name) {
         BotPlugin plugin = getPlugin(name);
@@ -271,10 +313,10 @@ public final class BotPluginLoader {
     }
 
     /**
-     * Disables specified plugin
+     * Disables specified {@link BotPlugin}
      * 
      * @param name
-     *            name of the plugin to disable
+     *            name of the {@link BotPlugin} to disable
      */
     public final void disablePlugin(String name) {
         BotPlugin plugin = getPlugin(name);
@@ -289,6 +331,13 @@ public final class BotPluginLoader {
         }
     }
 
+    /**
+     * Disables all {@link BotPlugin}<br>
+     * Typically when the {@link VIBot} is shutting down
+     * 
+     * @param bot
+     *            the {@link VIBot} instance
+     */
     public final void disableAll(VIBot bot) {
         for (BotPlugin plugin : plugins) {
             if (plugin.isEnabled()) {

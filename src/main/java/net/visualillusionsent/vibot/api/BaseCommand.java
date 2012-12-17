@@ -24,6 +24,22 @@ import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Base Command form
+ * <p>
+ * Commands are set up to auto register them selfs,<br>
+ * all that needs to be done is the class to be initialized in the {@link BotPlugin}<br>
+ * Example:<br>
+ * <code><pre>
+ * public void initialize(){
+ *     new BaseCommandImpl(this);
+ * }
+ * </code></pre>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public abstract class BaseCommand {
 
     /**

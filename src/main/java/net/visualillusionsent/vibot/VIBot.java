@@ -446,8 +446,6 @@ public final class VIBot {
      * VIBot receives information for each channel, it will call the
      * onChannelInfo method, which you will need to override if you want it to
      * do anything useful.
-     * 
-     * @see #onChannelInfo(String,int,String) onChannelInfo
      */
     public final void listChannels() {
         irc_conn.sendRawLine("LIST");

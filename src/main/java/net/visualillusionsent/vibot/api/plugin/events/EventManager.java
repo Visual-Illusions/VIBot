@@ -28,6 +28,15 @@ import net.visualillusionsent.vibot.io.dcc.DccFileTransfer;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Event Manager System
+ * <p>
+ * Handles registering and executing Events
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public class EventManager {
     private final EventPriorityComparator epc = new EventPriorityComparator();
     private static EventManager instance;

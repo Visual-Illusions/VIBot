@@ -17,18 +17,48 @@
  */
 package net.visualillusionsent.vibot.api.plugin.events;
 
+import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 
+/**
+ * Connect Event handler
+ * <p>
+ * Extending this class will allow a {@link BotPlugin}<br>
+ * to listen to when a the {@link VIBot} connects to the IRC Server
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public abstract class ConnectEvent extends BaseEvent {
 
+    /**
+     * Constructs a new {@code ConnectEvent}<br>
+     * <b>NOTE:</b>With this constructor, {@link EventPriority} will be read from the plugin.cfg file
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} associated with this event
+     */
     public ConnectEvent(BotPlugin plugin) {
         super(plugin, EventType.CONNECT);
     }
 
+    /**
+     * Constructs a new {@code ConnectEvent}
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} associated with this event
+     * @param priority
+     *            the {@link EventPriority} for the event
+     */
     public ConnectEvent(BotPlugin plugin, EventPriority priority) {
         super(plugin, priority, EventType.CONNECT);
     }
 
+    /**
+     * Event executor<br>
+     * This is where the code should go for extending classes to handle the {@code ConnectEvent}
+     */
     public abstract void execute();
 
 }

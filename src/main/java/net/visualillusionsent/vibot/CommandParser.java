@@ -52,6 +52,8 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * <p>
  * Handle parsing of {@link BaseCommand}s supplied to the {@link VIBot}<br>
  * 
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  * @see net.visualillusionsent.vibot.commands
  */
@@ -69,25 +71,6 @@ public final class CommandParser {
             throw new IllegalStateException("Only one CommandParser instance may be created at a time.");
         }
         commands = new LinkedHashMap<String, BaseCommand>();
-    }
-
-    /**
-     * Adds a {@link BaseCommand} to the server list.
-     * 
-     * @param cmd
-     *            the {@link BaseCommand} to add
-     */
-    public final void add(BaseCommand cmd) {
-        if (cmd != null) {
-            for (String alias : cmd.getAliases()) {
-                if (!commands.containsValue(alias)) {
-                    commands.put(alias, cmd);
-                }
-                else {
-                    BotLogMan.warning("Command: '" + alias + "' is already registered!");
-                }
-            }
-        }
     }
 
     /**
@@ -119,6 +102,25 @@ public final class CommandParser {
             new UnignoreUserCommand();
         }
         return instance;
+    }
+
+    /**
+     * Adds a {@link BaseCommand} to the server list.
+     * 
+     * @param cmd
+     *            the {@link BaseCommand} to add
+     */
+    public final void add(BaseCommand cmd) {
+        if (cmd != null) {
+            for (String alias : cmd.getAliases()) {
+                if (!commands.containsValue(alias)) {
+                    commands.put(alias, cmd);
+                }
+                else {
+                    BotLogMan.warning("Command: '".concat(alias).concat("' is already registered!"));
+                }
+            }
+        }
     }
 
     /**
@@ -184,7 +186,7 @@ public final class CommandParser {
      */
     public static final void printHelp(Channel channel, User user) {
         synchronized (lock) {
-            user.sendNotice("-- Help List for you in Channel: " + channel.getName() + " --");
+            user.sendNotice("-- Help List for you in Channel: ".concat(channel.getName()).concat(" --"));
             List<BaseCommand> triggered = new ArrayList<BaseCommand>();
             for (BaseCommand cmd : instance.commands.values()) {
                 if (triggered.contains(cmd)) {

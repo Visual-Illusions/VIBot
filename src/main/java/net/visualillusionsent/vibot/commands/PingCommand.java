@@ -36,7 +36,7 @@ public final class PingCommand extends BaseCommand {
         }
         catch (UtilityException ue) {
             //Shouldn't happen but just incase
-            channel.sendMessage("PONG: ".concat(ue.getLocalizeMessage()));
+            channel.sendMessage("PONG: ".concat(ue.getLocalizedMessage()));
         }
         return true;
     }

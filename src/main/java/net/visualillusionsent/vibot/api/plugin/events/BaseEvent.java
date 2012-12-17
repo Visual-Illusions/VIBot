@@ -21,39 +21,78 @@ import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 
+/**
+ * Base Event
+ * <p>
+ * The Base form for an Event class<br>
+ * Events are set up to auto register them selfs,<br>
+ * all that needs to be done is the class to be initialized in the {@link BotPlugin}<br>
+ * Example:<br>
+ * <code><pre>
+ * public void initialize(){
+ *     new BaseEventImpl(this);
+ * }
+ * </code></pre>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public abstract class BaseEvent {
     private final BotPlugin plugin;
     private final EventType type;
     private final EventPriority priority;
 
+    /**
+     * Constructs a new {@code BaseEvent}
+     * <p>
+     * This constructor requires the {@link BasePlugin} to have a {@code plugin.cfg} with the {@link EventPriority} set for it's event extensions,<br>
+     * in the form of {EventClassName}.priority=PRIORITY
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} associated with the BaseEvent
+     * @param type
+     *            the {@link EventType} of the extending Event class
+     */
     public BaseEvent(BotPlugin plugin, EventType type) {
-        if (type == null) {
+        if (plugin == null) {
+            throw new VIBotException("BotPlugin cannot be null");
+        }
+        else if (type == null) {
             throw new VIBotException("EventType cannot be null");
         }
         this.plugin = plugin;
         this.type = type;
-        if (plugin == null) {
-            priority = EventPriority.LOW;
+        try {
+            priority = EventPriority.valueOf(plugin.getPluginConfiguration().getString(getClass().getSimpleName().concat(".priority")));
         }
-        else {
-            try {
-                priority = EventPriority.valueOf(plugin.getPluginConfiguration().getString(getClass().getSimpleName().concat(".priority")));
-            }
-            catch (UtilityException ue) {
-                throw new VIBotException("Unable to read Priority from plugin.cfg", ue);
-            }
-            catch (IllegalArgumentException iae) {
-                throw new VIBotException("Invaild argument for ".concat(getClass().getSimpleName()).concat(".priority"));
-            }
+        catch (UtilityException ue) {
+            throw new VIBotException("Unable to read Priority from plugin.cfg", ue);
+        }
+        catch (IllegalArgumentException iae) {
+            throw new VIBotException("Invaild argument for ".concat(getClass().getSimpleName()).concat(".priority"));
         }
         EventManager.addEvent(this);
     }
 
+    /**
+     * Constructs a new {@code BaseEvent}
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} associated with the BaseEvent
+     * @param priority
+     *            the {@link EventPriority} of the event
+     * @param type
+     *            the {@link EventType} of the extending Event class
+     */
     public BaseEvent(BotPlugin plugin, EventPriority priority, EventType type) {
-        if (priority == null) {
+        if (plugin == null) {
+            throw new VIBotException("BotPlugin cannot be null");
+        }
+        else if (priority == null) {
             throw new VIBotException("Priority cannot be null");
         }
-        if (type == null) {
+        else if (type == null) {
             throw new VIBotException("EventType cannot be null");
         }
         this.plugin = plugin;
@@ -62,14 +101,29 @@ public abstract class BaseEvent {
         EventManager.addEvent(this);
     }
 
+    /**
+     * Gets the {@link BotPlugin} associated with the {@code BaseEvent}
+     * 
+     * @return the {@link BotPlugin} associated with the {@code BaseEvent}
+     */
     public BotPlugin getPlugin() {
         return plugin;
     }
 
+    /**
+     * Gets the {@link EventType} of the {@code BaseEvent}
+     * 
+     * @return the {@link EventType} of the {@code BaseEvent}
+     */
     public EventType getType() {
         return type;
     }
 
+    /**
+     * Gets the {@link EventPriority} of the {@code BaseEvent}
+     * 
+     * @return the {@link EventPriority} of the {@code BaseEvent}
+     */
     public EventPriority getPriority() {
         return priority;
     }

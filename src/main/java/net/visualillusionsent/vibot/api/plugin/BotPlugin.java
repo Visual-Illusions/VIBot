@@ -36,6 +36,8 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * Bot Plugin interface<br>
  * Extend this class to create plugins for {@link VIBot}
  * 
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  */
 public abstract class BotPlugin {
