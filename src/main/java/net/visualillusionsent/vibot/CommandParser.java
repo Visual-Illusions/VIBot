@@ -154,7 +154,7 @@ public final class CommandParser {
                         user.sendNotice("You do not have permission to use that command!");
                         return false;
                     }
-                    return cmd.execute(channel, user, args);
+                    return cmd.parseCommand(channel, user, args);
                 }
                 catch (Exception e) {
                     throw new VIBotException("Exception occured while parsing Command: ".concat(args[0]), e);

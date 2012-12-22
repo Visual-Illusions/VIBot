@@ -34,6 +34,8 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import net.visualillusionsent.utils.TaskManager;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
@@ -75,7 +77,10 @@ public class IdentServer extends Thread {
         }
 
         BotLogMan.info("Ident server running on port ".concat(String.valueOf(BotConfig.getIdentPort())).concat(" for the next 120 seconds..."));
-        this.start();
+        try {
+            TaskManager.executeTask(this);
+        }
+        catch (UtilityException e) {}
     }
 
     /**
@@ -84,26 +89,36 @@ public class IdentServer extends Thread {
      * constructor.
      */
     public void run() {
+        BufferedWriter writer = null;
+        BufferedReader reader = null;
         try {
             Socket socket = ss.accept();
             socket.setSoTimeout(120000);
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
             String line = reader.readLine();
             while (line != null) {
-                BotLogMan.info("Ident request received: " + line);
+                BotLogMan.info("Ident request received: ".concat(line));
                 line = line.concat(" : USERID : UNIX : ").concat(BotConfig.getLogin());
                 writer.write(line.concat("\r\n"));
                 writer.flush();
                 BotLogMan.info("Ident reply sent: ".concat(line));
-                writer.close();
                 break;
             }
         }
         catch (Exception e) {
             // We're not really concerned with what went wrong, are we?
+        }
+        finally {
+            try {
+                writer.close();
+                reader.close();
+            }
+            catch (IOException e) {
+                // Doesn't really matter...
+            }
         }
 
         try {

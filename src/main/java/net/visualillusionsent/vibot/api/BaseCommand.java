@@ -159,7 +159,7 @@ public abstract class BaseCommand {
      * 
      * @return {@code true} if requires {@code Voice}
      */
-    public boolean requiresVoice() {
+    public final boolean requiresVoice() {
         return voice;
     }
 
@@ -168,7 +168,7 @@ public abstract class BaseCommand {
      * 
      * @return {@code true} if requires {@code Op}
      */
-    public boolean requiresOp() {
+    public final boolean requiresOp() {
         return op;
     }
 
@@ -177,8 +177,12 @@ public abstract class BaseCommand {
      * 
      * @return {@code true} if requires {@code BotOwner}
      */
-    public boolean requiresOwner() {
+    public final boolean requiresOwner() {
         return owner;
+    }
+
+    public final BotPlugin getPlugin() {
+        return plugin;
     }
 
     /**
@@ -186,7 +190,7 @@ public abstract class BaseCommand {
      * 
      * @return {@code true} if executed successfully
      */
-    public boolean parseCommand(Channel channel, User user, String[] args) {
+    public final boolean parseCommand(Channel channel, User user, String[] args) {
         if (args.length < minParam || (args.length > maxParam && maxParam > 0)) {
             onBadSyntax(user, args);
             return false;
@@ -205,10 +209,6 @@ public abstract class BaseCommand {
      */
     public void onBadSyntax(User user, String[] args) {
         user.sendNotice(usage);
-    }
-
-    public BotPlugin getPlugin() {
-        return plugin;
     }
 
     /**

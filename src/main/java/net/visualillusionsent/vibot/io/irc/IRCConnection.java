@@ -618,7 +618,7 @@ public final class IRCConnection {
                     bot.setNick(newNick, this);
                 }
                 else {
-                    user = channel.getUser(sourceNick);
+                    user = getUser(sourceNick);
                     this.renameUser(user, newNick);
                 }
                 //this.onNickChange(sourceNick, sourceLogin, sourceHostname, newNick);
@@ -1155,5 +1155,17 @@ public final class IRCConnection {
      */
     public InetAddress getDccInetAddress() {
         return dccInetAddress;
+    }
+
+    private User getUser(String nick) {
+        User user = null;
+
+        for (Channel chan : channels) {
+            user = chan.getUser(nick);
+            if (user != null) {
+                break;
+            }
+        }
+        return user;
     }
 }
