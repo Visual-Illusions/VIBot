@@ -17,15 +17,17 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "listplugins", usage = "!listplugins", desc = "Gives a list of plugins", op = true)
 public final class ListPluginsCommand extends BaseCommand {
 
     public ListPluginsCommand() {
-        super(null, new String[] { "listplugins" }, "!listplugins", "Gives a list of plugins", 1, -1, false, true, false);
+        super(null);
     }
 
     @Override

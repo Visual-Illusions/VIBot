@@ -247,10 +247,17 @@ public final class Channel {
     }
 
     /**
-     * Toggles the mute status of this channel
+     * Un-Mutes the {@code Channel}
      */
-    public final void toggleMute() {
-        muted = !muted;
+    public final void unMute() {
+        muted = false;
+    }
+
+    /**
+     * Mutes the {@code Channel}
+     */
+    public final void mute() {
+        muted = true;
     }
 
     /**
@@ -521,7 +528,7 @@ public final class Channel {
         cloned.setUsersList(users);
         cloned.setIgnoredUsersList(ignored);
         if (muted) {
-            cloned.toggleMute();
+            cloned.mute();
         }
         return cloned;
     }

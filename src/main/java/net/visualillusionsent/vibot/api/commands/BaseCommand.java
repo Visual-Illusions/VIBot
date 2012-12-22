@@ -15,12 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
-package net.visualillusionsent.vibot.api;
+package net.visualillusionsent.vibot.api.commands;
 
 import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
+import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
@@ -43,44 +44,9 @@ import net.visualillusionsent.vibot.io.irc.User;
 public abstract class BaseCommand {
 
     /**
-     * {@link String} array of aliases for the {@code BaseCommand}
+     * The {@link BotCommand} annotation for the {@code BaseCommand}
      */
-    private final String[] aliases;
-
-    /**
-     * The usage for the {@code BaseCommand}
-     */
-    private final String usage;
-
-    /**
-     * A description of the {@code BaseCommand}
-     */
-    private final String desc;
-
-    /**
-     * Whether the command is for {@link User}s with {@code Voice} and above
-     */
-    private final boolean voice;
-
-    /**
-     * Whether the command is for {@link User}s with {@code Op} and above
-     */
-    private final boolean op;
-
-    /**
-     * Whether the command is for {@link User}s that are {@code BotOwner}
-     */
-    private final boolean owner;
-
-    /**
-     * The minimum number of required parameters
-     */
-    private final int minParam;
-
-    /**
-     * The maximum number of required parameteres
-     */
-    private final int maxParam;
+    private final BotCommand cmd;
 
     /**
      * The {@link BotPlugin} associated with the {@code BaseCommand}
@@ -89,32 +55,20 @@ public abstract class BaseCommand {
 
     /**
      * Constructs a new {@code BaseCommand} object
+     * <p>
+     * Requires the {@code BaseCommand} to have the {@link BotCommand} annotation
      * 
      * @param plugin
      *            the BotPlugin creating this command
-     * @param aliases
-     *            the aliases for this command, index 0 should be the name of the command itself
-     * @param tooltip
-     *            a description of the command
-     * @param errorMessage
-     *            the error message to show
-     * @param permission
-     *            the permission require to use the command
-     * @param minParam
-     *            minimum number of arguments required
-     * @param maxParam
-     *            maximum number of arguments
      */
-    public BaseCommand(BotPlugin plugin, String[] aliases, String usage, String desc, int minParam, int maxParam, boolean requireVoice, boolean requireOp, boolean requireOwner) {
+    public BaseCommand(BotPlugin plugin) {
+        if (!getClass().isAnnotationPresent(BotCommand.class)) {
+            throw new VIBotException("BotCommand annotation not found!");
+        }
+        else {
+            cmd = getClass().getAnnotation(BotCommand.class);
+        }
         this.plugin = plugin;
-        this.aliases = aliases;
-        this.usage = usage;
-        this.desc = desc;
-        this.minParam = minParam;
-        this.maxParam = maxParam;
-        this.voice = requireVoice;
-        this.op = requireOp;
-        this.owner = requireOwner;
         CommandParser.getInstance().add(this);
     }
 
@@ -124,7 +78,7 @@ public abstract class BaseCommand {
      * @return the name of the {@code BaseCommand}
      */
     public final String getName() {
-        return aliases[0];
+        return cmd.main();
     }
 
     /**
@@ -133,7 +87,7 @@ public abstract class BaseCommand {
      * @return the aliases for the {@code BaseCommand}
      */
     public final String[] getAliases() {
-        return aliases.clone();
+        return cmd.aliases().clone();
     }
 
     /**
@@ -142,7 +96,7 @@ public abstract class BaseCommand {
      * @return the usage for the {@code BaseCommand}
      */
     public final String getUsage() {
-        return usage;
+        return cmd.usage();
     }
 
     /**
@@ -151,7 +105,7 @@ public abstract class BaseCommand {
      * @return the description for the {@code BaseCommand}
      */
     public final String getDescription() {
-        return desc;
+        return cmd.desc();
     }
 
     /**
@@ -160,7 +114,7 @@ public abstract class BaseCommand {
      * @return {@code true} if requires {@code Voice}
      */
     public final boolean requiresVoice() {
-        return voice;
+        return cmd.voice();
     }
 
     /**
@@ -169,7 +123,7 @@ public abstract class BaseCommand {
      * @return {@code true} if requires {@code Op}
      */
     public final boolean requiresOp() {
-        return op;
+        return cmd.op();
     }
 
     /**
@@ -178,7 +132,15 @@ public abstract class BaseCommand {
      * @return {@code true} if requires {@code BotOwner}
      */
     public final boolean requiresOwner() {
-        return owner;
+        return cmd.owner();
+    }
+
+    public final boolean isChannelOnly() {
+        return cmd.chanOnly();
+    }
+
+    public final boolean isConsoleOnly() {
+        return cmd.consoleOnly();
     }
 
     public final BotPlugin getPlugin() {
@@ -191,7 +153,7 @@ public abstract class BaseCommand {
      * @return {@code true} if executed successfully
      */
     public final boolean parseCommand(Channel channel, User user, String[] args) {
-        if (args.length < minParam || (args.length > maxParam && maxParam > 0)) {
+        if (args.length < cmd.minParam() || (args.length > cmd.maxParam() && cmd.maxParam() > 0)) {
             onBadSyntax(user, args);
             return false;
         }
@@ -208,7 +170,7 @@ public abstract class BaseCommand {
      *            the command arguments
      */
     public void onBadSyntax(User user, String[] args) {
-        user.sendNotice(usage);
+        user.sendNotice(cmd.usage());
     }
 
     /**
@@ -233,7 +195,7 @@ public abstract class BaseCommand {
     @Override
     public final String toString() {
         try {
-            return String.format("BaseCommand[ClassName=%s Aliases=%s Usage=%s ErrorMessage=%s MinParams=%d MaxParams=%d RequireVoice=%b RequireOp=%b RequireBotOwner=%b]", this.getClass().getSimpleName(), StringUtils.joinString(aliases, ",", 0), usage, desc, Integer.valueOf(minParam), Integer.valueOf(maxParam), Boolean.valueOf(voice), Boolean.valueOf(op), Boolean.valueOf(owner));
+            return String.format("BaseCommand[ClassName=%s Aliases=%s Usage=%s ErrorMessage=%s MinParams=%d MaxParams=%d RequireVoice=%b RequireOp=%b RequireBotOwner=%b]", this.getClass().getSimpleName(), StringUtils.joinString(cmd.aliases(), ",", 0), cmd.usage(), cmd.desc(), Integer.valueOf(cmd.minParam()), Integer.valueOf(cmd.maxParam()), Boolean.valueOf(cmd.voice()), Boolean.valueOf(cmd.op()), Boolean.valueOf(cmd.owner()));
         }
         catch (UtilityException e) {}
         return null;
@@ -245,25 +207,20 @@ public abstract class BaseCommand {
             return false;
         }
         BaseCommand that = (BaseCommand) other;
-        if (!this.usage.equals(that.getUsage())) {
+        if (cmd != that.cmd) {
             return false;
         }
-        if (!this.desc.equals(that.desc)) {
-            return false;
-        }
-        if (this.minParam != that.minParam) {
-            return false;
-        }
-        return this.maxParam == that.maxParam;
+
+        return true;
     }
 
     @Override
     public final int hashCode() {
         int hash = 5;
-        hash = 53 * hash + (this.usage != null ? this.usage.hashCode() : 0);
-        hash = 53 * hash + (this.desc != null ? this.desc.hashCode() : 0);
-        hash = 53 * hash + this.minParam;
-        hash = 53 * hash + this.maxParam;
+        //        hash = 53 * hash + (this.usage != null ? this.usage.hashCode() : 0);
+        //        hash = 53 * hash + (this.desc != null ? this.desc.hashCode() : 0);
+        //        hash = 53 * hash + this.minParam;
+        //        hash = 53 * hash + this.maxParam;
         return hash;
     }
     // End - Java Object Methods

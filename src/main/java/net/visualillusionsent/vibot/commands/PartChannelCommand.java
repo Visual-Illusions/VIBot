@@ -20,14 +20,16 @@ package net.visualillusionsent.vibot.commands;
 import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "part", usage = "!part [channel] [reason]", desc = "Makes the bot leave a channel", owner = true)
 public final class PartChannelCommand extends BaseCommand {
 
     public PartChannelCommand() {
-        super(null, new String[] { "part" }, "!part [channel] [reason]", "Makes the bot leave a channel", 1, -1, false, false, true);
+        super(null);
     }
 
     @Override

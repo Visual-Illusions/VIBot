@@ -18,13 +18,15 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.CommandParser;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "help", usage = "!help", desc = "Displays a list of commands and their usage")
 public final class HelpCommand extends BaseCommand {
     public HelpCommand() {
-        super(null, new String[] { "help" }, "!help", "Displays a list of commands and their usage", 1, -1, false, false, false);
+        super(null);
     }
 
     @Override

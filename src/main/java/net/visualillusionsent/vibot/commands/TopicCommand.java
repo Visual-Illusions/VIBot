@@ -17,15 +17,17 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.Topic;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "topic", usage = "!topic", desc = "Shows the channel's topic", chanOnly = true)
 public final class TopicCommand extends BaseCommand {
 
     public TopicCommand() {
-        super(null, new String[] { "topic" }, "!topic", "Shows the channel's topic", 1, -1, false, false, false);
+        super(null);
     }
 
     @Override

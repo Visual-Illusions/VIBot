@@ -17,13 +17,15 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "ignore", usage = "!ignore <user>", desc = "Ignores a user", minParam = 2, maxParam = 2, chanOnly = true)
 public final class IgnoreUserCommand extends BaseCommand {
     public IgnoreUserCommand() {
-        super(null, new String[] { "ignore" }, "!ignore <user>", "Ignores a user", 2, 2, false, true, false);
+        super(null);
     }
 
     @Override

@@ -27,6 +27,7 @@ import net.visualillusionsent.vibot.io.dcc.DccChat;
 import net.visualillusionsent.vibot.io.dcc.DccFileTransfer;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
+import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
  * Event Manager System
@@ -92,7 +93,12 @@ public class EventManager {
     public void callChannelMessageEvent(Channel channel, User user, String msg) {
         synchronized (registeredEvents) {
             for (BaseEvent chanMessageEvent : registeredEvents.get(EventType.CHANNEL_MESSAGE)) {
-                ((ChannelMessageEvent) chanMessageEvent).execute(channel, user, msg);
+                try {
+                    ((ChannelMessageEvent) chanMessageEvent).execute(channel, user, msg);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'ChannelMessageEvent' for Plugin: ".concat(chanMessageEvent.getPlugin().getName()), e);
+                }
             }
         }
     }
@@ -100,7 +106,12 @@ public class EventManager {
     public void callConnectEvent() {
         synchronized (registeredEvents) {
             for (BaseEvent connectEvent : registeredEvents.get(EventType.CONNECT)) {
-                ((ConnectEvent) connectEvent).execute();
+                try {
+                    ((ConnectEvent) connectEvent).execute();
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'ConnectEvent' for Plugin: ".concat(connectEvent.getPlugin().getName()), e);
+                }
             }
         }
     }
@@ -108,7 +119,12 @@ public class EventManager {
     public void callFileTransferFinishedEvent(DccFileTransfer transfer, Exception ex) {
         synchronized (registeredEvents) {
             for (BaseEvent fileTransferFinishedEvent : registeredEvents.get(EventType.FILE_TRANSFER_FINISHED)) {
-                ((FileTransferFinishedEvent) fileTransferFinishedEvent).execute(transfer, ex);
+                try {
+                    ((FileTransferFinishedEvent) fileTransferFinishedEvent).execute(transfer, ex);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'FileTransferFinishedEvent' for Plugin: ".concat(fileTransferFinishedEvent.getPlugin().getName()), e);
+                }
             }
         }
     }
@@ -116,7 +132,12 @@ public class EventManager {
     public void callIncomingChatRequestEvent(DccChat chat) {
         synchronized (registeredEvents) {
             for (BaseEvent incomingChatRequestEvent : registeredEvents.get(EventType.INCOMING_CHAT_REQUEST)) {
-                ((IncomingChatRequestEvent) incomingChatRequestEvent).execute(chat);
+                try {
+                    ((IncomingChatRequestEvent) incomingChatRequestEvent).execute(chat);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'IncomingChatRequest' for Plugin: ".concat(incomingChatRequestEvent.getPlugin().getName()), e);
+                }
             }
         }
     }
@@ -124,7 +145,12 @@ public class EventManager {
     public void callJoinEvent(Channel channel, User user) {
         synchronized (registeredEvents) {
             for (BaseEvent joinEvent : registeredEvents.get(EventType.JOIN)) {
-                ((JoinEvent) joinEvent).execute(channel, user);
+                try {
+                    ((JoinEvent) joinEvent).execute(channel, user);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'JoinEvent' for Plugin: ".concat(joinEvent.getPlugin().getName()), e);
+                }
             }
         }
     }
@@ -132,7 +158,12 @@ public class EventManager {
     public void callPartEvent(Channel channel, User user) {
         synchronized (registeredEvents) {
             for (BaseEvent partEvent : registeredEvents.get(EventType.PART)) {
-                ((PartEvent) partEvent).execute(channel, user);
+                try {
+                    ((PartEvent) partEvent).execute(channel, user);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'PartEvent' for Plugin: ".concat(partEvent.getPlugin().getName()), e);
+                }
             }
         }
     }
@@ -140,7 +171,12 @@ public class EventManager {
     public void callPrivateMessageEvent(Channel channel, User user, String msg) {
         synchronized (registeredEvents) {
             for (BaseEvent privMessageEvent : registeredEvents.get(EventType.PRIVATE_MESSAGE)) {
-                ((PrivateMessageEvent) privMessageEvent).execute(channel, user, msg);
+                try {
+                    ((PrivateMessageEvent) privMessageEvent).execute(channel, user, msg);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'PrivateMessageEvent' for Plugin: ".concat(privMessageEvent.getPlugin().getName()), e);
+                }
             }
         }
     }

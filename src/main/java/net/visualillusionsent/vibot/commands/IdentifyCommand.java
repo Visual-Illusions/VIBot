@@ -18,14 +18,16 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "identify", usage = "!identify", desc = "Tells the bot to identify with NickServ", owner = true)
 public final class IdentifyCommand extends BaseCommand {
 
     public IdentifyCommand() {
-        super(null, new String[] { "identify" }, "!identify", "Tells the bot to identify with NickServ", 1, -1, false, false, true);
+        super(null);
     }
 
     @Override

@@ -17,15 +17,17 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "enableplugin", usage = "!enableplugin <plugin>", desc = "Enables a plugin", minParam = 2, maxParam = 2, owner = true)
 public final class EnablePluginCommand extends BaseCommand {
 
     public EnablePluginCommand() {
-        super(null, new String[] { "enableplugin" }, "!enableplugin <plugin>", "Enables a plugin", 2, 2, false, false, true);
+        super(null);
     }
 
     @Override

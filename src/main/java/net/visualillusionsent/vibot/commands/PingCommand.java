@@ -19,20 +19,22 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.utils.DateUtils;
 import net.visualillusionsent.utils.UtilityException;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "ping", usage = "!ping", desc = "Sends a Pong")
 public final class PingCommand extends BaseCommand {
 
     public PingCommand() {
-        super(null, new String[] { "ping" }, "!ping", "Sends a Pong", 1, -1, false, false, false);
+        super(null);
     }
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
         try {
-            channel.sendMessage("PONG: ".concat(DateUtils.longToDate(System.currentTimeMillis()).toString()));
+            channel.sendMessage("PONG: ".concat(DateUtils.longToDate(System.currentTimeMillis())));
         }
         catch (UtilityException ue) {
             //Shouldn't happen but just incase

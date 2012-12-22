@@ -267,6 +267,8 @@ public final class BotPluginLoader {
             for (BotPlugin plugin : plugins) {
                 sb.append(plugin.isEnabled() ? Colors.GREEN : Colors.RED);
                 sb.append(plugin.getName());
+                sb.append(" v");
+                sb.append(plugin.getVersion());
                 sb.append(Colors.NORMAL + ", ");
             }
         }
@@ -276,7 +278,7 @@ public final class BotPluginLoader {
             return str.substring(0, str.length() - 1);
         }
         else {
-            return "Empty";
+            return "No plugins installed...";
         }
     }
 

@@ -19,6 +19,7 @@ package net.visualillusionsent.vibot.api.plugin;
 
 import java.io.IOException;
 import java.net.URLClassLoader;
+import java.security.CodeSource;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -26,7 +27,7 @@ import java.util.jar.Manifest;
 import net.visualillusionsent.utils.PropertiesFile;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.plugin.events.BaseEvent;
 import net.visualillusionsent.vibot.api.plugin.events.EventPriority;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
@@ -116,15 +117,30 @@ public abstract class BotPlugin {
     }
 
     /**
-     * Returns the name of this {@code BotPlugin}
+     * Returns the name of the {@code BotPlugin}'s plugin extension class
      * 
-     * @return the name of the {@code BotPlugin}'s main class
+     * @return the name of the {@code BotPlugin}'s plugin extension class
      */
     public final String getName() {
         if (name == null) {
             this.name = this.getClass().getSimpleName();
         }
         return name;
+    }
+
+    /**
+     * Gets the name of the {@code BotPlugin}'s jar file
+     * 
+     * @return the name of the {@code BotPlugin}'s jar file; {@code null} if an exception occured
+     */
+    public final String getJarName() {
+        CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
+        try {
+            String path = codeSource.getLocation().toURI().getPath();
+            return path.substring(path.lastIndexOf("/") + 1, path.length());
+        }
+        catch (Exception e) {}
+        return null;
     }
 
     /**
@@ -147,7 +163,7 @@ public abstract class BotPlugin {
      *             if an exception occurrs while trying to get the manifest
      */
     protected final Manifest getPluginManifest() throws VIBotException {
-        String jarpath = "plugins/".concat(getName()).concat(".jar");
+        String jarpath = "plugins/".concat(getJarName()).concat(".jar");
         Manifest toRet = null;
         VIBotException vibe = null;
         JarFile jar = null;
@@ -264,6 +280,10 @@ public abstract class BotPlugin {
      */
     final void setClassLoader(URLClassLoader loader) {
         this.loader = loader;
+    }
+
+    final URLClassLoader getLoader() {
+        return loader;
     }
 
     /**

@@ -18,14 +18,16 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "disconnect", desc = "Disconnects the VIBot from the server and shuts down", usage = "!disconnect", owner = true)
 public final class DisconnectCommand extends BaseCommand {
 
     public DisconnectCommand() {
-        super(null, new String[] { "disconnect" }, "!disconnect", "If user is Admin/Console, Bot shut down", 1, -1, false, false, true);
+        super(null);
     }
 
     @Override

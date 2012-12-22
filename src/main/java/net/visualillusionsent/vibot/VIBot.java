@@ -86,11 +86,6 @@ public final class VIBot {
     private static String version;
 
     /**
-     * {@code VIBot} Build Number
-     */
-    private static String build;
-
-    /**
      * {@code VIBot} running instance
      */
     private static VIBot instance;

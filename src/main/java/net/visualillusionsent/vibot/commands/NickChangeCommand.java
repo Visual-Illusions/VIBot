@@ -18,14 +18,16 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "nick", usage = "!nick <newnick>", desc = "Changes the bot's nickname", minParam = 2, maxParam = 2, owner = true)
 public final class NickChangeCommand extends BaseCommand {
 
     public NickChangeCommand() {
-        super(null, new String[] { "nick" }, "!nick <newnick>", "Changes the bot's nickname", 2, 2, false, false, true);
+        super(null);
     }
 
     @Override

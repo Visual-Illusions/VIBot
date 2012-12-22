@@ -18,10 +18,11 @@
 package net.visualillusionsent.vibot;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.commands.DisablePluginCommand;
 import net.visualillusionsent.vibot.commands.DisconnectCommand;
@@ -60,7 +61,7 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
 public final class CommandParser {
     private static CommandParser instance;
     private static final Object lock = new Object();
-    private final LinkedHashMap<String, BaseCommand> commands;
+    private final HashMap<String, BaseCommand> commands;
 
     /**
      * Constructs a new {@code CommandParser}<br>
@@ -70,7 +71,7 @@ public final class CommandParser {
         if (instance != null) {
             throw new IllegalStateException("Only one CommandParser instance may be created at a time.");
         }
-        commands = new LinkedHashMap<String, BaseCommand>();
+        commands = new HashMap<String, BaseCommand>();
     }
 
     /**
@@ -112,12 +113,15 @@ public final class CommandParser {
      */
     public final void add(BaseCommand cmd) {
         if (cmd != null) {
-            for (String alias : cmd.getAliases()) {
-                if (!commands.containsValue(alias)) {
-                    commands.put(alias, cmd);
-                }
-                else {
-                    BotLogMan.warning("Command: '".concat(alias).concat("' is already registered!"));
+            commands.put(cmd.getName(), cmd);
+            if (!cmd.getAliases()[0].equals(BotCommand.NULL)) {
+                for (String alias : cmd.getAliases()) {
+                    if (!commands.containsValue(alias)) {
+                        commands.put(alias, cmd);
+                    }
+                    else {
+                        BotLogMan.warning("Command: '".concat(alias).concat("' is already registered!"));
+                    }
                 }
             }
         }
@@ -154,6 +158,15 @@ public final class CommandParser {
                         user.sendNotice("You do not have permission to use that command!");
                         return false;
                     }
+                    if (cmd.isChannelOnly() && channel == null) {
+                        user.sendNotice("Command can only be used from a channel!");
+                        return false;
+                    }
+                    if (cmd.isConsoleOnly() && (channel != Channel.CONSOLE)) {
+                        user.sendNotice("Command can only be used from the Console!");
+                        return false;
+                    }
+
                     return cmd.parseCommand(channel, user, args);
                 }
                 catch (Exception e) {
@@ -203,6 +216,9 @@ public final class CommandParser {
                     continue;
                 }
                 if (cmd.requiresOwner() && !(user.isBotOwner() || user.isConsole())) {
+                    continue;
+                }
+                if (cmd.isConsoleOnly() && (channel != Channel.CONSOLE)) {
                     continue;
                 }
 

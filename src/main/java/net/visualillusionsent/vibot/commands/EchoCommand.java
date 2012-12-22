@@ -19,14 +19,16 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.utils.UtilityException;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "echo", usage = "!echo <message>", desc = "Echoes the message", minParam = 2, voice = true, chanOnly = true)
 public final class EchoCommand extends BaseCommand {
 
     public EchoCommand() {
-        super(null, new String[] { "echo" }, "!echo <message>", "Echoes the message", 2, -1, true, false, false);
+        super(null);
     }
 
     @Override

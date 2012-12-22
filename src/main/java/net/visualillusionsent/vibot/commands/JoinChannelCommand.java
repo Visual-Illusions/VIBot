@@ -18,14 +18,16 @@
 package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "join", usage = "!join <channel>", desc = "Joins a channel if exists and can", owner = true)
 public final class JoinChannelCommand extends BaseCommand {
 
     public JoinChannelCommand() {
-        super(null, new String[] { "join" }, "!join <channel>", "Joins a channel if exists and can", 2, 2, false, false, true);
+        super(null);
     }
 
     @Override

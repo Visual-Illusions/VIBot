@@ -19,14 +19,16 @@ package net.visualillusionsent.vibot.commands;
 
 import java.util.List;
 
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "listignore", usage = "!listignore", desc = "List of users being ignored in the channel", op = true, chanOnly = true)
 public final class ListIgnoresCommand extends BaseCommand {
 
     public ListIgnoresCommand() {
-        super(null, new String[] { "listignore" }, "!listignore", "List of users being ignored in the channel", 1, -1, false, true, false);
+        super(null);
     }
 
     @Override

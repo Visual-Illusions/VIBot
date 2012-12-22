@@ -17,20 +17,22 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "stfu", usage = "!stfu", desc = "Quiets the Bot in the channel", op = true)
 public final class ShutTheFuckUpCommand extends BaseCommand {
 
     public ShutTheFuckUpCommand() {
-        super(null, new String[] { "stfu" }, "!stfu", "Quiets the Bot in the channel", 1, -1, false, true, false);
+        super(null);
     }
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
         if (!channel.isMuted()) {
-            channel.toggleMute();
+            channel.mute();
         }
         return true;
     }

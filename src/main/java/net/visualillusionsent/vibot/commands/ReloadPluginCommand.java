@@ -17,15 +17,17 @@
  */
 package net.visualillusionsent.vibot.commands;
 
-import net.visualillusionsent.vibot.api.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BaseCommand;
+import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+@BotCommand(main = "reloadplugin", usage = "!reloadplugin <plugin>", desc = "Reloads a plugin", owner = true)
 public final class ReloadPluginCommand extends BaseCommand {
 
     public ReloadPluginCommand() {
-        super(null, new String[] { "reloadplugin" }, "!reloadplugin <plugin>", "Reloads a plugin", 2, 2, false, false, true);
+        super(null);
     }
 
     @Override
