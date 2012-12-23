@@ -488,13 +488,16 @@ public final class IRCConnection {
         }
 
         Channel channel = null;
-        if (channelPrefixes.indexOf(target.charAt(0)) >= 0) {
-            channel = getChannel(target);
-            if (channel == null) {
-                channel = new Channel(target, this);
-                channels.add(channel);
+        try {
+            if (channelPrefixes.indexOf(target.charAt(0)) >= 0) {
+                channel = getChannel(target);
+                if (channel == null) {
+                    channel = new Channel(target, this);
+                    channels.add(channel);
+                }
             }
         }
+        catch (Exception e) {}
 
         User user = null;
         if (channel != null) {
