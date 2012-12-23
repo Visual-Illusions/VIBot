@@ -1000,7 +1000,6 @@ public final class IRCConnection {
                     break;
 
                 case RPL_ENDOFNAMES:
-                    sendRawLine("WHO");
                     sendRawLine("MODE ".concat(channel).concat(" +b")); //Get the Ban List now
                     break;
 
