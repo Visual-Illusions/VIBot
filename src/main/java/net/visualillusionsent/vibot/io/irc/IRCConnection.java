@@ -591,8 +591,8 @@ public final class IRCConnection {
                 if (!sourceNick.equals(bot.getNick())) {
                     if (channel.getUser(sourceNick) == null) {
                         channel.addUser(user);
-                        manager.callJoinEvent(channel, user);
                     }
+                    manager.callJoinEvent(channel, user);
                 }
                 else {
                     channel.sendMessage(BotConfig.getJoinMessage());
