@@ -29,7 +29,7 @@ package net.visualillusionsent.vibot.io.dcc;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
-import net.visualillusionsent.vibot.api.plugin.events.EventManager;
+import net.visualillusionsent.vibot.api.events.EventManager;
 import net.visualillusionsent.vibot.io.irc.IRCConnection;
 import net.visualillusionsent.vibot.io.irc.User;
 

@@ -15,22 +15,21 @@
  * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
-package net.visualillusionsent.vibot.api.plugin.events;
+package net.visualillusionsent.vibot.api.events;
 
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
-public abstract class PartEvent extends BaseEvent {
+public abstract class PrivateMessageEvent extends BaseEvent {
 
-    public PartEvent(BotPlugin plugin) {
-        super(plugin, EventType.PART);
+    public PrivateMessageEvent(BotPlugin plugin) {
+        super(plugin, EventType.PRIVATE_MESSAGE);
     }
 
-    public PartEvent(BotPlugin plugin, EventPriority priority) {
-        super(plugin, priority, EventType.PART);
+    public PrivateMessageEvent(BotPlugin plugin, EventPriority priority) {
+        super(plugin, priority, EventType.PRIVATE_MESSAGE);
     }
 
-    public abstract void execute(Channel channel, User user);
-
+    public abstract void execute(Channel channel, User user, String message);
 }

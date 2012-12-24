@@ -1,4 +1,4 @@
-package net.visualillusionsent.vibot.api.plugin.events;
+package net.visualillusionsent.vibot.api.events;
 
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;

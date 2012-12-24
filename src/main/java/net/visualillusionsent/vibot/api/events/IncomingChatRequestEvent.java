@@ -15,21 +15,20 @@
  * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
-package net.visualillusionsent.vibot.api.plugin.events;
+package net.visualillusionsent.vibot.api.events;
 
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
-import net.visualillusionsent.vibot.io.irc.Channel;
-import net.visualillusionsent.vibot.io.irc.User;
+import net.visualillusionsent.vibot.io.dcc.DccChat;
 
-public abstract class JoinEvent extends BaseEvent {
+public abstract class IncomingChatRequestEvent extends BaseEvent {
 
-    public JoinEvent(BotPlugin plugin) {
-        super(plugin, EventType.JOIN);
+    public IncomingChatRequestEvent(BotPlugin plugin, EventPriority priority) {
+        super(plugin, priority, EventType.INCOMING_CHAT_REQUEST);
     }
 
-    public JoinEvent(BotPlugin plugin, EventPriority priority) {
-        super(plugin, priority, EventType.JOIN);
+    public IncomingChatRequestEvent(BotPlugin plugin) {
+        super(plugin, EventType.INCOMING_CHAT_REQUEST);
     }
 
-    public abstract void execute(Channel channel, User user);
+    public abstract void execute(DccChat chat);
 }

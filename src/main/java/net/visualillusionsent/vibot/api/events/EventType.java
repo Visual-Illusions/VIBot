@@ -15,27 +15,15 @@
  * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
-package net.visualillusionsent.vibot.api.plugin.events;
+package net.visualillusionsent.vibot.api.events;
 
-import java.util.Comparator;
-
-public final class EventPriorityComparator implements Comparator<BaseEvent> {
-
-    public EventPriorityComparator() {}
-
-    @Override
-    public final int compare(BaseEvent a, BaseEvent b) {
-        int ax = a.getPriority().ordinal();
-        int bx = b.getPriority().ordinal();
-
-        if (ax > bx) {
-            return 1;
-        }
-        else if (ax == bx) {
-            return 0;
-        }
-        else {
-            return -1;
-        }
-    }
+enum EventType {
+    CHANNEL_MESSAGE, //
+    CONNECT, //
+    FILE_TRANSFER_FINISHED, //
+    INCOMING_CHAT_REQUEST, //
+    INVITE, //
+    JOIN, //
+    PART, //
+    PRIVATE_MESSAGE, //
 }

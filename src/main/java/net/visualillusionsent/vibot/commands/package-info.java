@@ -1,4 +1,4 @@
 /**
-The Internal {@link BaseCommand}s package for {@link VIBot}
+ * Internal Commands package
  */
 package net.visualillusionsent.vibot.commands;

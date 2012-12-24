@@ -32,7 +32,7 @@ import java.io.FileOutputStream;
 import java.net.Socket;
 
 import net.visualillusionsent.utils.IPAddressUtils;
-import net.visualillusionsent.vibot.api.plugin.events.EventManager;
+import net.visualillusionsent.vibot.api.events.EventManager;
 
 /**
  * This class is used to receive a DCC file in a new thread.

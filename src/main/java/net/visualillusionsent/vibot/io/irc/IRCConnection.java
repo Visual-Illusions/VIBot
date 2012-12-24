@@ -45,7 +45,7 @@ import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.Queue;
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.plugin.events.EventManager;
+import net.visualillusionsent.vibot.api.events.EventManager;
 import net.visualillusionsent.vibot.io.ReconnectionThread;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
 import net.visualillusionsent.vibot.io.dcc.DccChat;

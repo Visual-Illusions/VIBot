@@ -28,25 +28,21 @@ import net.visualillusionsent.utils.PropertiesFile;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
-import net.visualillusionsent.vibot.api.plugin.events.BaseEvent;
-import net.visualillusionsent.vibot.api.plugin.events.EventPriority;
+import net.visualillusionsent.vibot.api.events.BaseEvent;
+import net.visualillusionsent.vibot.api.events.EventPriority;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
  * Bot Plugin interface<br>
  * Extend this class to create plugins for {@link VIBot}<br>
- * When creating a plugin, you should include a constructor and call super()
+ * When creating a plugin, you should include a constructor and call super()<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
 public abstract class BotPlugin {
-    /**
-     * The name of the {@code BotPlugin}
-     */
-    private String name;
 
     /**
      * The name of the Jar File for the {@code BotPlugin}
@@ -57,11 +53,6 @@ public abstract class BotPlugin {
      * Whether the {@code BotPlugin} is enabled or not
      */
     private boolean enabled = true;
-
-    /**
-     * The version of the {@code BotPlugin}, either auto-generated or set
-     */
-    protected String version;
 
     /**
      * The URLClassLoader for the {@code BotPlugin}
@@ -77,6 +68,16 @@ public abstract class BotPlugin {
      * The {@link PropertiesFile} for the {@code BotPlugin}
      */
     private PropertiesFile plugin_props;
+
+    /**
+     * The version of the {@code BotPlugin}, either auto-generated or set
+     */
+    protected String version;
+
+    /**
+     * The name of the {@code BotPlugin}
+     */
+    protected String name;
 
     /**
      * Constructs a new {@code BotPlugin}
@@ -224,7 +225,8 @@ public abstract class BotPlugin {
 
     /**
      * Generates the Version from the {@code BotPlugin}'s manifest entries Version and Build<br>
-     * If the manifest does not contain those values it defaults to "UNDEFINED"
+     * If the manifest does not contain those values it defaults to "UNDEFINED"<br>
+     * Format wise it will be displayed as #.#b#
      */
     protected final void generateVersion() {
         String build = null;
@@ -239,7 +241,7 @@ public abstract class BotPlugin {
             BotLogMan.warning(e.getMessage());
         }
         if (version != null && build != null) {
-            version = version.concat(".").concat(build);
+            version = version.concat("b").concat(build);
         }
     }
 
@@ -327,13 +329,13 @@ public abstract class BotPlugin {
     }
 
     /**
-     * Returns a string representation of the {@code BotPlugin} as "BotPlugin[Name=%s Version=%s]"
+     * Returns a string representation of the {@code BotPlugin} as "%Name% v%Version%"
      * 
      * @return string representation of the {@code BotPlugin}
      */
     @Override
-    public String toString() {
-        return String.format("BotPlugin[Name=%s Version=%s]", getName(), getVersion());
+    public final String toString() {
+        return String.format("%s v%s", getName(), getVersion());
     }
 
     @Override

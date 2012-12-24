@@ -15,20 +15,27 @@
  * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
-package net.visualillusionsent.vibot.api.plugin.events;
+package net.visualillusionsent.vibot.api.events;
 
-import net.visualillusionsent.vibot.api.plugin.BotPlugin;
-import net.visualillusionsent.vibot.io.dcc.DccChat;
+import java.util.Comparator;
 
-public abstract class IncomingChatRequestEvent extends BaseEvent {
+public final class EventPriorityComparator implements Comparator<BaseEvent> {
 
-    public IncomingChatRequestEvent(BotPlugin plugin, EventPriority priority) {
-        super(plugin, priority, EventType.INCOMING_CHAT_REQUEST);
+    public EventPriorityComparator() {}
+
+    @Override
+    public final int compare(BaseEvent a, BaseEvent b) {
+        int ax = a.getPriority().ordinal();
+        int bx = b.getPriority().ordinal();
+
+        if (ax > bx) {
+            return 1;
+        }
+        else if (ax == bx) {
+            return 0;
+        }
+        else {
+            return -1;
+        }
     }
-
-    public IncomingChatRequestEvent(BotPlugin plugin) {
-        super(plugin, EventType.INCOMING_CHAT_REQUEST);
-    }
-
-    public abstract void execute(DccChat chat);
 }

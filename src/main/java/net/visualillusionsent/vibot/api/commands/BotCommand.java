@@ -1,20 +1,27 @@
 package net.visualillusionsent.vibot.api.commands;
 
-import java.lang.annotation.ElementType;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import net.visualillusionsent.vibot.io.irc.User;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+/**
+ * {@code @interface} for {@link BaseCommand}<br>
+ * Used to specify the command name, aliases, usage, description, min/max paramerters, who can use the command, and where the command can be used
+ * 
+ * @author Jason (darkdiplomat)
+ */
+@Retention(RUNTIME)
+@Target(TYPE)
 public @interface BotCommand {
 
     /**
-     * Special {@code NULL} value for aliases - DO NOT USE
+     * Special {@code null} value for aliases - DO NOT USE
      */
-    static final String NULL = "THIS IS A SPECIAL NULL VALUE - DO NOT USE";
+    static final String NULL = "null.NULL#NULL throws null.NilException";
 
     /**
      * Main name for the {@link BaseCommand}

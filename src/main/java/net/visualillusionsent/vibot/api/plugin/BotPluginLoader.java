@@ -31,7 +31,7 @@ import java.util.jar.Manifest;
 import net.visualillusionsent.utils.SystemUtils;
 import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.VIBot;
-import net.visualillusionsent.vibot.api.plugin.events.EventManager;
+import net.visualillusionsent.vibot.api.events.EventManager;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.irc.Colors;
@@ -266,9 +266,7 @@ public final class BotPluginLoader {
         synchronized (lock) {
             for (BotPlugin plugin : plugins) {
                 sb.append(plugin.isEnabled() ? Colors.GREEN : Colors.RED);
-                sb.append(plugin.getName());
-                sb.append(" v");
-                sb.append(plugin.getVersion());
+                sb.append(plugin.toString());
                 sb.append(Colors.NORMAL + ", ");
             }
         }

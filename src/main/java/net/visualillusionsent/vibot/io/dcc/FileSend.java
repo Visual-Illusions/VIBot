@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 
 import net.visualillusionsent.utils.IPAddressUtils;
-import net.visualillusionsent.vibot.api.plugin.events.EventManager;
+import net.visualillusionsent.vibot.api.events.EventManager;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
 
 class FileSend extends Thread {

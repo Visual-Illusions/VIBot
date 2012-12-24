@@ -15,15 +15,21 @@
  * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
-package net.visualillusionsent.vibot.api.plugin.events;
+package net.visualillusionsent.vibot.api.events;
 
-enum EventType {
-    CHANNEL_MESSAGE, //
-    CONNECT, //
-    FILE_TRANSFER_FINISHED, //
-    INCOMING_CHAT_REQUEST, //
-    INVITE, //
-    JOIN, //
-    PART, //
-    PRIVATE_MESSAGE, //
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
+
+public abstract class JoinEvent extends BaseEvent {
+
+    public JoinEvent(BotPlugin plugin) {
+        super(plugin, EventType.JOIN);
+    }
+
+    public JoinEvent(BotPlugin plugin, EventPriority priority) {
+        super(plugin, priority, EventType.JOIN);
+    }
+
+    public abstract void execute(Channel channel, User user);
 }

@@ -15,13 +15,22 @@
  * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
-package net.visualillusionsent.vibot.api.plugin.events;
+package net.visualillusionsent.vibot.api.events;
 
-public enum EventPriority {
-    CRITICAL, //
-    HIGH, //
-    ABOVE_NORMAL, //
-    NORMAL, //
-    BELOW_NORMAL, //
-    LOW;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
+import net.visualillusionsent.vibot.io.irc.Channel;
+import net.visualillusionsent.vibot.io.irc.User;
+
+public abstract class PartEvent extends BaseEvent {
+
+    public PartEvent(BotPlugin plugin) {
+        super(plugin, EventType.PART);
+    }
+
+    public PartEvent(BotPlugin plugin, EventPriority priority) {
+        super(plugin, priority, EventType.PART);
+    }
+
+    public abstract void execute(Channel channel, User user);
+
 }
