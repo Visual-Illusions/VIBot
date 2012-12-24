@@ -1000,7 +1000,8 @@ public final class IRCConnection {
                     break;
 
                 case RPL_ENDOFNAMES:
-                    sendRawLine("MODE ".concat(channel).concat(" +b")); //Get the Ban List now
+                    whoAllInChannel(getChannel(channel));
+                    addToQueue("MODE ".concat(channel).concat(" +b")); //Get the Ban List now
                     break;
 
                 case RPL_WHOREPLY:
@@ -1169,5 +1170,11 @@ public final class IRCConnection {
             }
         }
         return user;
+    }
+
+    private final void whoAllInChannel(Channel channel) {
+        for (User user : channel.getUsers()) {
+            addToQueue("WHO ".concat(user.getNick()));
+        }
     }
 }
