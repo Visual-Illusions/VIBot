@@ -35,7 +35,8 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
  * Bot Plugin interface<br>
- * Extend this class to create plugins for {@link VIBot}
+ * Extend this class to create plugins for {@link VIBot}<br>
+ * When creating a plugin, you should include a constructor and call super()
  * 
  * @since 1.0
  * @version 1.0
@@ -48,6 +49,11 @@ public abstract class BotPlugin {
     private String name;
 
     /**
+     * The name of the Jar File for the {@code BotPlugin}
+     */
+    private String jarName;
+
+    /**
      * Whether the {@code BotPlugin} is enabled or not
      */
     private boolean enabled = true;
@@ -55,27 +61,31 @@ public abstract class BotPlugin {
     /**
      * The version of the {@code BotPlugin}, either auto-generated or set
      */
-    protected String version = null;
+    protected String version;
 
     /**
      * The URLClassLoader for the {@code BotPlugin}
      */
-    private URLClassLoader loader = null;
+    private URLClassLoader loader;
 
     /**
      * The {@code plugin.cfg} {@link PropertiesFile} for the {@code BotPlugin}
      */
-    private PropertiesFile plugin_cfg = null;
+    private PropertiesFile plugin_cfg;
 
     /**
      * The {@link PropertiesFile} for the {@code BotPlugin}
      */
-    private PropertiesFile plugin_props = null;
+    private PropertiesFile plugin_props;
 
     /**
      * Constructs a new {@code BotPlugin}
      */
-    public BotPlugin() {}
+    public BotPlugin() {
+        getName();
+        getJarName();
+        generateVersion();
+    }
 
     /**
      * Runs the {@code BotPlugin} enable code to check if enabling can happen<br>
@@ -134,13 +144,15 @@ public abstract class BotPlugin {
      * @return the name of the {@code BotPlugin}'s jar file; {@code null} if an exception occured
      */
     public final String getJarName() {
-        CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
-        try {
-            String path = codeSource.getLocation().toURI().getPath();
-            return path.substring(path.lastIndexOf("/") + 1, path.length());
+        if (jarName == null) {
+            CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
+            try {
+                String path = codeSource.getLocation().toURI().getPath();
+                jarName = path.substring(path.lastIndexOf("/") + 1, path.length());
+            }
+            catch (Exception e) {}
         }
-        catch (Exception e) {}
-        return null;
+        return jarName;
     }
 
     /**
