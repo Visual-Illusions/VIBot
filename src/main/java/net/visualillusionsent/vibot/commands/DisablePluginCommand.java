@@ -48,8 +48,16 @@ public final class DisablePluginCommand extends BaseCommand {
 
     @Override
     public final boolean execute(Channel channel, User user, String[] args) {
-        BotPluginLoader.getInstance().disablePlugin(args[1]);
-        channel.sendMessage("Plugin disabled!");
+        if (BotPluginLoader.disableBotPlugin(args[1])) {
+            String pluginName = BotPluginLoader.getBotPlugin(args[1]).toString();
+            if (channel != null) {
+                channel.sendMessage(pluginName.concat(" disabled!"));
+            }
+            else {
+                user.sendNotice(pluginName.concat(" disabled!"));
+            }
+        }
+
         return true;
     }
 }

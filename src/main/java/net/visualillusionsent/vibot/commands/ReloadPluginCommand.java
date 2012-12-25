@@ -19,21 +19,48 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Reload Plugin Command<br>
+ * Reloads a {@link BotPlugin}<br>
+ * <b>Usage:</b> !reloadplugin {@literal <plugin>}<br>
+ * <b>Minimum Params:</b> 2<br>
+ * <b>Maximum Params:</b> 2<br>
+ * <b>Requires:</b> Owner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "reloadplugin", usage = "!reloadplugin <plugin>", desc = "Reloads a plugin", owner = true)
 public final class ReloadPluginCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code ReloadPluginCommand}
+     */
     public ReloadPluginCommand() {
         super(null);
     }
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        String message = BotPluginLoader.getInstance().reloadPlugin(args[1]) ? "Reloaded plugin successfully!" : "An exception occured while reloading plugin...";
-        channel.sendMessage(user.getNick().concat(", ").concat(message));
+        String message;
+        if (BotPluginLoader.reloadBotPlugin(args[1])) {
+            message = BotPluginLoader.getBotPlugin(args[1]).toString().concat(" reloaded successfully!");
+        }
+        else {
+            message = "An exception occured while reloading the plugin...";
+        }
+        if (channel != null) {
+            channel.sendMessage(message);
+        }
+        else {
+            user.sendNotice(message);
+        }
         return true;
     }
 }

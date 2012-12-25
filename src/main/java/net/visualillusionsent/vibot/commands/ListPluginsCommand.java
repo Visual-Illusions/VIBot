@@ -19,20 +19,42 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * List Plugins Command<br>
+ * Gets the list of {@link BotPlugin}s<br>
+ * Enabled plugins show as <font color=green>green</font>; Disabled plugins show as <font color=red>red</font><br>
+ * <b>Usage:</b> !listplugins<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> Op<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "listplugins", usage = "!listplugins", desc = "Gives a list of plugins", op = true)
 public final class ListPluginsCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code ListPluginsCommand}
+     */
     public ListPluginsCommand() {
         super(null);
     }
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        channel.sendMessage(BotPluginLoader.getInstance().getPluginList());
+        if (channel != null) {
+            channel.sendMessage(BotPluginLoader.getBotPluginList());
+        }
+        else {
+            user.sendNotice(BotPluginLoader.getBotPluginList());
+        }
         return true;
     }
 

@@ -11,6 +11,18 @@ import net.visualillusionsent.utils.IPAddressUtils;
 import net.visualillusionsent.vibot.api.events.EventManager;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
 
+/**
+ * This class is used to send a DCC file in a new thread.
+ * <p>
+ * This class is contains code derived from PircBot <br>
+ * PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/<br>
+ * and dual Licensed under the GNU General Public License/www.jibble.org Commercial License
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason Jones (darkdiplomat)
+ * @author Paul James Mutton (PircBot)
+ */
 class FileSend extends Thread {
     private DccFileTransfer transfer;
     private int timeout;

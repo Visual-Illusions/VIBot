@@ -1,5 +1,5 @@
 /**
-The main {@link VIBot} package
+The main VIBot package
 <p>
 VIBot is designed to use Java 7 or higher
 and contains a Plugin API for adding on to the Bot or to be used as just a stand-alone Channel administration solution.

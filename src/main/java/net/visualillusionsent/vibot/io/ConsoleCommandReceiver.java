@@ -31,18 +31,28 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
 /**
  * Listens for commands/messages given via the Console/Terminal
  * 
- * @since VIBot 1.0
- * @author darkdiplomat
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
  */
 public final class ConsoleCommandReceiver extends Thread {
-    private final BufferedReader consoleread = new BufferedReader(new InputStreamReader(System.in));
-    private final Channel console = Channel.CONSOLE;
+    /**
+     * System.in BufferedReader
+     */
+    private final BufferedReader consoleread;
 
+    /**
+     * Constructs a new {@code ConsoleCommandReceiver}
+     */
     public ConsoleCommandReceiver() {
         super("ConsoleCommandReceiver-Thread");
         this.setDaemon(true);
+        consoleread = new BufferedReader(new InputStreamReader(System.in));
     }
 
+    /**
+     * Runs to listen for input
+     */
     public void run() {
         while (!VIBot.isShuttingDown()) {
             String inLine = null;
@@ -54,7 +64,7 @@ public final class ConsoleCommandReceiver extends Thread {
                     }
 
                     String[] args = inLine.split(" ");
-                    if (!CommandParser.parseBotCommand(console, User.BOT_CONSOLE, args)) {
+                    if (!CommandParser.parseBotCommand(Channel.CONSOLE, User.BOT_CONSOLE, args)) {
                         String chan = inLine.split(" ")[0];
                         if (chan.startsWith("#")) {
                             if (inLine.length() > (chan.length() + 1)) {

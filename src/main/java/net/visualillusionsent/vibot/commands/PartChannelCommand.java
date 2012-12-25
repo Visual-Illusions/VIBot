@@ -25,15 +25,30 @@ import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Part Channel Command<br>
+ * Tells the {@link VIBot} to leave a {@link Channel}<br>
+ * <b>Usage:</b> !part [channel] [reason]<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> Owner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "part", usage = "!part [channel] [reason]", desc = "Makes the bot leave a channel", owner = true)
 public final class PartChannelCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code PartChannelCommand}
+     */
     public PartChannelCommand() {
         super(null);
     }
 
     @Override
-    public final synchronized boolean execute(Channel channel, User user, String[] args) {
+    public final boolean execute(Channel channel, User user, String[] args) {
         String reason = "disconnect.leaving";
         if (args.length > 2) {
             if (!args[1].startsWith("#")) {

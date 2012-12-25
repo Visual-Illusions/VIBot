@@ -17,14 +17,30 @@
  */
 package net.visualillusionsent.vibot.commands;
 
+import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
-@BotCommand(main = "stfu", usage = "!stfu", desc = "Quiets the Bot in the channel", op = true)
+/**
+ * Shut The Fuck Up Command<br>
+ * Quiets the {@link VIBot} in a {@link Channel}<br>
+ * <b>Usage:</b> !stfu<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> Op Channel<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
+@BotCommand(main = "stfu", usage = "!stfu", desc = "Quiets the Bot in a channel", op = true, chanOnly = true)
 public final class ShutTheFuckUpCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code ShutTheFuckUpCommand}
+     */
     public ShutTheFuckUpCommand() {
         super(null);
     }

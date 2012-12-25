@@ -22,6 +22,14 @@ import net.visualillusionsent.vibot.io.configuration.BotConfig;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
+/**
+ * Reconnection Thread<br>
+ * Handles reconnecting to the server if the {@link VIBot} gets disconnected without being told to do so.
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public final class ReconnectionThread extends Thread {
     private VIBot bot;
 

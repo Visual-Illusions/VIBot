@@ -503,7 +503,7 @@ public final class VIBot {
             instance.dispose();
         }
 
-        BotPluginLoader.getInstance().disableAll(instance);
+        BotPluginLoader.disableAllBotPlugins(instance);
 
         for (Handler hand : Logger.getLogger("VIBot").getHandlers()) {
             if (hand != null) {
@@ -611,7 +611,7 @@ public final class VIBot {
             }
             CommandParser.getInstance();
             BotConfig.getInstance();
-            BotPluginLoader.getInstance().loadPlugins();
+            BotPluginLoader.loadPlugins();
             new ConsoleCommandReceiver().start();
 
             instance = new VIBot();

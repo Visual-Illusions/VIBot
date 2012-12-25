@@ -26,18 +26,20 @@ import java.io.UnsupportedEncodingException;
 import net.visualillusionsent.utils.PropertiesFile;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
+import net.visualillusionsent.vibot.io.IdentServer;
+import net.visualillusionsent.vibot.io.irc.User;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
- * Handles the loading of the bot's configuration
+ * Handles the loading and getting of the {@link VIBot}'s configuration
  * 
- * @since VIBot 1.0
- * @author Jason (darkdiplomat)
+ * @since 1.0
  * @version 1.0
+ * @author Jason (darkdiplomat)
  */
 public final class BotConfig {
     private static BotConfig instance;
-
     private PropertiesFile props;
     private String botname, login, server, server_pass, nickserv_pass, join_message, part_message, quit_message, encoding;
     private String[] plugins = new String[] { "" }, channels = new String[] { "" }, bot_owners = new String[] { "" };
@@ -47,7 +49,13 @@ public final class BotConfig {
     private int[] dcc_ports = new int[] {};
     private long messageDelay = 750;
 
+    /**
+     * Constructs a new {@code BotConfig}
+     */
     private BotConfig() {
+        if (instance != null) {
+            throw new IllegalStateException("Only one BotConfig instance may be created at a time.");
+        }
         try {
             load();
         }
@@ -58,6 +66,11 @@ public final class BotConfig {
         }
     }
 
+    /**
+     * Gets the {@code BotConfig} instance
+     * 
+     * @return the {@code BotConfig} instance
+     */
     public static BotConfig getInstance() {
         if (instance == null) {
             instance = new BotConfig();
@@ -66,9 +79,10 @@ public final class BotConfig {
     }
 
     /**
-     * Loads the configuration
+     * Loads the configuration or migrates default props if the properties file doesn't exist
      * 
      * @throws UtilityException
+     *             if a property is invalid
      */
     private void load() throws UtilityException {
         File file = new File("botprops.ini");
@@ -102,6 +116,11 @@ public final class BotConfig {
         BotLogMan.info("Properties Loaded...");
     }
 
+    /**
+     * Migrates the default properties from the jar to the base directory for the {@link VIBot}
+     * 
+     * @throws UtilityException
+     */
     private void migrateProps() throws UtilityException {
         InputStream in = null;
         FileWriter out = null;
@@ -135,6 +154,11 @@ public final class BotConfig {
         }
     }
 
+    /**
+     * Checks for vaild Encoding
+     * 
+     * @throws UtilityException
+     */
     private void checkEncoding() throws UtilityException {
         String encode = props.getString("Encoding");
         try {
@@ -147,26 +171,51 @@ public final class BotConfig {
         }
     }
 
+    /**
+     * Gets whether the {@link VIBot} nick should autochange for nick in use
+     * 
+     * @return {@code true} if auto changes; {@code false} otherwise
+     */
     public static boolean autoNickChange() {
         return getInstance().autonickchange;
     }
 
+    /**
+     * Gets whether to use the {@link IdentServer}
+     * 
+     * @return {@code true} if to use the {@link IdentServer}; {@code false} otherwise
+     */
     public static boolean useIdentServer() {
         return getInstance().ident;
     }
 
     public static boolean getDebug() {
-        return true;
+        return false;
     }
 
+    /**
+     * Gets the command prefix character
+     * 
+     * @return the command prefix character
+     */
     public static char getCommandPrefix() {
         return getInstance().cmd_Prefix;
     }
 
+    /**
+     * Gets the port to use for the {@link IdentServer}
+     * 
+     * @return port to use for the {@link IdentServer}
+     */
     public static int getIdentPort() {
         return getInstance().ident_port;
     }
 
+    /**
+     * Gets the port to use to connect to the IRC Server
+     * 
+     * @return IRC Server port
+     */
     public static int getServerPort() {
         return getInstance().serv_port;
     }
@@ -190,54 +239,119 @@ public final class BotConfig {
         return (int[]) getInstance().dcc_ports.clone();
     }
 
+    /**
+     * Gets the delay in miliseconds between messages sent to the IRC Server
+     * 
+     * @return message delay in miliseconds
+     */
     public static long getMessageDelay() {
         return getInstance().messageDelay;
     }
 
+    /**
+     * Gets the nick to use for the {@link VIBot}
+     * 
+     * @return nick for the {@link VIBot}
+     */
     public static String getBotName() {
         return getInstance().botname;
     }
 
+    /**
+     * Gets the IRC Server URL
+     * 
+     * @return IRC Server URL
+     */
     public static String getServer() {
         return getInstance().server;
     }
 
+    /**
+     * Gets the IRC Server password
+     * 
+     * @return IRC Server Password
+     */
     public static String getServerPassword() {
         return getInstance().server_pass;
     }
 
+    /**
+     * Gets the NickServ password for the {@link VIBot}
+     * 
+     * @return NickServ password
+     */
     public static String getNickServPassword() {
         return getInstance().nickserv_pass;
     }
 
+    /**
+     * Gets the message to send when the {@link VIBot} joins a {@link Channel}
+     * 
+     * @return join message
+     */
     public static String getJoinMessage() {
         return getInstance().join_message;
     }
 
+    /**
+     * Gets the message to send when the {@link VIBot} parts a {@link Channel}
+     * 
+     * @return part message
+     */
     public static String getPartMessage() {
         return getInstance().part_message;
     }
 
+    /**
+     * Gets the message to send when the {@link VIBot} disconnects from the IRC Server
+     * 
+     * @return quit message
+     */
     public static String getQuitMessage() {
         return getInstance().quit_message;
     }
 
+    /**
+     * Gets the login to use for the {@link VIBot}
+     * 
+     * @return login
+     */
     public static String getLogin() {
         return getInstance().login;
     }
 
+    /**
+     * Gets the encoding to use with the {@link VIBot}
+     * 
+     * @return encoding
+     */
     public static String getEncoding() {
         return getInstance().encoding;
     }
 
+    /**
+     * Gets the list of {@link BotPlugin}s to load by default
+     * 
+     * @return list of {@link BotPlugin}s
+     */
     public static String[] getPlugins() {
         return (String[]) getInstance().plugins.clone();
     }
 
+    /**
+     * Gets the list of {@link Channel}s to join by default
+     * 
+     * @return list of {@link Channel}s
+     */
     public static String[] getChannels() {
         return (String[]) getInstance().channels.clone();
     }
 
+    /**
+     * Gets the list of {@link User}s who are owners of the {@link VIBot}
+     * 
+     * @return list of {@link User}s
+     */
     public static String[] getBotOwners() {
         return (String[]) getInstance().bot_owners.clone();
     }

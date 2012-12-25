@@ -23,9 +23,24 @@ import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Nick Change Command<br>
+ * Tells the {@link VIBot} to change it's nick<br>
+ * <b>Usage:</b> !nick {@literal <newnick>}<br>
+ * <b>Minimum Params:</b> 2<br>
+ * <b>Maximum Params:</b> 2<br>
+ * <b>Requires:</b> BotOwner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "nick", usage = "!nick <newnick>", desc = "Changes the bot's nickname", minParam = 2, maxParam = 2, owner = true)
 public final class NickChangeCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code NickChangeCommand}
+     */
     public NickChangeCommand() {
         super(null);
     }

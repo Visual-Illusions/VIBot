@@ -68,24 +68,31 @@ public final class BotPluginLoader {
      */
     private static BotPluginLoader instance;
 
+    static {
+        instance = new BotPluginLoader();
+    }
+
     /**
      * Creates a plugin loader
      */
     private BotPluginLoader() {
-        plugins = new ArrayList<BotPlugin>();
-    }
-
-    public final static BotPluginLoader getInstance() {
-        if (instance == null) {
-            instance = new BotPluginLoader();
+        if (instance != null) {
+            throw new IllegalStateException("Only one CommandParser instance may be created at a time.");
         }
-        return instance;
+        plugins = new ArrayList<BotPlugin>();
     }
 
     /**
      * Initially loads all plugins if not already loaded
      */
-    public final void loadPlugins() {
+    public static final void loadPlugins() {
+        instance.loadAll();
+    }
+
+    /**
+     * Initially loads all plugins if not already loaded
+     */
+    private final void loadAll() {
         if (loaded) {
             return;
         }
@@ -114,13 +121,24 @@ public final class BotPluginLoader {
     }
 
     /**
-     * Loads the specified plugin
+     * Loads the specified {@link BotPlugin}
      * 
      * @param pluginName
-     *            name of plugin to load
+     *            name of {@link BotPlugin} to load
      * @return if the operation was successful
      */
-    public final boolean loadPlugin(String pluginName) {
+    public static final boolean loadBotPlugin(String pluginName) {
+        return instance.load(pluginName);
+    }
+
+    /**
+     * Loads the specified {@link BotPlugin}
+     * 
+     * @param pluginName
+     *            name of {@link BotPlugin} to load
+     * @return if the operation was successful
+     */
+    private final boolean loadPlugin(String pluginName) {
         if (getPlugin(pluginName) != null) {
             // Already exists, don't load again.
             return false;
@@ -132,10 +150,21 @@ public final class BotPluginLoader {
      * Reloads the specified {@link BotPlugin}
      * 
      * @param pluginName
+     *            name of {@link BotPlugin} to reload
+     * @return if the operation was successful
+     */
+    public static final boolean reloadBotPlugin(String pluginName) {
+        return instance.reloadPlugin(pluginName);
+    }
+
+    /**
+     * Reloads the specified {@link BotPlugin}
+     * 
+     * @param pluginName
      *            name of plugin to reload
      * @return if the operation was successful
      */
-    public final boolean reloadPlugin(String pluginName) {
+    private final boolean reloadPlugin(String pluginName) {
         BotPlugin toNull = getPlugin(pluginName);
         if (toNull != null) {
             if (toNull.isEnabled()) {
@@ -238,16 +267,27 @@ public final class BotPluginLoader {
     }
 
     /**
-     * Returns the specified {@link BotPlugin}
+     * Returns a {@link BotPlugin} of the specified name if found
      * 
-     * @param name
+     * @param pluginName
      *            name of {@link BotPlugin}
      * @return {@link BotPlugin} if found; {@code null} otherwise
      */
-    public final BotPlugin getPlugin(String name) {
+    public static final BotPlugin getBotPlugin(String pluginName) {
+        return instance.getPlugin(pluginName);
+    }
+
+    /**
+     * Returns a {@link BotPlugin} of the specified name if found
+     * 
+     * @param pluginName
+     *            name of {@link BotPlugin}
+     * @return {@link BotPlugin} if found; {@code null} otherwise
+     */
+    private final BotPlugin getPlugin(String pluginName) {
         synchronized (lock) {
             for (BotPlugin plugin : plugins) {
-                if (plugin.getName().equalsIgnoreCase(name)) {
+                if (plugin.getName().equalsIgnoreCase(pluginName)) {
                     return plugin;
                 }
             }
@@ -256,11 +296,22 @@ public final class BotPluginLoader {
     }
 
     /**
-     * Returns a string list of {@link BotPlugin}s
+     * Returns a string list of {@link BotPlugin}s<br>
+     * Enabled plugins show as <font color=green>green</font>; Disabled plugins show as <font color=red>red</font><br>
      * 
      * @return String of {@link BotPlugin}s
      */
-    public final String getPluginList() {
+    public static final String getBotPluginList() {
+        return instance.getPluginList();
+    }
+
+    /**
+     * Returns a string list of {@link BotPlugin}s<br>
+     * Enabled plugins show as <font color=green>green</font>; Disabled plugins show as <font color=red>red</font><br>
+     * 
+     * @return String of {@link BotPlugin}s
+     */
+    private final String getPluginList() {
         StringBuilder sb = new StringBuilder();
 
         synchronized (lock) {
@@ -283,12 +334,23 @@ public final class BotPluginLoader {
     /**
      * Enables the specified {@link BotPlugin} (Or adds and enables it)
      * 
-     * @param name
+     * @param pluginName
      *            name of the {@link BotPlugin} to enable
      * @return {@code true} if enabled; {@code false} otherwise
      */
-    public final boolean enablePlugin(String name) {
-        BotPlugin plugin = getPlugin(name);
+    public static final boolean enableBotPlugin(String pluginName) {
+        return instance.enablePlugin(pluginName);
+    }
+
+    /**
+     * Enables the specified {@link BotPlugin} (Or adds and enables it)
+     * 
+     * @param pluginName
+     *            name of the {@link BotPlugin} to enable
+     * @return {@code true} if enabled; {@code false} otherwise
+     */
+    private final boolean enablePlugin(String pluginName) {
+        BotPlugin plugin = getPlugin(pluginName);
 
         if (plugin != null) {
             if (!plugin.isEnabled()) {
@@ -301,10 +363,10 @@ public final class BotPluginLoader {
             return false;
         }
         else { // New plugin, perhaps?
-            File file = new File("plugins/".concat(name).concat(".jar"));
+            File file = new File("plugins/".concat(pluginName).concat(".jar"));
 
             if (file.exists()) {
-                return loadPlugin(name);
+                return loadPlugin(pluginName);
             }
             else {
                 return false;
@@ -315,11 +377,21 @@ public final class BotPluginLoader {
     /**
      * Disables specified {@link BotPlugin}
      * 
-     * @param name
+     * @param pluginName
      *            name of the {@link BotPlugin} to disable
      */
-    public final void disablePlugin(String name) {
-        BotPlugin plugin = getPlugin(name);
+    public static final boolean disableBotPlugin(String pluginName) {
+        return instance.disablePlugin(pluginName);
+    }
+
+    /**
+     * Disables specified {@link BotPlugin}
+     * 
+     * @param pluginName
+     *            name of the {@link BotPlugin} to disable
+     */
+    private final boolean disablePlugin(String pluginName) {
+        BotPlugin plugin = getPlugin(pluginName);
 
         if (plugin != null) {
             if (plugin.isEnabled()) {
@@ -327,8 +399,10 @@ public final class BotPluginLoader {
                 plugin.disable();
                 EventManager.unregisterPluginHooks(plugin);
                 CommandParser.getInstance().removePluginCommands(plugin);
+                return true;
             }
         }
+        return false;
     }
 
     /**
@@ -338,7 +412,18 @@ public final class BotPluginLoader {
      * @param bot
      *            the {@link VIBot} instance
      */
-    public final void disableAll(VIBot bot) {
+    public static final void disableAllBotPlugins(VIBot bot) {
+        instance.disableAll(bot);
+    }
+
+    /**
+     * Disables all {@link BotPlugin}<br>
+     * Typically when the {@link VIBot} is shutting down
+     * 
+     * @param bot
+     *            the {@link VIBot} instance
+     */
+    private final void disableAll(VIBot bot) {
         for (BotPlugin plugin : plugins) {
             if (plugin.isEnabled()) {
                 plugin.toggleEnabled();

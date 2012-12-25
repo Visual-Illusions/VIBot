@@ -48,8 +48,20 @@ public final class EnablePluginCommand extends BaseCommand {
 
     @Override
     public final boolean execute(Channel channel, User user, String[] args) {
-        String message = BotPluginLoader.getInstance().enablePlugin(args[1]) ? "Enabled plugin successfully!" : "An exception occured while enabling plugin...";
-        channel.sendMessage(message);
+        String message;
+        if (BotPluginLoader.enableBotPlugin(args[1])) {
+            message = BotPluginLoader.getBotPlugin(args[1]).toString().concat(" enabled successfully!");
+        }
+        else {
+            message = "An exception occured while enabling plugin...";
+        }
+
+        if (channel != null) {
+            channel.sendMessage(message);
+        }
+        else {
+            user.sendNotice(message);
+        }
         return true;
     }
 }

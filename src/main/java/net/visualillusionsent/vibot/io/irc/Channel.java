@@ -61,6 +61,9 @@ public final class Channel {
      */
     private ArrayList<User> ignored;
 
+    /**
+     * The {@link ArrayList} of banned {@link User}s
+     */
     private ArrayList<Ban> banned;
 
     private ArrayList<ChannelMode> modes;
@@ -302,6 +305,12 @@ public final class Channel {
         return Collections.unmodifiableList(ignored);
     }
 
+    /**
+     * Sets the {@link ArrayList} of {@link User}s
+     * 
+     * @param users
+     *            the {@link ArrayList} of {@link User}s
+     */
     private final void setUsersList(ArrayList<User> users) {
         this.users = users;
     }

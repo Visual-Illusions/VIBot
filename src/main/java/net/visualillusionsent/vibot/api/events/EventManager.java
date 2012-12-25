@@ -62,6 +62,9 @@ public class EventManager {
      * Constructs a new {@code EventManager} object
      */
     private EventManager() {
+        if (instance != null) {
+            throw new IllegalStateException("Only one EventManager instance may be created at a time.");
+        }
         registeredEvents = new HashMap<EventType, List<BaseEvent>>();
         for (EventType type : EventType.values()) {
             registeredEvents.put(type, new ArrayList<BaseEvent>());

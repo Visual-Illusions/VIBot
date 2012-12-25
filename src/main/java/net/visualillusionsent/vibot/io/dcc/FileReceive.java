@@ -41,10 +41,10 @@ import net.visualillusionsent.vibot.api.events.EventManager;
  * PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/<br>
  * and dual Licensed under the GNU General Public License/www.jibble.org Commercial License
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason Jones (darkdiplomat)
  * @author Paul James Mutton (PircBot)
- * @version 1.0
  */
 class FileReceive extends Thread {
     private DccFileTransfer transfer;

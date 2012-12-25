@@ -199,7 +199,7 @@ public abstract class BaseCommand {
 
     /**
      * Executes a {@link BaseCommand}. Note: should not be called directly.<br>
-     * Use {@link #parseCommand()} instead!
+     * Use {@link #parseCommand(Channel, User, String[])} instead!
      * 
      * @param channel
      *            the {@link Channel} the command is called from, or null if not called from a {@link Channel}

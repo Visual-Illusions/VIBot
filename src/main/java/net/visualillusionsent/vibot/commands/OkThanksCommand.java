@@ -17,14 +17,30 @@
  */
 package net.visualillusionsent.vibot.commands;
 
+import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Ok Thanks Command<br>
+ * Un-Quites the {@link VIBot} in a specified {@link Channel}<br>
+ * <b>Usage:</b> !kthx<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> Op Channel<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "kthx", usage = "!kthx", desc = "Un-Quites the Bot", op = true, chanOnly = true)
 public final class OkThanksCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code OkThanksCommand}
+     */
     public OkThanksCommand() {
         super(null);
     }

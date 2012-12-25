@@ -23,15 +23,28 @@ import java.text.SimpleDateFormat;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
+import net.visualillusionsent.utils.SystemUtils;
+
 /**
  * Bot Logger Formatter
  * 
- * @author darkdiplomat
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
  */
 final class BotLogFormat extends SimpleFormatter {
+    /**
+     * The {@link SimpleDateFormat} to use for logging
+     */
     private SimpleDateFormat dateform = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    private String linesep = System.getProperty("line.separator");
 
+    /**
+     * Formats the log output
+     * 
+     * @param rec
+     *            the {@link LogRecord} to be formated
+     * @return formated {@link LogRecord} as a {@link String}
+     */
     @Override
     public final String format(LogRecord rec) {
         StringBuilder message = new StringBuilder();
@@ -39,7 +52,7 @@ final class BotLogFormat extends SimpleFormatter {
         message.append(dateform.format(rec.getMillis()));
         message.append(" [" + rec.getLevel().getName() + "] ");
         message.append(rec.getMessage());
-        message.append(linesep);
+        message.append(SystemUtils.LINE_SEP);
 
         if (rec.getThrown() != null) {
             StringWriter stringwriter = new StringWriter();

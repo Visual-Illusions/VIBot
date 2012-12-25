@@ -24,15 +24,30 @@ import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * List Ignores Command<br>
+ * Gets the list of {@link User}s being ignored in a {@link Channel}<br>
+ * <b>Usage:</b> !listignore<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> Op Channel<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "listignore", usage = "!listignore", desc = "List of users being ignored in the channel", op = true, chanOnly = true)
 public final class ListIgnoresCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code ListIgnoresCommand}
+     */
     public ListIgnoresCommand() {
         super(null);
     }
 
     @Override
-    public final synchronized boolean execute(Channel channel, User user, String[] args) {
+    public final boolean execute(Channel channel, User user, String[] args) {
         List<User> ignore = channel.getIgnoreList();
         if (!ignore.isEmpty()) {
             StringBuilder sb = new StringBuilder();

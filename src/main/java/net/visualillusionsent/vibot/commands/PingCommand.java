@@ -24,6 +24,18 @@ import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Ping Command<br>
+ * Sends a Pong<br>
+ * <b>Usage:</b> !ping<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> Owner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "ping", usage = "!ping", desc = "Sends a Pong")
 public final class PingCommand extends BaseCommand {
 
@@ -34,11 +46,21 @@ public final class PingCommand extends BaseCommand {
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
         try {
-            channel.sendMessage("PONG: ".concat(DateUtils.longToDate(System.currentTimeMillis())));
+            if (channel != null) {
+                channel.sendMessage("PONG: ".concat(DateUtils.longToDate(System.currentTimeMillis())));
+            }
+            else {
+                user.sendNotice("PONG: ".concat(DateUtils.longToDate(System.currentTimeMillis())));
+            }
         }
         catch (UtilityException ue) {
             //Shouldn't happen but just incase
-            channel.sendMessage("PONG: ".concat(ue.getLocalizedMessage()));
+            if (channel != null) {
+                channel.sendMessage("PONG: ".concat(ue.getLocalizedMessage()));
+            }
+            else {
+                user.sendNotice("PONG: ".concat(ue.getLocalizedMessage()));
+            }
         }
         return true;
     }

@@ -54,10 +54,10 @@ public final class InformationCommand extends BaseCommand {
     public boolean execute(Channel channel, User user, String[] args) {
         Runtime.getRuntime().gc();
         if (SystemUtils.isWindows()) {
-            windowsInfo(channel);
+            windowsInfo(channel, user);
         }
         else {
-            unixInfo(channel);
+            unixInfo(channel, user);
         }
         return true;
     }
@@ -68,7 +68,7 @@ public final class InformationCommand extends BaseCommand {
      * @param channel
      *            the {@link Channel} to send info to
      */
-    private final void windowsInfo(Channel channel) {
+    private final void windowsInfo(Channel channel, User user) {
         String cpu = System.getenv("PROCESSOR_IDENTIFIER");
         String bits = System.getenv("PROCESSOR_ARCHITECTURE");
         String cores = System.getenv("NUMBER_OF_PROCESSORS");
@@ -77,13 +77,13 @@ public final class InformationCommand extends BaseCommand {
         float maxMemory = (float) Runtime.getRuntime().maxMemory();
         String ramMax = "Max Allowed: " + (maxMemory == Float.MAX_VALUE ? "no limit" : String.valueOf((float) maxMemory / 1024.0F / 1024.0F) + "Mb");
 
-        channel.sendMessage("OS NAME: " + System.getProperty("os.name"));
-        channel.sendMessage("OS VERSION: " + System.getProperty("os.version"));
-        channel.sendMessage("OS ARCH: " + System.getProperty("os.arch"));
-        channel.sendMessage("CPU: " + cpu);
-        channel.sendMessage("Architecture: " + (bits != null ? bits : "x86"));
-        channel.sendMessage("Cores: " + (cores != null ? cores : "1"));
-        channel.sendMessage("RAM: " + ramFree + " " + ramTotal + " " + ramMax);
+        message(channel, user, "OS NAME: " + System.getProperty("os.name"));
+        message(channel, user, "OS VERSION: " + System.getProperty("os.version"));
+        message(channel, user, "OS ARCH: " + System.getProperty("os.arch"));
+        message(channel, user, "CPU: " + cpu);
+        message(channel, user, "Architecture: " + (bits != null ? bits : "x86"));
+        message(channel, user, "Cores: " + (cores != null ? cores : "1"));
+        message(channel, user, "RAM: " + ramFree + " " + ramTotal + " " + ramMax);
     }
 
     /**
@@ -92,7 +92,7 @@ public final class InformationCommand extends BaseCommand {
      * @param channel
      *            the {@link Channel} to send info to
      */
-    private final void unixInfo(Channel channel) {
+    private final void unixInfo(Channel channel, User user) {
         channel.sendMessage("OS NAME: " + System.getProperty("os.name"));
         channel.sendMessage("OS VERSION: " + System.getProperty("os.version"));
         channel.sendMessage("OS ARCH: " + System.getProperty("os.arch"));
@@ -104,13 +104,22 @@ public final class InformationCommand extends BaseCommand {
             while ((line = in.readLine()) != null) {
                 String[] pre = line.split(":");
                 if (pre[0].trim().matches("processor|cpu|clock|platform|Memory")) {
-                    channel.sendMessage(pre[0].trim().toUpperCase() + ": " + pre[1].trim());
+                    message(channel, user, pre[0].trim().toUpperCase() + ": " + pre[1].trim());
                 }
             }
             in.close();
         }
         catch (IOException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    private final void message(Channel channel, User user, String message) {
+        if (channel != null) {
+            channel.sendMessage(message);
+        }
+        else {
+            user.sendNotice(message);
         }
     }
 }

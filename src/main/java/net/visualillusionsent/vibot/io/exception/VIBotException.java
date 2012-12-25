@@ -17,15 +17,33 @@
  */
 package net.visualillusionsent.vibot.io.exception;
 
+/**
+ * VIBot Exception
+ * 
+ * @author Jason (darkdiplomat)
+ */
 public final class VIBotException extends RuntimeException {
     private static final long serialVersionUID = 021436122012L;
 
+    /**
+     * Constructs a new {@code VIBotException}
+     * 
+     * @param msg
+     *            The error message to report.
+     */
     public VIBotException(String msg) {
         super(msg);
     }
 
+    /**
+     * Constructs a new {@code VIBotException}
+     * 
+     * @param msg
+     *            The error message to report.
+     * @param thrown
+     *            The {@link Throwable} cause
+     */
     public VIBotException(String msg, Throwable thrown) {
         super(msg, thrown);
     }
-
 }

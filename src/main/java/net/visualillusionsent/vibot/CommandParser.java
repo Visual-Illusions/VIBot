@@ -126,7 +126,13 @@ public final class CommandParser {
      */
     public final void add(BaseCommand cmd) {
         if (cmd != null) {
-            commands.put(cmd.getName(), cmd);
+            if (!commands.containsKey(cmd.getName())) {
+                commands.put(cmd.getName(), cmd);
+            }
+            else {
+                BotLogMan.warning("Command: '".concat(cmd.getName()).concat("' is already registered!"));
+                return;
+            }
             if (!cmd.getAliases()[0].equals(BotCommand.NULL)) {
                 for (String alias : cmd.getAliases()) {
                     if (!commands.containsValue(alias)) {

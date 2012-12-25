@@ -9,11 +9,11 @@ public final class IRCException extends RuntimeException {
     /**
      * Constructs a new IrcException.
      * 
-     * @param e
+     * @param msg
      *            The error message to report.
      */
-    public IRCException(String e) {
-        super(e);
+    public IRCException(String msg) {
+        super(msg);
     }
 
 }
