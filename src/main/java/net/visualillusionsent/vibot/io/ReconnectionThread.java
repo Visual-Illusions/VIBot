@@ -36,6 +36,7 @@ public final class ReconnectionThread extends Thread {
     public ReconnectionThread(VIBot bot) {
         super("ReconnectionThread-Thread");
         this.bot = bot;
+        this.setDaemon(true);
     }
 
     public void run() {
