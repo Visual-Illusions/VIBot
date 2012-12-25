@@ -23,12 +23,8 @@ public final class IRCInput extends Thread {
      * The InputThread reads lines from the IRC server and allows the VIBot to
      * handle them.
      * 
-     * @param bot
-     *            An instance of the underlying VIBot.
-     * @param breader
-     *            The BufferedReader that reads lines from the server.
-     * @param bwriter
-     *            The BufferedWriter that sends lines to the server.
+     * @param irc_conn
+     *            An {@link IRCConnection} instance
      */
     public IRCInput(IRCConnection irc_conn) {
         super("IRCInput-Thread");

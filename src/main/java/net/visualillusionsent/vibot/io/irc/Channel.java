@@ -243,7 +243,7 @@ public final class Channel {
     /**
      * Gets an unmodifiable {@link List} of all {@link User}s in this channel
      * 
-     * @return an unmodifiable {@link List} of {@link Users}
+     * @return an unmodifiable {@link List} of {@link User}s
      */
     public final List<User> getUsers() {
         return Collections.unmodifiableList(users);
@@ -338,7 +338,7 @@ public final class Channel {
     /**
      * Gets an unmodifiable {@link List} of all ignored {@link User}s in this channel
      * 
-     * @return an unmodifiable {@link List} of ignored {@link Users}
+     * @return an unmodifiable {@link List} of ignored {@link User}s
      */
     public final List<User> getIgnoreList() {
         return Collections.unmodifiableList(ignored);

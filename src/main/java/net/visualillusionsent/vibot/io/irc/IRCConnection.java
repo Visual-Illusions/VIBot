@@ -177,7 +177,7 @@ public final class IRCConnection {
      * Sends a raw line to the IRC server as soon as possible, bypassing the
      * outgoing message queue.
      * 
-     * @param line
+     * @param raw_line
      *            The raw line to send to the IRC server.
      */
     public final void sendRawLine(String raw_line) {
@@ -310,12 +310,6 @@ public final class IRCConnection {
      * Attempt to connect to the specified IRC server using the supplied
      * password. The onConnect method is called upon success.
      * 
-     * @param hostname
-     *            The hostname of the server to connect to.
-     * @param port
-     *            The port number to connect to on the server.
-     * @param password
-     *            The password to use to join the server.
      * @throws IOException
      *             if it was not possible to connect to the server.
      * @throws IrcException
@@ -1054,8 +1048,8 @@ public final class IRCConnection {
      * 
      * @param file
      *            The file to send.
-     * @param nick
-     *            The user to whom the file is to be sent.
+     * @param user
+     *            The {@link User} to whom the file is to be sent.
      * @param timeout
      *            The number of milliseconds to wait for the recipient to
      *            acccept the file (we recommend about 120000).
@@ -1079,8 +1073,8 @@ public final class IRCConnection {
      * <p>
      * This method may not be overridden.
      * 
-     * @param nick
-     *            The nick of the user we are trying to establish a chat with.
+     * @param user
+     *            The {@link User} we are trying to establish a chat with.
      * @param timeout
      *            The number of milliseconds to wait for the recipient to accept
      *            the chat connection (we recommend about 120000).

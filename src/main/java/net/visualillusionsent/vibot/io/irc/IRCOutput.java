@@ -22,10 +22,8 @@ public class IRCOutput extends Thread {
      * server. Messages are sent immediately if possible. If there are multiple
      * messages queued, then there is a delay imposed.
      * 
-     * @param bot
-     *            The underlying VIBot instance.
-     * @param outQueue
-     *            The Queue from which we will obtain our messages.
+     * @param irc_conn
+     *            The {@link IRCConnection} instance
      */
     public IRCOutput(IRCConnection irc_conn) {
         super("IRCOutput-Thread");
@@ -56,6 +54,9 @@ public class IRCOutput extends Thread {
         }
     }
 
+    /**
+     * Disposes of the IRCOutputThread
+     */
     public final synchronized void dispose() {
         interrupt();
     }

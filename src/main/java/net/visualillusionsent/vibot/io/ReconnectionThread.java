@@ -56,7 +56,7 @@ public final class ReconnectionThread extends Thread {
                 BotLogMan.warning("Reconnect failed... Trying again in 2 minutes...");
             }
             try {
-                sleep(1200000);
+                sleep(120000);
             }
             catch (InterruptedException e) {}
         }
