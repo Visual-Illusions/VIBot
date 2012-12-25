@@ -28,6 +28,7 @@ import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.IdentServer;
+import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 

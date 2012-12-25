@@ -71,6 +71,8 @@ public class DccFileTransfer {
 
     /**
      * Constructor used for receiving files.
+     * 
+     * @code.derivative PircBot
      */
     DccFileTransfer(IRCConnection irc_conn, DccManager manager, User user, String type, String filename, long address, int port, long size) {
         this.irc_conn = irc_conn;
@@ -87,6 +89,8 @@ public class DccFileTransfer {
 
     /**
      * Constructor used for sending files.
+     * 
+     * @code.derivative PircBot
      */
     public DccFileTransfer(IRCConnection irc_conn, DccManager manager, File file, User user, int timeout) {
         this.irc_conn = irc_conn;
@@ -109,6 +113,7 @@ public class DccFileTransfer {
      * @param resume
      *            True if you wish to try and resume the download instead of
      *            overwriting an existing file.
+     * @code.derivative PircBot
      */
     public synchronized void receive(File file, boolean resume) {
         if (!received) {
@@ -134,6 +139,8 @@ public class DccFileTransfer {
 
     /**
      * Receive the file in a new thread.
+     * 
+     * @code.derivative PircBot
      */
     void doReceive(final File file, final boolean resume) {
         try {
@@ -144,6 +151,8 @@ public class DccFileTransfer {
 
     /**
      * Method to send the file inside a new thread.
+     * 
+     * @code.derivative PircBot
      */
     public void doSend(final boolean allowResume) {
         try {
@@ -154,6 +163,8 @@ public class DccFileTransfer {
 
     /**
      * Package mutator for setting the progress of the file transfer.
+     * 
+     * @code.derivative PircBot
      */
     void setProgress(long progress) {
         this.progress = progress;
@@ -219,7 +230,7 @@ public class DccFileTransfer {
     }
 
     /**
-     * returns the delay time between each packet that is send or received.
+     * Returns the delay time between each packet that is send or received.
      * 
      * @return the delay between each packet.
      */

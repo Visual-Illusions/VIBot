@@ -23,7 +23,8 @@ import java.util.HashMap;
  * This enum contains the values of all numeric replies specified in
  * section 6 of RFC 1459. Refer to RFC 1459 for further information.
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  */
 public enum ReplyConstants {

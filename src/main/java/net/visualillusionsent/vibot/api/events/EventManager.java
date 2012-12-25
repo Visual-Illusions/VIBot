@@ -115,8 +115,8 @@ public class EventManager {
     /**
      * Removes a {@link BotPlugin}'s registered {@link BaseEvent}s
      * 
-     * @param event
-     *            the {@link BaseEvent} to be removed
+     * @param plugin
+     *            the {@link BotPlugin} to have events removed
      */
     public static final void unregisterPluginHooks(BotPlugin plugin) {
         instance.removePluginHooks(plugin);
@@ -125,8 +125,8 @@ public class EventManager {
     /**
      * Removes a {@link BotPlugin}'s registered {@link BaseEvent}s
      * 
-     * @param event
-     *            the {@link BaseEvent} to be removed
+     * @param plugin
+     *            the {@link BotPlugin} to have events removed
      */
     private final void removePluginHooks(BotPlugin plugin) {
         synchronized (registeredEvents) {

@@ -17,10 +17,24 @@
  */
 package net.visualillusionsent.vibot.io.irc;
 
+/**
+ * Channel Modes enum
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public enum ChannelMode {
+    INVITE_ONLY, //
+    KEYED, //
+    MODERATED, //
+    NO_EXTERNAL_MESSAGES, //
+    PRIVATE, //
+    SECRET, //
+    TOPIC_PROTECTED, //
     USER_OP, //
     USER_DEOP, //
     USER_VOICE, //
     USER_DEVOICE, //
-    NO_EXTERNAL_MESSAGES, //
+
 }

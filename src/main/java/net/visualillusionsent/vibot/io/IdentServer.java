@@ -48,6 +48,10 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * Most IRC servers attempt to contact the ident server on connecting hosts in order to determine the user's identity. A few IRC servers will not allow you to connect unless this information is provided.
  * <p>
  * So when a VIBot is run on a machine that does not run an ident server, it may be necessary to provide a "faked" response by starting up its own ident server and sending out apparently correct responses.
+ * <p>
+ * This class contains code derived from PircBot<br>
+ * PircBot is Copyrighted: Paul James Mutton, 2001-2009, <a href="http://www.jibble.org/">http://www.jibble.org/</a><br>
+ * and dual Licensed under the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a>/<a href="http://www.jibble.org/licenses/commercial-license.php">www.jibble.org Commercial License</a>
  * 
  * @since 1.0
  * @version 1.0
@@ -65,6 +69,8 @@ public class IdentServer extends Thread {
      * @param bot
      *            The VIBot instance that will be used to log to.
      * @throws IOException
+     *             if the {@code IdentServer} is unable to bind to the specified port
+     * @code.derivative PircBot
      */
     public IdentServer(VIBot bot) throws IOException {
         super("IdentServer-Thread");
@@ -88,6 +94,8 @@ public class IdentServer extends Thread {
      * Waits for a client to connect to the ident server before making an
      * appropriate response. Note that this method is started by the class
      * constructor.
+     * 
+     * @code.derivative PircBot
      */
     public void run() {
         BufferedWriter writer = null;

@@ -63,7 +63,7 @@ public abstract class JoinEvent extends BaseEvent {
      * @param channel
      *            the {@link Channel} being joined
      * @param user
-     *            the {@link user} joining
+     *            the {@link User} joining
      */
     public abstract void execute(Channel channel, User user);
 }

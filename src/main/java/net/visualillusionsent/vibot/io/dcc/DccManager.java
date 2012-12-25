@@ -40,7 +40,8 @@ import net.visualillusionsent.vibot.io.irc.User;
  * PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/<br>
  * and dual Licensed under the GNU General Public License/www.jibble.org Commercial License
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  * @author Paul James Mutton (PircBot)
  */
@@ -52,8 +53,9 @@ public class DccManager {
     /**
      * Constructs a DccManager to look after all DCC SEND and CHAT events.
      * 
-     * @param bot
-     *            The VIBot whose DCC events this class will handle.
+     * @param irc_conn
+     *            The {@link IRCConnection} for handling the DCC
+     * @code.derivative PircBot
      */
     public DccManager(IRCConnection irc_conn) {
         this.irc_conn = irc_conn;
@@ -63,6 +65,7 @@ public class DccManager {
      * Processes a DCC request.
      * 
      * @return True if the type of request was handled successfully.
+     * @code.derivative PircBot
      */
     public boolean processRequest(User user, String request) {
         StringTokenizer tokenizer = new StringTokenizer(request);
@@ -151,6 +154,7 @@ public class DccManager {
      * 
      * @param transfer
      *            the DccFileTransfer that may be resumed.
+     * @code.derivative PircBot
      */
     void addAwaitingResume(DccFileTransfer transfer) {
         synchronized (awaitingResume) {
@@ -160,6 +164,8 @@ public class DccManager {
 
     /**
      * Remove this transfer from the list of those awaiting resuming.
+     * 
+     * @code.derivative PircBot
      */
     void removeAwaitingResume(DccFileTransfer transfer) {
         awaitingResume.remove(transfer);

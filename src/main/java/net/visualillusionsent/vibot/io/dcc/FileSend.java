@@ -34,6 +34,11 @@ class FileSend extends Thread {
         this.allowResume = allowResume;
     }
 
+    /**
+     * Runs to send the file.
+     * 
+     * @code.derivative PircBot
+     */
     public void run() {
 
         BufferedInputStream finput = null;

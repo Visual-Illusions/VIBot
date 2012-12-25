@@ -18,11 +18,20 @@
 package net.visualillusionsent.vibot.io.irc;
 
 /**
+ * Topic object for {@link Channel}s
+ * 
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  */
 public final class Topic {
     private String topic, setBy, date;
 
+    /**
+     * Constructs a new {@code Topic} object
+     * 
+     * @param topic
+     */
     public Topic(String topic) {
         this.topic = topic;
     }
@@ -49,7 +58,7 @@ public final class Topic {
         return setBy;
     }
 
-    public final void setSetBy(String setBy) {
+    final void setSetBy(String setBy) {
         this.setBy = setBy;
     }
 
@@ -62,12 +71,45 @@ public final class Topic {
         return date;
     }
 
-    public final void setDate(String date) {
+    /**
+     * Sets the Date of when the topic was set
+     * 
+     * @param date
+     *            the Date of when the topic was set
+     */
+    final void setDate(String date) {
         this.date = date;
     }
 
+    @Override
     public final String toString() {
         return String.format("Topic[Topic=%s SetBy=%s Date=%s]", topic, setBy, date);
     }
 
+    @Override
+    public final boolean equals(Object obj) {
+        if (!(obj instanceof Topic)) {
+            return false;
+        }
+        Topic other = (Topic) obj;
+        if (!topic.equals(other.getTopic())) {
+            return false;
+        }
+        if (!setBy.equals(other.getSetBy())) {
+            return false;
+        }
+        if (!date.equals(other.getDate())) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public final int hashCode() {
+        int hash = 4;
+        hash = 31 * hash + topic.hashCode();
+        hash = 31 * hash + setBy.hashCode();
+        hash = 31 * hash + date.hashCode();
+        return hash;
+    }
 }

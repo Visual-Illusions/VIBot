@@ -63,16 +63,15 @@ public class DccChat {
      * This constructor is used when we are accepting a DCC CHAT request from
      * somebody. It attempts to connect to the client that issued the request.
      * 
-     * @param bot
-     *            An instance of the underlying PircBot.
-     * @param sourceNick
-     *            The nick of the sender.
+     * @param irc_conn
+     *            The {@link IRCConnection} instance
+     * @param user
+     *            The {@link User} sending the request
      * @param address
      *            The address to connect to.
      * @param port
      *            The port number to connect to.
-     * @throws IOException
-     *             If the connection cannot be made.
+     * @code.derivative PircBot
      */
     DccChat(IRCConnection irc_conn, User user, long address, int port) {
         this.address = address;
@@ -86,14 +85,15 @@ public class DccChat {
      * somebody. If the client accepts the chat request, then the socket we
      * obtain is passed to this constructor.
      * 
-     * @param bot
-     *            An instance of the underlying PircBot.
-     * @param sourceNick
-     *            The nick of the user we are sending the request to.
+     * @param irc_conn
+     *            The {@link IRCConnection} instance
+     * @param user
+     *            The {@link User} to send the request
      * @param socket
      *            The socket which will be used for the DCC CHAT session.
      * @throws IOException
      *             If the socket cannot be read from.
+     * @code.derivative PircBot
      */
     public DccChat(IRCConnection irc_conn, User user, Socket socket) throws IOException {
         this.user = user;
@@ -105,6 +105,8 @@ public class DccChat {
 
     /**
      * Accept this DccChat connection.
+     * 
+     * @code.derivative PircBot
      */
     public synchronized void accept() throws IOException {
         if (acceptable) {
@@ -129,6 +131,7 @@ public class DccChat {
      *         connection has closed normally.
      * @throws IOException
      *             If an I/O error occurs.
+     * @code.derivative PircBot
      */
     public String readLine() throws IOException {
         if (acceptable) {
@@ -146,6 +149,7 @@ public class DccChat {
      *            characters.
      * @throws IOException
      *             If an I/O error occurs.
+     * @code.derivative PircBot
      */
     public void sendLine(String line) throws IOException {
         if (acceptable) {
@@ -161,6 +165,7 @@ public class DccChat {
      * 
      * @throws IOException
      *             If an I/O error occurs.
+     * @code.derivative PircBot
      */
     public void close() throws IOException {
         if (acceptable) {

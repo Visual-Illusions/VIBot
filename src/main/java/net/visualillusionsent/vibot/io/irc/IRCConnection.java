@@ -56,6 +56,11 @@ import net.visualillusionsent.vibot.io.exception.NickAlreadyInUseException;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
+/**
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public final class IRCConnection {
     private final VIBot bot;
     private final String channelPrefixes = "#";
@@ -113,7 +118,7 @@ public final class IRCConnection {
      * sendMessage(&quot;Paul&quot;, &quot;Hi&quot;);
      * </pre>
      * 
-     * You may optionally apply colours, boldness, underlining, etc to the message by using the <code>Colors</code> class.
+     * You may optionally apply colours, boldness, underlining, etc to the message by using the {@link Colors} class.
      * 
      * @param target
      *            The name of the channel or user nick to send to.
@@ -732,6 +737,7 @@ public final class IRCConnection {
                         if (pn == '+') {
                             // onSetChannelBan(channel, sourceNick, sourceLogin,
                             // sourceHostname,params[p]);
+
                         }
                         else {
                             // onRemoveChannelBan(channel, sourceNick, sourceLogin,

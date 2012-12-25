@@ -58,11 +58,11 @@ public abstract class BaseEvent {
     /**
      * Constructs a new {@code BaseEvent}
      * <p>
-     * This constructor requires the {@link BasePlugin} to have a {@code plugin.cfg} with the {@link EventPriority} set for it's event extensions,<br>
+     * This constructor requires the {@link BotPlugin} to have a {@code plugin.cfg} with the {@link EventPriority} set for it's event extensions,<br>
      * in the form of %EventClassName%.priority=PRIORITY
      * 
      * @param plugin
-     *            the {@link BotPlugin} associated with the BaseEvent
+     *            the {@link BotPlugin} associated with the {@code BaseEvent}
      * @param type
      *            the {@link EventType} of the extending Event class
      */

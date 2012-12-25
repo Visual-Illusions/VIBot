@@ -6,6 +6,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
 /**
@@ -23,7 +24,7 @@ public @interface BotCommand {
     /**
      * Special {@code null} value for aliases - DO NOT USE
      */
-    static final String NULL = "null.NULL#NULL throws null.NilException";
+    static final String NULL = "null.NULL#NULL throws null.NilException (WAT)";
 
     /**
      * Main name for the {@link BaseCommand}
@@ -53,7 +54,7 @@ public @interface BotCommand {
     /**
      * The maximum number of required parameteres
      */
-    int maxParam() default -1;
+    int maxParam() default Integer.MAX_VALUE;
 
     /**
      * Whether the {@link BaseCommand} is for {@link User}s with {@code Voice} and above
@@ -79,5 +80,4 @@ public @interface BotCommand {
      * Whether the {@link BaseCommand} is a {@code Console} only command
      */
     boolean consoleOnly() default false;
-
 }

@@ -24,7 +24,8 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * Channel class<br>
  * IRC User helper. Stores information about a user.
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  */
 public final class User {

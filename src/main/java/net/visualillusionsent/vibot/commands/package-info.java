@@ -1,5 +1,5 @@
 /**
- * Internal {@link VIBot} Commands package<p>
+ * Internal VIBot Commands package<p>
  * For usages {@literal <parm>} are required; [param] are optional
  * 
  */

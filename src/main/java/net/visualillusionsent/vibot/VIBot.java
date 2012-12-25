@@ -162,14 +162,14 @@ public final class VIBot {
      * @param newNick
      *            The new nick to use.
      */
-    public static final void changeBotNick(String nick) {
-        if (nick == null) {
+    public static final void changeBotNick(String newNick) {
+        if (newNick == null) {
             throw new NullPointerException("Nick cannot be null");
         }
-        else if (nick.trim().isEmpty()) {
+        else if (newNick.trim().isEmpty()) {
             throw new IllegalArgumentException("Nick cannot be empty");
         }
-        instance.changeNick(nick);
+        instance.changeNick(newNick);
     }
 
     /**
@@ -202,9 +202,6 @@ public final class VIBot {
      * <pre>
      * sendMessage(&quot;NickServ&quot;, &quot;identify PASSWORD&quot;);
      * </pre>
-     * 
-     * @param password
-     *            The password which will be used to identify with NickServ.
      */
     public static final void identify() {
         instance.identify(BotConfig.getNickServPassword());
@@ -456,7 +453,6 @@ public final class VIBot {
      * 
      * @param parameters
      *            The parameters to supply when requesting the list.
-     * @see #onChannelInfo(String,int,String) onChannelInfo
      */
     public final void listChannels(String parameters) {
         if (parameters == null) {

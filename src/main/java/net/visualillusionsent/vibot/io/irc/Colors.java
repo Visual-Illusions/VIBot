@@ -23,7 +23,8 @@ package net.visualillusionsent.vibot.io.irc;
  * lines, such as colours, boldness, underlining and reverse text or removing
  * colors and formatting from lines.
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason Jones (darkdiplomat)
  */
 public final class Colors {

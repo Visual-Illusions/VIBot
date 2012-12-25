@@ -18,7 +18,6 @@
 package net.visualillusionsent.vibot.io.irc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +30,8 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * Channel class<br>
  * IRC Channel helper. Stores information like topic and users in the channel.
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  */
 public final class Channel {
@@ -42,61 +42,70 @@ public final class Channel {
     private final String name;
 
     /**
-     * The {@link IRCConnect} instance
+     * The {@link IRCConnection} instance
      */
     private final IRCConnection irc_conn;
 
     /**
-     * The {@link Topic} for the channel
+     * The {@link Topic} for the {@code Channel}
      */
     private Topic topic;
 
     /**
-     * The {@link ArrayList} of {@link User}s for the channel
+     * The {@link ArrayList} of {@link User}s for the {@code Channel}
      */
-    private ArrayList<User> users;
+    private final ArrayList<User> users;
 
     /**
-     * The {@link ArrayList} of {@link User}s being ignored in the Channel
+     * The {@link ArrayList} of {@link User}s being ignored in the {@code Channel}
      */
-    private ArrayList<User> ignored;
+    private final ArrayList<User> ignored;
 
     /**
      * The {@link ArrayList} of banned {@link User}s
      */
-    private ArrayList<Ban> banned;
-
-    private ArrayList<ChannelMode> modes;
-
-    private HashMap<String, Boolean> botModes;
+    private final ArrayList<Ban> bans;
 
     /**
-     * Whether the Channel is muted or not
+     * The {@link ArrayList} of {@link ChannelMode}s
+     */
+    private final ArrayList<ChannelMode> modes;
+
+    /**
+     * The {@link HashMap} of the {@link VIBot} modes
+     */
+    private final HashMap<String, Boolean> botModes;
+
+    /**
+     * Whether the {@code Channel} is muted or not
      */
     private boolean muted = false;
 
     /**
-     * CONSOLE Channel instance
+     * CONSOLE {@code Channel} instance
      */
     public static final Channel CONSOLE;
 
+    /**
+     * The default {@link Map} of allowed {@link VIBot} modes
+     */
     private static final Map<String, Boolean> allowedBotModes;
 
     static {
         HashMap<String, Boolean> temp = new HashMap<String, Boolean>();
         temp.put("OP", Boolean.FALSE);
         temp.put("VOICE", Boolean.FALSE);
-        allowedBotModes = (Map<String, Boolean>) Collections.unmodifiableMap(temp);
+        allowedBotModes = Collections.unmodifiableMap(temp);
         CONSOLE = new Channel("CONSOLE", null);
     }
 
     /**
-     * Channel Constructor
+     * Constructs a new {@code Channel} object
      * <p>
-     * Channel should not be constructed outside of VIBot
+     * {@code Channel} should not be constructed outside of {@link VIBot}
      * 
      * @param name
-     *            the name of the channel
+     *            the name of the {@code Channel}
      * @param irc_conn
      *            the IRCConnection instance
      */
@@ -106,9 +115,41 @@ public final class Channel {
         this.users = new ArrayList<User>();
         this.ignored = new ArrayList<User>();
         this.modes = new ArrayList<ChannelMode>();
-        this.banned = new ArrayList<Ban>();
+        this.bans = new ArrayList<Ban>();
         this.botModes = new HashMap<String, Boolean>(allowedBotModes.size());
         botModes.putAll(allowedBotModes);
+    }
+
+    /**
+     * Private Constructor used in cloning
+     * 
+     * @param name
+     *            the name of the {@code Channel}
+     * @param irc_conn
+     *            the IRCConnection instance
+     * @param topic
+     *            the {@link Topic} for the {@code Channel}
+     * @param users
+     *            the {@link ArrayList} of {@link User}s
+     * @param ignored
+     *            the {@link ArrayList} of ignored {@link User}s
+     * @param modes
+     *            the {@link ArrayList} of {@link ChannelMode}s
+     * @param bans
+     *            the {@link ArrayList} of {@link User}s banned in the {@code Channel}
+     * @param botModes
+     *            the {@link HashMap} of {@link VIBot} modes
+     */
+    private Channel(String name, IRCConnection irc_conn, Topic topic, ArrayList<User> users, ArrayList<User> ignored, ArrayList<ChannelMode> modes, ArrayList<Ban> bans, HashMap<String, Boolean> botModes, boolean muted) {
+        this.name = name;
+        this.irc_conn = irc_conn;
+        this.topic = topic;
+        this.users = users;
+        this.ignored = ignored;
+        this.modes = modes;
+        this.bans = bans;
+        this.botModes = botModes;
+        this.muted = muted;
     }
 
     /**
@@ -137,16 +178,16 @@ public final class Channel {
     }
 
     /**
-     * Gets the topic for this channel
+     * Gets the topic for the {@code Channel}
      * 
-     * @return the topic for this channel
+     * @return the topic for the {@code Channel}
      */
     public final Topic getTopic() {
         return topic;
     }
 
     /**
-     * Adds a {@link User} to the Channel
+     * Adds a {@link User} to the {@code Channel}
      * 
      * @param user
      *            the {@link User} to be added
@@ -156,7 +197,7 @@ public final class Channel {
     }
 
     /**
-     * Removes a {@link User} from the Channel
+     * Removes a {@link User} from the {@code Channel}
      * 
      * @param user
      *            the {@link User} to be removed
@@ -166,7 +207,7 @@ public final class Channel {
     }
 
     /**
-     * Renames a {@link User} in the Channel
+     * Renames a {@link User} in the {@code Channel}
      * 
      * @param user
      *            the {@link User} to be renamed
@@ -178,7 +219,7 @@ public final class Channel {
     }
 
     /**
-     * Sets the {@link Topic} for the Channel
+     * Sets the {@link Topic} for the {@code Channel}
      * 
      * @param topic
      *            the {@link Topic} to be set
@@ -188,14 +229,12 @@ public final class Channel {
     }
 
     /**
-     * Set the topic for a channel. This method attempts to set the topic of a
+     * Set the topic for the {@code Channel}. This method attempts to set the topic of a
      * channel. This may require the bot to have operator status if the topic is
      * protected.
      * 
-     * @param channel
-     *            The channel on which to perform the mode change.
      * @param topic
-     *            The new topic for the channel.
+     *            The new topic for the {@code Channel}.
      */
     public final void setNewTopic(String topic) {
         irc_conn.sendRawLine("TOPIC ".concat(name).concat(" :").concat(topic));
@@ -211,10 +250,10 @@ public final class Channel {
     }
 
     /**
-     * Sends this channel a message
+     * Sends the {@code Channel} a message
      * 
      * @param message
-     *            the message to send to the channel
+     *            the message to send to the {@code Channel}
      */
     public final void sendMessage(String message) {
         if (this.name.equals("CONSOLE")) {
@@ -226,10 +265,10 @@ public final class Channel {
     }
 
     /**
-     * Sends an Action to the Channel (like /me dosomething)
+     * Sends an Action to the {@code Channel} (like /me dosomething)
      * 
      * @param action
-     *            the action to send the channel
+     *            the action to send the {@code Channel}
      */
     public final void sendAction(String action) {
         if (this.name.equals("CONSOLE")) {
@@ -241,7 +280,7 @@ public final class Channel {
     }
 
     /**
-     * Checks if this channel is muted
+     * Checks if the {@code Channel} is muted
      * 
      * @return {@code true} if muted, {@code false} otherwise
      */
@@ -264,7 +303,7 @@ public final class Channel {
     }
 
     /**
-     * Checks if an {@link User} is being ignored in this channel
+     * Checks if an {@link User} is being ignored in the {@code Channel}
      * 
      * @param user
      *            the {@link User} to check
@@ -306,19 +345,11 @@ public final class Channel {
     }
 
     /**
-     * Sets the {@link ArrayList} of {@link User}s
+     * Adds a {@link ChannelMode} to the list of modes
      * 
-     * @param users
-     *            the {@link ArrayList} of {@link User}s
+     * @param mode
+     *            the {@link ChannelMode} to add
      */
-    private final void setUsersList(ArrayList<User> users) {
-        this.users = users;
-    }
-
-    private final void setIgnoredUsersList(ArrayList<User> ignored) {
-        this.ignored = ignored;
-    }
-
     public void addChanMode(ChannelMode mode) {
         if (!modes.contains(mode)) {
             this.modes.add(mode);
@@ -335,15 +366,19 @@ public final class Channel {
         return !modes.contains(ChannelMode.NO_EXTERNAL_MESSAGES);
     }
 
+    public boolean isPrivate() {
+        return modes.contains(ChannelMode.PRIVATE);
+    }
+
     public void addBan(Ban ban) {
-        if (!banned.contains(ban)) {
-            banned.add(ban);
+        if (!bans.contains(ban)) {
+            bans.add(ban);
         }
     }
 
     public void removeBan(Ban ban) {
-        if (banned.contains(ban)) {
-            banned.remove(ban);
+        if (bans.contains(ban)) {
+            bans.remove(ban);
         }
     }
 
@@ -368,21 +403,18 @@ public final class Channel {
      * this method may require the bot to have operator status itself.
      * 
      * @param user
-     *            the User to ban from the channel
+     *            the {@link User} to ban from the channel
      */
     public final void banUser(User user) {
         setMode("+b ".concat(user.getHostMask()));
     }
 
     /**
-     * Unbans a user from a channel. An example of a valid hostmask is
-     * "nick!login@host.or.ip". Successful use of this method may require the bot
-     * to have operator status itself.
+     * Unbans a user from a channel.<br>
+     * Successful use of this method may require the bot to have operator status itself.
      * 
-     * @param channel
-     *            The channel to unban the user from.
-     * @param hostmask
-     *            A hostmask representing the user we're unbanning.
+     * @param user
+     *            the {@link User} to unban from the {@code Channel}
      */
     public final void unBanUser(User user) {
         setMode("-b ".concat(user.getHostMask()));
@@ -392,10 +424,8 @@ public final class Channel {
      * Grants operator privilidges to a user on a channel. Successful use of
      * this method may require the bot to have operator status itself.
      * 
-     * @param channel
-     *            The channel we're opping the user on.
-     * @param nick
-     *            The nick of the user we are opping.
+     * @param user
+     *            the {@link User} to op.
      */
     public final void op(User user) {
         setMode("+o ".concat(user.getNick()));
@@ -405,10 +435,8 @@ public final class Channel {
      * Removes operator privilidges from a user on a channel. Successful use of
      * this method may require the bot to have operator status itself.
      * 
-     * @param channel
-     *            The channel we're deopping the user on.
-     * @param nick
-     *            The nick of the user we are deopping.
+     * @param user
+     *            the {@link User} to de-op
      */
     public final void deOp(User user) {
         setMode("-o ".concat(user.getNick()));
@@ -418,10 +446,8 @@ public final class Channel {
      * Grants voice privilidges to a user on a channel. Successful use of this
      * method may require the bot to have operator status itself.
      * 
-     * @param channel
-     *            The channel we're voicing the user on.
-     * @param nick
-     *            The nick of the user we are voicing.
+     * @param user
+     *            the {@link User} to voice
      */
     public final void voice(User user) {
         setMode("+v ".concat(user.getNick()));
@@ -431,10 +457,8 @@ public final class Channel {
      * Removes voice privilidges from a user on a channel. Successful use of
      * this method may require the bot to have operator status itself.
      * 
-     * @param channel
-     *            The channel we're devoicing the user on.
-     * @param nick
-     *            The nick of the user we are devoicing.
+     * @param user
+     *            the {@link User} to de-voice
      */
     public final void deVoice(User user) {
         setMode("-v ".concat(user.getNick()));
@@ -444,10 +468,8 @@ public final class Channel {
      * Kicks a user from a channel. This method attempts to kick a user from a
      * channel and may require the bot to have operator status in the channel.
      * 
-     * @param channel
-     *            The channel to kick the user from.
-     * @param nick
-     *            The nick of the user to kick.
+     * @param user
+     *            the {@link User} to kick
      */
     public final void kick(User user) {
         this.kick(user, "kick.genericReason");
@@ -458,10 +480,8 @@ public final class Channel {
      * kick a user from a channel and may require the bot to have operator
      * status in the channel.
      * 
-     * @param channel
-     *            The channel to kick the user from.
-     * @param nick
-     *            The nick of the user to kick.
+     * @param user
+     *            the {@link User} to kick
      * @param reason
      *            A description of the reason for kicking a user.
      */
@@ -511,6 +531,9 @@ public final class Channel {
         if (!name.equals(other.getName())) {
             return false;
         }
+        if (!Boolean.valueOf(muted).equals(Boolean.valueOf(other.isMuted()))) {
+            return false;
+        }
         if (!topic.equals(other.getTopic())) {
             return false;
         }
@@ -518,7 +541,7 @@ public final class Channel {
     }
 
     public final String toString() {
-        return String.format("Channel[Name=%s Topic=%s Muted=%b Users=%s Ignored Users=%s]", name, topic.toString(), muted, Arrays.toString(users.toArray()), Arrays.toString(ignored.toArray()));
+        return String.format("Channel[Name=%s]", name);
     }
 
     public final int hashcode() {
@@ -532,13 +555,6 @@ public final class Channel {
     }
 
     public final Channel clone() {
-        Channel cloned = new Channel(name, irc_conn);
-        cloned.setTopic(topic);
-        cloned.setUsersList(users);
-        cloned.setIgnoredUsersList(ignored);
-        if (muted) {
-            cloned.mute();
-        }
-        return cloned;
+        return new Channel(name, irc_conn, topic, users, ignored, modes, bans, botModes, muted);
     }
 }

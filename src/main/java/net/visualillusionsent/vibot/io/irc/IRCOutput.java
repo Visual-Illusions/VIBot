@@ -8,7 +8,8 @@ import net.visualillusionsent.vibot.io.configuration.BotConfig;
  * possible. If there is a flood of messages, then to avoid getting kicked from
  * a channel, we put a small delay between each one.
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  * @author Paul James Mutton (PircBot)
  */

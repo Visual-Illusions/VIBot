@@ -66,6 +66,8 @@ class FileReceive extends Thread {
 
     /**
      * Runs to receive the file.
+     * 
+     * @code.derivative PircBot
      */
     public void run() {
 
@@ -128,6 +130,8 @@ class FileReceive extends Thread {
 
     /**
      * Delay between packets.
+     * 
+     * @code.derivative PircBot
      */
     private void delay() {
         if (transfer.getPacketDelay() > 0) {

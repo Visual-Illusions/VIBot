@@ -67,6 +67,7 @@ public final class Queue {
      *            The message to be added to the {@code Queue}.
      * @throws NullPointerException
      *             If the message is null
+     * @code.derivative PircBot
      */
     public final void add(String msg) {
         if (msg == null) {
@@ -85,6 +86,7 @@ public final class Queue {
      *            The message to be added to the {@code Queue}.
      * @throws NullPointerException
      *             If the message is null
+     * @code.derivative PircBot
      */
     public final void addFront(String msg) {
         if (msg == null) {
@@ -105,6 +107,7 @@ public final class Queue {
      * @return The next message from the front of the {@code Queue}.
      * @throws InternalError
      *             If a Race Hazard occurs while reading the queue.
+     * @code.derivative PircBot
      */
     public final String next() {
         String msg = null;
@@ -139,6 +142,7 @@ public final class Queue {
      * until the {@code Queue} has been populated again.
      * 
      * @return {@code true} only if the {@code Queue} not empty.
+     * @code.derivative PircBot
      */
     public final boolean hasNext() {
         return !queue.isEmpty();
@@ -146,6 +150,8 @@ public final class Queue {
 
     /**
      * Clears the contents of the {@code Queue}.
+     * 
+     * @code.derivative PircBot
      */
     public final void clear() {
         synchronized (queue) {
@@ -157,6 +163,7 @@ public final class Queue {
      * Returns the size of the {@code Queue}.
      * 
      * @return The current size of the {@code Queue}.
+     * @code.derivative PircBot
      */
     public final int size() {
         return queue.size();

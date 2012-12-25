@@ -10,7 +10,8 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * the VIBot without changing them. This running Thread also detects
  * disconnection from the server.
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  * @author Paul James Mutton (PircBot)
  */

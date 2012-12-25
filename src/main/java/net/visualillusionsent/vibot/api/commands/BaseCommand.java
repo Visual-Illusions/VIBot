@@ -175,10 +175,10 @@ public abstract class BaseCommand {
     /**
      * Parses the {@code BaseCommand}
      * 
-     * @return {@code true} if executed successfully
+     * @return {@code true} if executed successfully; {@code false} otherwise
      */
     public final boolean parseCommand(Channel channel, User user, String[] args) {
-        if (args.length < cmd.minParam() || (args.length > cmd.maxParam() && cmd.maxParam() > 0)) {
+        if (args.length < cmd.minParam() || (args.length > cmd.maxParam())) {
             onBadSyntax(user, args);
             return false;
         }
