@@ -325,7 +325,7 @@ public final class BotPluginLoader {
             if (plugin.isEnabled()) {
                 plugin.toggleEnabled();
                 plugin.disable();
-                EventManager.getInstance().removePluginHooks(plugin);
+                EventManager.unregisterPluginHooks(plugin);
                 CommandParser.getInstance().removePluginCommands(plugin);
             }
         }
@@ -343,7 +343,7 @@ public final class BotPluginLoader {
             if (plugin.isEnabled()) {
                 plugin.toggleEnabled();
                 plugin.disable();
-                EventManager.getInstance().removePluginHooks(plugin);
+                EventManager.unregisterPluginHooks(plugin);
                 CommandParser.getInstance().removePluginCommands(plugin);
             }
         }

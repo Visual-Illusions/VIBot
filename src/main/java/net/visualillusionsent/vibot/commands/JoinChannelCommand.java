@@ -23,9 +23,24 @@ import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Join Command<br>
+ * Tells the {@link VIBot} to join a {@link Channel}<br>
+ * <b>Usage:</b> !join {@literal <channel>}<br>
+ * <b>Minimum Params:</b> 2<br>
+ * <b>Maximum Params:</b> 2<br>
+ * <b>Requires:</b> BotOwner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "join", usage = "!join <channel>", desc = "Joins a channel if exists and can", owner = true)
 public final class JoinChannelCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code JoinChannelCommand}
+     */
     public JoinChannelCommand() {
         super(null);
     }
@@ -33,10 +48,10 @@ public final class JoinChannelCommand extends BaseCommand {
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
         if (!args[1].startsWith("#")) {
-            user.sendMessage("Channels need to start with a '#'!");
+            user.sendNotice("Channels need to start with a '#'!");
         }
         else {
-            user.sendMessage("Attempting to join Channel: '" + args[1] + "'");
+            user.sendNotice("Attempting to join Channel: '" + args[1] + "'");
             VIBot.joinChannel(args[1]);
         }
         return true;

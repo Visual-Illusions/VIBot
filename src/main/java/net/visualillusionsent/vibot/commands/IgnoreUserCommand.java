@@ -17,13 +17,30 @@
  */
 package net.visualillusionsent.vibot.commands;
 
+import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
-@BotCommand(main = "ignore", usage = "!ignore <user>", desc = "Ignores a user", minParam = 2, maxParam = 2, chanOnly = true)
+/**
+ * Ignore User Command<br>
+ * Tells the {@link VIBot} to ignore a {@link User} in a specified {@link Channel}<br>
+ * <b>Usage:</b> !ignore {@literal <user>}<br>
+ * <b>Minimum Params:</b> 2<br>
+ * <b>Maximum Params:</b> 2<br>
+ * <b>Requires:</b> Op Channel<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
+@BotCommand(main = "ignore", usage = "!ignore <user>", desc = "Ignores a user", minParam = 2, maxParam = 2, op = true, chanOnly = true)
 public final class IgnoreUserCommand extends BaseCommand {
+
+    /**
+     * Constructs a new {@code IgnoreUserCommand}
+     */
     public IgnoreUserCommand() {
         super(null);
     }

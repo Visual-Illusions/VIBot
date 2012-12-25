@@ -66,7 +66,6 @@ public final class IRCConnection {
     private final BufferedReader breader;
     private final BufferedWriter bwriter;
     private final DccManager dccManager;
-    private final EventManager manager;
 
     private InetAddress dccInetAddress;
     private ArrayList<Channel> channels;
@@ -96,7 +95,6 @@ public final class IRCConnection {
         this.output_thread = new IRCOutput(this);
         this.channels = new ArrayList<Channel>();
         this.dccManager = new DccManager(this);
-        this.manager = EventManager.getInstance();
         lockdown = this;
     }
 
@@ -398,7 +396,7 @@ public final class IRCConnection {
             bot.join(chan);
         }
 
-        EventManager.getInstance().callConnectEvent();
+        EventManager.activateConnectEvent();
     }
 
     /**
@@ -568,7 +566,7 @@ public final class IRCConnection {
                         }
                     }
                     else {
-                        manager.callChannelMessageEvent(channel, user, message);
+                        EventManager.activateChannelMessageEvent(channel, user, message);
                         BotLogMan.channelMessage("[" + channel.getName() + "] <" + user.getPrefix() + user.getNick() + "> " + message);
                     }
                 }
@@ -577,11 +575,11 @@ public final class IRCConnection {
                     String message = line.substring(line.indexOf(" :") + 2);
                     if (message.startsWith(String.valueOf(BotConfig.getCommandPrefix()))) {
                         String[] args = message.substring(1).split(" ");
-                        boolean cont = CommandParser.parseBotCommand(channel, user, args);
+                        boolean cont = CommandParser.parseBotCommand(null, user, args);
                         BotLogMan.command(user.getNick() + (cont ? " used " : "attempted ") + " Command " + args[0]);
                     }
                     else {
-                        manager.callPrivateMessageEvent(channel, user, message);
+                        EventManager.activatePrivateMessageEvent(user, message);
                         BotLogMan.channelMessage("[PM] <" + user.getPrefix() + user.getNick() + "> " + message);
                     }
                 }
@@ -592,7 +590,7 @@ public final class IRCConnection {
                     if (channel.getUser(sourceNick) == null) {
                         channel.addUser(user);
                     }
-                    manager.callJoinEvent(channel, user);
+                    EventManager.activateJoinEvent(channel, user);
                 }
                 else {
                     channel.sendMessage(BotConfig.getJoinMessage());
@@ -608,7 +606,7 @@ public final class IRCConnection {
                     user = channel.getUser(sourceNick);
                     channel.removeUser(user);
                 }
-                manager.callPartEvent(channel, user);
+                EventManager.activatePartEvent(channel, user);
                 if (user != null) {
                     BotLogMan.part("[" + channel.getName() + "] " + user.getNick() + " has parted.");
                 }

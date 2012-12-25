@@ -19,19 +19,35 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Enable Plugin Command<br>
+ * Enables a {@link BotPlugin}<br>
+ * <b>Usage:</b> !enableplugin {@literal <plugin>}<br>
+ * <b>Minimum Params:</b> 2<br>
+ * <b>Maximum Params:</b> 2<br>
+ * <b>Requires:</b> Owner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "enableplugin", usage = "!enableplugin <plugin>", desc = "Enables a plugin", minParam = 2, maxParam = 2, owner = true)
 public final class EnablePluginCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code EnablePluginCommand}
+     */
     public EnablePluginCommand() {
         super(null);
     }
 
     @Override
-    public final synchronized boolean execute(Channel channel, User user, String[] args) {
+    public final boolean execute(Channel channel, User user, String[] args) {
         String message = BotPluginLoader.getInstance().enablePlugin(args[1]) ? "Enabled plugin successfully!" : "An exception occured while enabling plugin...";
         channel.sendMessage(message);
         return true;

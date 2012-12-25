@@ -19,22 +19,35 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
 /**
+ * Disable Plugin Command<br>
+ * Disables a {@link BotPlugin}<br>
+ * <b>Usage:</b> !disableplugin {@literal <plugin>}<br>
+ * <b>Minimum Params:</b> 2<br>
+ * <b>Maximum Params:</b> 2<br>
+ * <b>Requires:</b> BotOwner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  */
 @BotCommand(main = "disableplugin", desc = "Disables a plugin", usage = "!disableplugin <plugin>", minParam = 2, maxParam = 2, owner = true)
 public final class DisablePluginCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code DisablePluginCommand} object
+     */
     public DisablePluginCommand() {
         super(null);
     }
 
     @Override
-    public final synchronized boolean execute(Channel channel, User user, String[] args) {
+    public final boolean execute(Channel channel, User user, String[] args) {
         BotPluginLoader.getInstance().disablePlugin(args[1]);
         channel.sendMessage("Plugin disabled!");
         return true;

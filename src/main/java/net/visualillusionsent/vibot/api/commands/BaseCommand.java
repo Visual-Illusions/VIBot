@@ -28,18 +28,28 @@ import net.visualillusionsent.vibot.io.irc.User;
 /**
  * Base Command form
  * <p>
- * Commands are set up to auto register them selfs,<br>
+ * Commands are set up to auto register themselves,<br>
  * all that needs to be done is the class to be initialized in the {@link BotPlugin}<br>
- * Example:<br>
- * <code><pre>
- * public void initialize(){
+ * Example:
+ * 
+ * <pre>
+ * public void initialize() {
  *     new BaseCommandImpl(this);
  * }
- * </code></pre>
+ * </pre>
+ * 
+ * BaseCommand implementations also require to be annotated with the {@link BotCommand} annotation<br>
+ * Example:
+ * 
+ * <pre>
+ * {@literal @BotCommand}(main="test", usage="!test", desc="Example Command Annotation")
+ * public class BaseCommandImpl extends BaseCommand{
+ * </pre>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
+ * @see BotCommand
  */
 public abstract class BaseCommand {
 
@@ -135,14 +145,29 @@ public abstract class BaseCommand {
         return cmd.owner();
     }
 
+    /**
+     * Gets whether the {@code BaseCommand} can only be used within a Channel
+     * 
+     * @return {@code true} if channel only; {@code false} otherwise
+     */
     public final boolean isChannelOnly() {
         return cmd.chanOnly();
     }
 
+    /**
+     * Gets whether the {@code BaseCommand} can only be used from the Console
+     * 
+     * @return {@code true} if console only; {@code false} otherwise
+     */
     public final boolean isConsoleOnly() {
         return cmd.consoleOnly();
     }
 
+    /**
+     * Gets the {@link BotPlugin} associated with the {@code BaseCommand}
+     * 
+     * @return the {@link BotPlugin} associated with the {@code BaseCommand}
+     */
     public final BotPlugin getPlugin() {
         return plugin;
     }
@@ -157,8 +182,7 @@ public abstract class BaseCommand {
             onBadSyntax(user, args);
             return false;
         }
-        execute(channel, user, args);
-        return true;
+        return execute(channel, user, args);
     }
 
     /**
@@ -186,7 +210,6 @@ public abstract class BaseCommand {
      */
     abstract public boolean execute(Channel channel, User user, String[] args);
 
-    // Start - Java Object Methods
     /**
      * String representation as BaseCommand[ClassName=%s Aliases=%s Usage=%s ErrorMessage=%s MinParams=%d MaxParams=%d RequireVoice=%b RequireOp=%b RequireBotOwner=%b] format
      * 
@@ -201,6 +224,11 @@ public abstract class BaseCommand {
         return null;
     }
 
+    /**
+     * Checks is an {@link Object} is equal to the {@code BaseCommand}
+     * 
+     * @return {@code true} if equal; {@code false} otherwise
+     */
     @Override
     public final boolean equals(Object other) {
         if (!(other instanceof BaseCommand)) {
@@ -210,18 +238,21 @@ public abstract class BaseCommand {
         if (cmd != that.cmd) {
             return false;
         }
-
+        if (plugin != null && !plugin.equals(that.getPlugin())) {
+            return false;
+        }
         return true;
     }
 
+    /**
+     * Returns a hash code value for the {@code BaseCommand}.
+     */
     @Override
     public final int hashCode() {
         int hash = 5;
-        //        hash = 53 * hash + (this.usage != null ? this.usage.hashCode() : 0);
-        //        hash = 53 * hash + (this.desc != null ? this.desc.hashCode() : 0);
-        //        hash = 53 * hash + this.minParam;
-        //        hash = 53 * hash + this.maxParam;
+        hash = 53 * hash + cmd.hashCode();
+        hash = 53 * hash + plugin.hashCode();
+        hash = 53 * hash + super.hashCode();
         return hash;
     }
-    // End - Java Object Methods
 }

@@ -49,7 +49,8 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * <p>
  * So when a VIBot is run on a machine that does not run an ident server, it may be necessary to provide a "faked" response by starting up its own ident server and sending out apparently correct responses.
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason Jones (darkdiplomat)
  */
 public class IdentServer extends Thread {

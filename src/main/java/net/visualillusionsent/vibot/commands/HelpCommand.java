@@ -23,14 +23,30 @@ import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Help Command<br>
+ * Displays a list of commands and their usage<br>
+ * <b>Usage:</b> !help<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> n/a<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "help", usage = "!help", desc = "Displays a list of commands and their usage")
 public final class HelpCommand extends BaseCommand {
+
+    /**
+     * Constructs a new {@code HelpCommand}
+     */
     public HelpCommand() {
         super(null);
     }
 
     @Override
-    public final synchronized boolean execute(Channel channel, User user, String[] args) {
+    public final boolean execute(Channel channel, User user, String[] args) {
         CommandParser.printHelp(channel, user);
         return true;
     }

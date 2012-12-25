@@ -23,15 +23,30 @@ import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Identify Command<br>
+ * Tells the {@link VIBot} to identify with NickServ<br>
+ * <b>Usage:</b> !identify<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> Owner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "identify", usage = "!identify", desc = "Tells the bot to identify with NickServ", owner = true)
 public final class IdentifyCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code IdentifyCommand}
+     */
     public IdentifyCommand() {
         super(null);
     }
 
     @Override
-    public final synchronized boolean execute(Channel channel, User user, String[] args) {
+    public final boolean execute(Channel channel, User user, String[] args) {
         VIBot.identify();
         return true;
     }

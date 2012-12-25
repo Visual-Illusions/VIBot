@@ -125,7 +125,7 @@ class FileSend extends Thread {
             }
         }
 
-        EventManager.getInstance().callFileTransferFinishedEvent(transfer, exception);
+        EventManager.activateFileTransferFinishedEvent(transfer, exception);
     }
 
     /**

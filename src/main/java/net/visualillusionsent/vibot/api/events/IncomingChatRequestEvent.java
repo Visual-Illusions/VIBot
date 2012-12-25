@@ -17,18 +17,51 @@
  */
 package net.visualillusionsent.vibot.api.events;
 
+import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.dcc.DccChat;
 
+/**
+ * Incoming Chat Request Event handler
+ * <p>
+ * Extending this class will allow a {@link BotPlugin}<br>
+ * to listen to when a the {@link VIBot} receives a Dcc Chat request
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public abstract class IncomingChatRequestEvent extends BaseEvent {
 
-    public IncomingChatRequestEvent(BotPlugin plugin, EventPriority priority) {
-        super(plugin, priority, EventType.INCOMING_CHAT_REQUEST);
-    }
-
+    /**
+     * Constructs a new {@code IncomingChatRequestEvent}<br>
+     * <b>NOTE:</b>With this constructor, {@link EventPriority} will be read from the plugin.cfg file
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} associated with this event
+     */
     public IncomingChatRequestEvent(BotPlugin plugin) {
         super(plugin, EventType.INCOMING_CHAT_REQUEST);
     }
 
+    /**
+     * Constructs a new {@code IncomingChatRequestEvent}
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} associated with this event
+     * @param priority
+     *            the {@link EventPriority} for the event
+     */
+    public IncomingChatRequestEvent(BotPlugin plugin, EventPriority priority) {
+        super(plugin, priority, EventType.INCOMING_CHAT_REQUEST);
+    }
+
+    /**
+     * Event executor<br>
+     * This is where the code should go for extending classes to handle the {@code IncomingChatRequestEvent}
+     * 
+     * @param chat
+     *            the {@link DccChat} object
+     */
     public abstract void execute(DccChat chat);
 }

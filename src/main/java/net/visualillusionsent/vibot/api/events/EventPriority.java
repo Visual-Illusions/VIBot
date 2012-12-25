@@ -17,6 +17,14 @@
  */
 package net.visualillusionsent.vibot.api.events;
 
+/**
+ * Event Priority enum<br>
+ * Used to organize which Plugin's events should happen first
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public enum EventPriority {
     CRITICAL, //
     HIGH, //

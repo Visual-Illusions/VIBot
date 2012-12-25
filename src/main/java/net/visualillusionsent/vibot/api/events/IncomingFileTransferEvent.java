@@ -17,54 +17,51 @@
  */
 package net.visualillusionsent.vibot.api.events;
 
+import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
-import net.visualillusionsent.vibot.io.irc.Channel;
-import net.visualillusionsent.vibot.io.irc.User;
+import net.visualillusionsent.vibot.io.dcc.DccFileTransfer;
 
 /**
- * Part Event
+ * Incoming File Transfer Event handler
  * <p>
  * Extending this class will allow a {@link BotPlugin}<br>
- * to listen to when a {@link User} leaves a {@link Channel}
+ * to listen to when a the {@link VIBot} starts a File Transfer
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-public abstract class PartEvent extends BaseEvent {
-
+public abstract class IncomingFileTransferEvent extends BaseEvent {
     /**
-     * Constructs a new {@code PartEvent}<br>
+     * Constructs a new {@code IncomingFileTransferEvent}<br>
      * <b>NOTE:</b>With this constructor, {@link EventPriority} will be read from the plugin.cfg file
      * 
      * @param plugin
      *            the {@link BotPlugin} associated with this event
      */
-    public PartEvent(BotPlugin plugin) {
-        super(plugin, EventType.PART);
+    public IncomingFileTransferEvent(BotPlugin plugin) {
+        super(plugin, EventType.INCOMING_FILE_TRANSFER);
     }
 
     /**
-     * Constructs a new {@code PartEvent}
+     * Constructs a new {@code IncomingFileTransferEvent}
      * 
      * @param plugin
      *            the {@link BotPlugin} associated with this event
      * @param priority
      *            the {@link EventPriority} for the event
      */
-    public PartEvent(BotPlugin plugin, EventPriority priority) {
-        super(plugin, priority, EventType.PART);
+    public IncomingFileTransferEvent(BotPlugin plugin, EventPriority priority) {
+        super(plugin, priority, EventType.INCOMING_FILE_TRANSFER);
     }
 
     /**
      * Event executor<br>
-     * This is where the code should go for extending classes to handle the {@code PartEvent}
+     * This is where the code should go for extending classes to handle the {@code IncomingFileTransferEvent}
      * 
-     * @param channel
-     *            the {@link Channel} being left
-     * @param user
-     *            the {@link User} leaving
+     * @param transfer
+     *            the {@link DccFileTransfer} object
      */
-    public abstract void execute(Channel channel, User user);
+    public abstract void execute(DccFileTransfer transfer);
 
 }

@@ -59,8 +59,19 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * @see net.visualillusionsent.vibot.commands
  */
 public final class CommandParser {
+    /**
+     * CommandParser instance
+     */
     private static CommandParser instance;
+
+    /**
+     * Synchronization lock object
+     */
     private static final Object lock = new Object();
+
+    /**
+     * HashMap of command names to their {@link BaseCommand} counterpart
+     */
     private final HashMap<String, BaseCommand> commands;
 
     /**
@@ -75,9 +86,11 @@ public final class CommandParser {
     }
 
     /**
-     * Gets the {@code CommandParser} instance
+     * Gets the {@code CommandParser} instance<br>
+     * If the instance is null, the method will create a new instance and initialize the internal {@link BaseCommand}s
      * 
      * @return {@code CommandParser} instance
+     * @see net.visualillusionsent.vibot.commands
      */
     public static final CommandParser getInstance() {
         if (instance == null) {

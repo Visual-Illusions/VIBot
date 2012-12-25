@@ -24,15 +24,30 @@ import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Echo Command<br>
+ * Echoes a given message back to the channel<br>
+ * <b>Usage:</b> !echo {@literal <message>}<br>
+ * <b>Minimum Params:</b> 2<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> Voice Channel<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 @BotCommand(main = "echo", usage = "!echo <message>", desc = "Echoes the message", minParam = 2, voice = true, chanOnly = true)
 public final class EchoCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code EchoCommand}
+     */
     public EchoCommand() {
         super(null);
     }
 
     @Override
-    public final synchronized boolean execute(Channel channel, User user, String[] args) {
+    public final boolean execute(Channel channel, User user, String[] args) {
         String message = "";
         try {
             message = StringUtils.joinString(args, " ", 1);

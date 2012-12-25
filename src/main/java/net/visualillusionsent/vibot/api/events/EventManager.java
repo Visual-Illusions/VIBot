@@ -39,41 +39,93 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * @author Jason (darkdiplomat)
  */
 public class EventManager {
+    /**
+     * The {@link EventPriorityComparator} instance
+     */
     private final EventPriorityComparator epc = new EventPriorityComparator();
-    private static EventManager instance;
-    private HashMap<EventType, List<BaseEvent>> registeredEvents = new HashMap<EventType, List<BaseEvent>>();
 
+    /**
+     * The map of registered events
+     */
+    private final HashMap<EventType, List<BaseEvent>> registeredEvents;
+
+    /**
+     * The {@code EventManager} instance
+     */
+    private static EventManager instance;
+
+    static {
+        instance = new EventManager();
+    }
+
+    /**
+     * Constructs a new {@code EventManager} object
+     */
     private EventManager() {
+        registeredEvents = new HashMap<EventType, List<BaseEvent>>();
         for (EventType type : EventType.values()) {
             registeredEvents.put(type, new ArrayList<BaseEvent>());
         }
     }
 
-    public static EventManager getInstance() {
-        if (instance == null) {
-            instance = new EventManager();
-        }
-        return instance;
+    /**
+     * Adds a new {@link BaseEvent}
+     * 
+     * @param event
+     *            the {@link BaseEvent} to be added
+     */
+    public static final void addEvent(BaseEvent event) {
+        instance.add(event);
     }
 
-    public static void addEvent(BaseEvent event) {
-        getInstance().add(event);
-    }
-
-    public static void removeEvent(BaseEvent event) {
-        getInstance().remove(event);
-    }
-
-    private void add(BaseEvent event) {
+    /**
+     * Adds a new {@link BaseEvent}
+     * 
+     * @param event
+     *            the {@link BaseEvent} to be added
+     */
+    private final void add(BaseEvent event) {
         registeredEvents.get(event.getType()).add(event);
         Collections.sort(registeredEvents.get(event.getType()), epc);
     }
 
-    private void remove(BaseEvent event) {
+    /**
+     * Removes a {@link BaseEvent}
+     * 
+     * @param event
+     *            the {@link BaseEvent} to be removed
+     */
+    public static final void removeEvent(BaseEvent event) {
+        instance.remove(event);
+    }
+
+    /**
+     * Removes a {@link BaseEvent}
+     * 
+     * @param event
+     *            the {@link BaseEvent} to be removed
+     */
+    private final void remove(BaseEvent event) {
         registeredEvents.get(event.getType()).remove(event);
     }
 
-    public void removePluginHooks(BotPlugin plugin) {
+    /**
+     * Removes a {@link BotPlugin}'s registered {@link BaseEvent}s
+     * 
+     * @param event
+     *            the {@link BaseEvent} to be removed
+     */
+    public static final void unregisterPluginHooks(BotPlugin plugin) {
+        instance.removePluginHooks(plugin);
+    }
+
+    /**
+     * Removes a {@link BotPlugin}'s registered {@link BaseEvent}s
+     * 
+     * @param event
+     *            the {@link BaseEvent} to be removed
+     */
+    private final void removePluginHooks(BotPlugin plugin) {
         synchronized (registeredEvents) {
             List<BaseEvent> tempList = new ArrayList<BaseEvent>();
             for (EventType type : EventType.values()) {
@@ -90,7 +142,31 @@ public class EventManager {
         }
     }
 
-    public void callChannelMessageEvent(Channel channel, User user, String msg) {
+    /**
+     * Called when the {@link ChannelMessageEvent} is activated
+     * 
+     * @param channel
+     *            the {@link Channel} initiated from
+     * @param user
+     *            the {@link User} initiating the event
+     * @param msg
+     *            the message being sent to channel
+     */
+    public static final void activateChannelMessageEvent(Channel channel, User user, String msg) {
+        instance.dispatchChannelMessageEvent(channel, user, msg);
+    }
+
+    /**
+     * Dispatches the {@link ChannelMessageEvent}
+     * 
+     * @param channel
+     *            the {@link Channel} initiated from
+     * @param user
+     *            the {@link User} initiating the event
+     * @param msg
+     *            the message being sent to channel
+     */
+    private final void dispatchChannelMessageEvent(Channel channel, User user, String msg) {
         synchronized (registeredEvents) {
             for (BaseEvent chanMessageEvent : registeredEvents.get(EventType.CHANNEL_MESSAGE)) {
                 try {
@@ -103,7 +179,17 @@ public class EventManager {
         }
     }
 
-    public void callConnectEvent() {
+    /**
+     * Called when the {@link ConnectEvent} is activated
+     */
+    public static final void activateConnectEvent() {
+        instance.dispatchConnectEvent();
+    }
+
+    /**
+     * Dispatches the {@link ConnectEvent}
+     */
+    private void dispatchConnectEvent() {
         synchronized (registeredEvents) {
             for (BaseEvent connectEvent : registeredEvents.get(EventType.CONNECT)) {
                 try {
@@ -116,7 +202,27 @@ public class EventManager {
         }
     }
 
-    public void callFileTransferFinishedEvent(DccFileTransfer transfer, Exception ex) {
+    /**
+     * Called when the {@link FileTransferFinishedEvent} is activated
+     * 
+     * @param transfer
+     *            the {@link DccFileTransfer} object
+     * @param ex
+     *            the {@link Exception} thrown if one occured
+     */
+    public static final void activateFileTransferFinishedEvent(DccFileTransfer transfer, Exception ex) {
+        instance.dispatchFileTransferFinishedEvent(transfer, ex);
+    }
+
+    /**
+     * Dispatches the {@link FileTransferFinishedEvent}
+     * 
+     * @param transfer
+     *            the {@link DccFileTransfer} object
+     * @param ex
+     *            the {@link Exception} thrown if one occured
+     */
+    private final void dispatchFileTransferFinishedEvent(DccFileTransfer transfer, Exception ex) {
         synchronized (registeredEvents) {
             for (BaseEvent fileTransferFinishedEvent : registeredEvents.get(EventType.FILE_TRANSFER_FINISHED)) {
                 try {
@@ -129,20 +235,85 @@ public class EventManager {
         }
     }
 
-    public void callIncomingChatRequestEvent(DccChat chat) {
+    /**
+     * Called when the {@link IncomingChatRequestEvent} is activated
+     * 
+     * @param chat
+     *            the {@link DccChat} object
+     */
+    public static final void activateIncomingChatRequestEvent(DccChat chat) {
+        instance.dispatchIncomingChatRequestEvent(chat);
+    }
+
+    /**
+     * Dispatches the {@link IncomingChatRequestEvent}
+     * 
+     * @param chat
+     *            the {@link DccChat} object
+     */
+    private final void dispatchIncomingChatRequestEvent(DccChat chat) {
         synchronized (registeredEvents) {
             for (BaseEvent incomingChatRequestEvent : registeredEvents.get(EventType.INCOMING_CHAT_REQUEST)) {
                 try {
                     ((IncomingChatRequestEvent) incomingChatRequestEvent).execute(chat);
                 }
                 catch (Exception e) {
-                    BotLogMan.warning("Unhandled Exception caught while calling 'IncomingChatRequest' for Plugin: ".concat(incomingChatRequestEvent.getPlugin().getName()), e);
+                    BotLogMan.warning("Unhandled Exception caught while calling 'IncomingChatRequestEvent' for Plugin: ".concat(incomingChatRequestEvent.getPlugin().getName()), e);
                 }
             }
         }
     }
 
-    public void callJoinEvent(Channel channel, User user) {
+    /**
+     * Called when the {@link IncomingFileTransferEvent} is activated
+     * 
+     * @param transfer
+     *            the {@link DccFileTransfer} object
+     */
+    public static final void activateIncomingFileTransferEvent(DccFileTransfer transfer) {
+        instance.dispatchIncomingFileTransferEvent(transfer);
+    }
+
+    /**
+     * Dispatches the {@link IncomingFileTransferEvent}
+     * 
+     * @param transfer
+     *            the {@link DccFileTransfer} object
+     */
+    private final void dispatchIncomingFileTransferEvent(DccFileTransfer transfer) {
+        synchronized (registeredEvents) {
+            for (BaseEvent incomingFileTransferEvent : registeredEvents.get(EventType.INCOMING_FILE_TRANSFER)) {
+                try {
+                    ((IncomingFileTransferEvent) incomingFileTransferEvent).execute(transfer);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'IncomingFileTransferEvent' for Plugin: ".concat(incomingFileTransferEvent.getPlugin().getName()), e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Called when the {@link JoinEvent} is activated
+     * 
+     * @param channel
+     *            the {@link Channel} being joined
+     * @param user
+     *            the {@link User} joining the {@link Channel}
+     */
+    public static final void activateJoinEvent(Channel channel, User user) {
+        instance.dispatchJoinEvent(channel, user);
+    }
+
+    /**
+     * Dispatch the {@link JoinEvent}
+     * 
+     * @param channel
+     *            the {@link Channel} being joined
+     * @param user
+     *            the {@link User} joining the {@link Channel}
+     */
+    private final void dispatchJoinEvent(Channel channel, User user) {
         synchronized (registeredEvents) {
             for (BaseEvent joinEvent : registeredEvents.get(EventType.JOIN)) {
                 try {
@@ -155,7 +326,27 @@ public class EventManager {
         }
     }
 
-    public void callPartEvent(Channel channel, User user) {
+    /**
+     * Called when the {@link PartEvent} is activated
+     * 
+     * @param channel
+     *            the {@link Channel} be left
+     * @param user
+     *            the {@link User} leaving
+     */
+    public static final void activatePartEvent(Channel channel, User user) {
+        instance.dispatchPartEvent(channel, user);
+    }
+
+    /**
+     * Dispatches the {@link PartEvent}
+     * 
+     * @param channel
+     *            the {@link Channel} be left
+     * @param user
+     *            the {@link User} leaving
+     */
+    private final void dispatchPartEvent(Channel channel, User user) {
         synchronized (registeredEvents) {
             for (BaseEvent partEvent : registeredEvents.get(EventType.PART)) {
                 try {
@@ -168,11 +359,31 @@ public class EventManager {
         }
     }
 
-    public void callPrivateMessageEvent(Channel channel, User user, String msg) {
+    /**
+     * Called when the {@link PrivateMessageEvent} is activated
+     * 
+     * @param user
+     *            the {@link User} sending the message
+     * @param msg
+     *            the message
+     */
+    public static final void activatePrivateMessageEvent(User user, String msg) {
+        instance.dispatchPrivateMessageEvent(user, msg);
+    }
+
+    /**
+     * Dispatches the {@link PrivateMessageEvent} is activated
+     * 
+     * @param user
+     *            the {@link User} sending the message
+     * @param msg
+     *            the message
+     */
+    private final void dispatchPrivateMessageEvent(User user, String msg) {
         synchronized (registeredEvents) {
             for (BaseEvent privMessageEvent : registeredEvents.get(EventType.PRIVATE_MESSAGE)) {
                 try {
-                    ((PrivateMessageEvent) privMessageEvent).execute(channel, user, msg);
+                    ((PrivateMessageEvent) privMessageEvent).execute(user, msg);
                 }
                 catch (Exception e) {
                     BotLogMan.warning("Unhandled Exception caught while calling 'PrivateMessageEvent' for Plugin: ".concat(privMessageEvent.getPlugin().getName()), e);

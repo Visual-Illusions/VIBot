@@ -17,11 +17,19 @@
  */
 package net.visualillusionsent.vibot.api.events;
 
-enum EventType {
+/**
+ * Event types
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
+public enum EventType {
     CHANNEL_MESSAGE, //
     CONNECT, //
     FILE_TRANSFER_FINISHED, //
     INCOMING_CHAT_REQUEST, //
+    INCOMING_FILE_TRANSFER, //
     INVITE, //
     JOIN, //
     PART, //

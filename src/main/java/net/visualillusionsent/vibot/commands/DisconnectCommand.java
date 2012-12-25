@@ -17,22 +17,49 @@
  */
 package net.visualillusionsent.vibot.commands;
 
+import net.visualillusionsent.utils.StringUtils;
+import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
-@BotCommand(main = "disconnect", desc = "Disconnects the VIBot from the server and shuts down", usage = "!disconnect", owner = true)
+/**
+ * Disconnect Command<br>
+ * Disconnects the {@link VIBot} from the IRC Server and shuts down<br>
+ * <b>Usage:</b> !disconnect [message]<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> &infin;<br>
+ * <b>Requires:</b> BotOwner<br>
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
+@BotCommand(main = "disconnect", desc = "Disconnects the VIBot from the server and shuts down", usage = "!disconnect [message]", owner = true)
 public final class DisconnectCommand extends BaseCommand {
 
+    /**
+     * Constructs a new {@code DisconnectCommand} object
+     */
     public DisconnectCommand() {
         super(null);
     }
 
     @Override
-    public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        VIBot.terminate(0);
+    public final boolean execute(Channel channel, User user, String[] args) {
+        if (args.length > 1) {
+            try {
+                VIBot.terminate(StringUtils.joinString(args, " ", 1), 0);
+            }
+            catch (UtilityException e) {
+                VIBot.terminate(null, 0);
+            }
+        }
+        else {
+            VIBot.terminate(null, 0);
+        }
         return true;
     }
 }

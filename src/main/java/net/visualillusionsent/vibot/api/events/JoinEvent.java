@@ -21,15 +21,49 @@ import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
+/**
+ * Join Event
+ * <p>
+ * Extending this class will allow a {@link BotPlugin}<br>
+ * to listen to when a {@link User} joins a {@link Channel}
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public abstract class JoinEvent extends BaseEvent {
 
+    /**
+     * Constructs a new {@code JoinEvent}<br>
+     * <b>NOTE:</b>With this constructor, {@link EventPriority} will be read from the plugin.cfg file
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} associated with this event
+     */
     public JoinEvent(BotPlugin plugin) {
         super(plugin, EventType.JOIN);
     }
 
+    /**
+     * Constructs a new {@code JoinEvent}
+     * 
+     * @param plugin
+     *            the {@link BotPlugin} associated with this event
+     * @param priority
+     *            the {@link EventPriority} for the event
+     */
     public JoinEvent(BotPlugin plugin, EventPriority priority) {
         super(plugin, priority, EventType.JOIN);
     }
 
+    /**
+     * Event executor<br>
+     * This is where the code should go for extending classes to handle the {@code JoinEvent}
+     * 
+     * @param channel
+     *            the {@link Channel} being joined
+     * @param user
+     *            the {@link user} joining
+     */
     public abstract void execute(Channel channel, User user);
 }

@@ -12,6 +12,8 @@ import net.visualillusionsent.vibot.io.irc.User;
  * {@code @interface} for {@link BaseCommand}<br>
  * Used to specify the command name, aliases, usage, description, min/max paramerters, who can use the command, and where the command can be used
  * 
+ * @since 1.0
+ * @version 1.0
  * @author Jason (darkdiplomat)
  */
 @Retention(RUNTIME)

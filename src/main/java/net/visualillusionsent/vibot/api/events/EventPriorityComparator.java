@@ -19,10 +19,27 @@ package net.visualillusionsent.vibot.api.events;
 
 import java.util.Comparator;
 
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
+
+/**
+ * Used to compare {@link BotPlugin}'s {@link BaseEvent} priorities
+ * 
+ * @since 1.0
+ * @version 1.0
+ * @author Jason (darkdiplomat)
+ */
 public final class EventPriorityComparator implements Comparator<BaseEvent> {
 
+    /**
+     * Constructs a new {@code EventPriorityComparator}
+     */
     public EventPriorityComparator() {}
 
+    /**
+     * Compares its two {@link BaseEvent}s for order.
+     * 
+     * @return a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.
+     */
     @Override
     public final int compare(BaseEvent a, BaseEvent b) {
         int ax = a.getPriority().ordinal();

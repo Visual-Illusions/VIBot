@@ -121,7 +121,7 @@ public class DccFileTransfer {
                     doReceive(file, false);
                 }
                 else {
-                    //irc_conn.sendCTCPCommand(user.getNick(), "DCC RESUME file.ext ".concat(String.valueOf(port)).concat(" ").concat(String.valueOf(progress)));
+                    irc_conn.sendCTCPCommand(user.getNick(), "DCC RESUME file.ext ".concat(String.valueOf(port)).concat(" ").concat(String.valueOf(progress)));
                     manager.addAwaitingResume(this);
                 }
             }

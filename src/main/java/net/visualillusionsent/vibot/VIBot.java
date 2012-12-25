@@ -484,13 +484,21 @@ public final class VIBot {
      * @param code
      *            The System Exit code to use
      */
-    public final static synchronized void terminate(int code) {
+    public final static synchronized void terminate(String quitMessage, int code) {
         BotLogMan.warning("VIBot shutting down...");
         shuttingdown = true;
 
         if (instance != null) {
-            if (isConnected() && BotConfig.getQuitMessage() != null) {
-                instance.quitServer(BotConfig.getQuitMessage());
+            if (isConnected()) {
+                if (quitMessage != null) {
+                    instance.quitServer(quitMessage);
+                }
+                else if (BotConfig.getQuitMessage() != null) {
+                    instance.quitServer(BotConfig.getQuitMessage());
+                }
+                else {
+                    instance.quitServer();
+                }
             }
             instance.dispose();
         }
@@ -572,16 +580,14 @@ public final class VIBot {
             Attributes mainAttribs = manifest.getMainAttributes();
             version = mainAttribs.getValue("Implementation-Version");
             if (version == null) {
-                version = "*.*.*";
+                version = "UNDEFINED";
             }
         }
         catch (Exception e) {
             BotLogMan.warning(e.getMessage());
-        }
-
-        if (version.equals("*.*.*")) {
             version = "UNDEFINED";
         }
+
         return version;
     }
 
@@ -631,7 +637,7 @@ public final class VIBot {
         }
         catch (Exception e) {
             BotLogMan.severe("Unexpected exception caught: ", e);
-            terminate(1);
+            terminate("Error Code 1", 1);
         }
     }
 }

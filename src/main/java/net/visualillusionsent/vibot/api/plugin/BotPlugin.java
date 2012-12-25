@@ -297,6 +297,11 @@ public abstract class BotPlugin {
         this.loader = loader;
     }
 
+    /**
+     * Gets the {@link URLClassLoader} for the {@code BotPlugin}
+     * 
+     * @return the {@code BotPlugin}'s {@link URLClassLoader}
+     */
     final URLClassLoader getLoader() {
         return loader;
     }

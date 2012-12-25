@@ -53,7 +53,7 @@ public final class BotConfig {
         }
         catch (UtilityException e) {
             BotLogMan.severe("Properties File Issue: ", e);
-            VIBot.terminate(2);
+            VIBot.terminate("Error Code 2", 2);
             return;
         }
     }
@@ -75,7 +75,7 @@ public final class BotConfig {
         if (!file.exists()) {
             BotLogMan.warning("First Launch detected! Initializing properties and exiting. Be sure to set your properties before restarting.");
             migrateProps();
-            System.exit(0);
+            VIBot.terminate(null, 0);
             return;
         }
 

@@ -86,7 +86,7 @@ public class DccManager {
                 }
 
                 transfer = new DccFileTransfer(irc_conn, this, user, type, filename, address, port, size);
-                //bot.onIncomingFileTransfer(transfer);
+                EventManager.activateIncomingFileTransferEvent(transfer);
                 return true;
 
             case "RESUME":
@@ -106,13 +106,13 @@ public class DccManager {
 
                 if (transfer != null) {
                     transfer.setProgress(progress);
-                    //bot.sendCTCPCommand(user.getNick(), "DCC ACCEPT file.ext ".concat(String.valueOf(port)).concat(" ").concat(String.valueOf(progress)));
+                    irc_conn.sendCTCPCommand(user.getNick(), "DCC ACCEPT file.ext ".concat(String.valueOf(port)).concat(" ").concat(String.valueOf(progress)));
                 }
                 return true;
 
             case "ACCEPT":
                 port = Integer.parseInt(tokenizer.nextToken());
-                // long progress = Long.parseLong(tokenizer.nextToken());
+                //long progress = Long.parseLong(tokenizer.nextToken());
 
                 transfer = null;
                 synchronized (awaitingResume) {
@@ -138,7 +138,7 @@ public class DccManager {
 
                 new Thread() {
                     public void run() {
-                        EventManager.getInstance().callIncomingChatRequestEvent(chat);
+                        EventManager.activateIncomingChatRequestEvent(chat);
                     }
                 }.start();
             default:

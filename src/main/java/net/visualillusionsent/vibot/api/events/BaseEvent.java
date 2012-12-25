@@ -39,15 +39,27 @@ import net.visualillusionsent.vibot.io.exception.VIBotException;
  * @author Jason (darkdiplomat)
  */
 public abstract class BaseEvent {
+
+    /**
+     * The {@link BotPlugin} associated with the {@code BaseEvent}
+     */
     private final BotPlugin plugin;
+
+    /**
+     * The {@link EventType} of the {@code BaseEvent}
+     */
     private final EventType type;
+
+    /**
+     * The {@link EventPriority} of the {@code BaseEvent}
+     */
     private final EventPriority priority;
 
     /**
      * Constructs a new {@code BaseEvent}
      * <p>
      * This constructor requires the {@link BasePlugin} to have a {@code plugin.cfg} with the {@link EventPriority} set for it's event extensions,<br>
-     * in the form of {EventClassName}.priority=PRIORITY
+     * in the form of %EventClassName%.priority=PRIORITY
      * 
      * @param plugin
      *            the {@link BotPlugin} associated with the BaseEvent
