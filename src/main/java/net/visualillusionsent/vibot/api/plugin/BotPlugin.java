@@ -177,7 +177,6 @@ public abstract class BotPlugin {
      */
     protected final Manifest getPluginManifest() throws VIBotException {
         String jarpath = "plugins/".concat(getJarName());
-        System.out.println(getJarName());
         Manifest toRet = null;
         VIBotException vibe = null;
         JarFile jar = null;
