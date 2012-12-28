@@ -41,6 +41,7 @@ import java.util.StringTokenizer;
 
 import net.visualillusionsent.utils.DateUtils;
 import net.visualillusionsent.utils.IPAddressUtils;
+import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.Queue;
@@ -561,7 +562,10 @@ public final class IRCConnection {
                         if ((!channel.isMuted() && !channel.isUserIgnored(user)) || (user.isBotOwner() || user.isOp())) {
                             String[] args = message.substring(1).split(" ");
                             boolean cont = CommandParser.parseBotCommand(channel, user, args);
-                            BotLogMan.command(user.getNick() + (cont ? " used " : "attempted ") + " Command " + args[0]);
+                            try {
+                                BotLogMan.command(user.getNick() + (cont ? " used" : " attempted") + " Command: " + StringUtils.joinString(args, " ", 0));
+                            }
+                            catch (UtilityException e) {}
                         }
                     }
                     else {
@@ -575,11 +579,14 @@ public final class IRCConnection {
                     if (message.startsWith(String.valueOf(BotConfig.getCommandPrefix()))) {
                         String[] args = message.substring(1).split(" ");
                         boolean cont = CommandParser.parseBotCommand(null, user, args);
-                        BotLogMan.command(user.getNick() + (cont ? " used " : "attempted ") + " Command " + args[0]);
+                        try {
+                            BotLogMan.command(user.getNick() + (cont ? " used" : " attempted") + " Command: " + StringUtils.joinString(args, " ", 0));
+                        }
+                        catch (UtilityException e) {}
                     }
                     else {
                         EventManager.activatePrivateMessageEvent(user, message);
-                        BotLogMan.channelMessage("[PM] <" + user.getPrefix() + user.getNick() + "> " + message);
+                        BotLogMan.privateMessage("<" + user.getPrefix() + user.getNick() + "> " + message);
                     }
                 }
                 break;
@@ -675,6 +682,7 @@ public final class IRCConnection {
             case "INVITE":
                 // Somebody is inviting somebody else into a channel.
                 //this.onInvite(target, sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
+                System.out.println(String.format("%s %s %s %s %s", target, sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2))); //Debug
                 break;
             default:
                 // If we reach this point, then we've found something that the

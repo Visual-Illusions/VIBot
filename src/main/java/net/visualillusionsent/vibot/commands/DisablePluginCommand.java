@@ -42,8 +42,8 @@ public final class DisablePluginCommand extends BaseCommand {
     /**
      * Constructs a new {@code DisablePluginCommand} object
      */
-    public DisablePluginCommand() {
-        super(null);
+    public DisablePluginCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

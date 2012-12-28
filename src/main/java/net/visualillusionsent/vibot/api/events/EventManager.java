@@ -297,6 +297,29 @@ public class EventManager {
     }
 
     /**
+     * Called when the {@link InviteEvent} is activated
+     * 
+     * @param user
+     *            the {@link User} um... something
+     */
+    public static final void activateInviteEvent(User user, Channel channel) {
+        instance.dispatchInviteEvent(user, channel);
+    }
+
+    private final void dispatchInviteEvent(User user, Channel channel) {
+        synchronized (registeredEvents) {
+            for (BaseEvent inviteEvent : registeredEvents.get(EventType.INVITE)) {
+                try {
+                    ((InviteEvent) inviteEvent).execute(user, channel);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'InviteEvent' for Plugin: ".concat(inviteEvent.getPlugin().getName()), e);
+                }
+            }
+        }
+    }
+
+    /**
      * Called when the {@link KickEvent} is activated
      * 
      * @param channel

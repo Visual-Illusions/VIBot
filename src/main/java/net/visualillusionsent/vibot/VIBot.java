@@ -39,6 +39,7 @@ import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 import net.visualillusionsent.utils.VersionChecker;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
 import net.visualillusionsent.vibot.io.ConsoleCommandReceiver;
 import net.visualillusionsent.vibot.io.IdentServer;
@@ -66,7 +67,7 @@ public final class VIBot {
     private final String finger = "Do you get off on fingering bots?!";
 
     /**
-     * Real Name of the {@code VIBot} as represented by: VIBot v*.* Java IRC Bot
+     * Real Name of the {@code VIBot} as represented by: VIBot v{Major}.{Minor}.{Mirco} Java IRC Bot
      */
     private final String real_name;
 
@@ -100,6 +101,15 @@ public final class VIBot {
      */
     private static volatile boolean shuttingdown = false;
 
+    private static volatile boolean isLaunched = false;
+
+    static final FakePlugin FAKE_PLUGIN;
+
+    static {
+        instance = new VIBot();
+        FAKE_PLUGIN = new FakePlugin(instance);
+    }
+
     /**
      * Constructs a new {@code VIBot} object<br>
      * This Class should not be externally constructed
@@ -109,6 +119,14 @@ public final class VIBot {
             throw new IllegalStateException("Only one VIBot instance may be created at a time.");
         }
         this.real_name = "VIBot v".concat(getVersion()).concat(" Visual Illusions Java IRC Bot");
+    }
+
+    public static final Class<?> checkFake() {
+        return FakePlugin.class;
+    }
+
+    public static final boolean fakeEqualsFake(BotPlugin fake) {
+        return FAKE_PLUGIN == fake;
     }
 
     /**
@@ -380,18 +398,22 @@ public final class VIBot {
         irc_conn.sendRawLine("PART ".concat(channel).concat(" :").concat(reason));
     }
 
+    public static final void inviteUser(Channel channel, String nick) {
+        instance.sendInvite(channel, nick);
+    }
+
     /**
      * Sends an invitation to join a channel. Some channels can be marked as
      * "invite-only", so it may be useful to allow a bot to invite people into
      * it.
      * 
-     * @param nick
-     *            The nick of the user to invite
      * @param channel
      *            The channel you are inviting the user to join.
+     * @param nick
+     *            The nick of the user to invite
      */
-    public final void sendInvite(String nick, String channel) {
-        irc_conn.sendRawLine("INVITE ".concat(nick).concat(" :").concat(channel));
+    public final void sendInvite(Channel channel, String nick) {
+        irc_conn.sendRawLine("INVITE ".concat(nick).concat(" :").concat(channel.getName()));
     }
 
     /**
@@ -594,10 +616,10 @@ public final class VIBot {
      *            currently uses no arguments
      */
     public final static void main(String[] args) {
-        if (instance != null) {
-            //Prevent someone from trying to break the Bot
+        if (isLaunched) {
             return;
         }
+        isLaunched = true;
         try {
             BotLogMan.info("Visual Illusions IRC Bot starting...");
             BotLogMan.info("VIBot Version: ".concat(getBotVersion()));
@@ -610,7 +632,7 @@ public final class VIBot {
             BotPluginLoader.loadPlugins();
             new ConsoleCommandReceiver().start();
 
-            instance = new VIBot();
+            //instance = new VIBot();
             if (BotConfig.useIdentServer()) {
                 try {
                     new IdentServer(instance);

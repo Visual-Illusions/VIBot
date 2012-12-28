@@ -20,6 +20,7 @@ package net.visualillusionsent.vibot.commands;
 import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
@@ -41,8 +42,8 @@ public final class HelpCommand extends BaseCommand {
     /**
      * Constructs a new {@code HelpCommand}
      */
-    public HelpCommand() {
-        super(null);
+    public HelpCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

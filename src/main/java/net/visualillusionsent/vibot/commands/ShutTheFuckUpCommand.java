@@ -20,6 +20,7 @@ package net.visualillusionsent.vibot.commands;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
@@ -41,8 +42,8 @@ public final class ShutTheFuckUpCommand extends BaseCommand {
     /**
      * Constructs a new {@code ShutTheFuckUpCommand}
      */
-    public ShutTheFuckUpCommand() {
-        super(null);
+    public ShutTheFuckUpCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

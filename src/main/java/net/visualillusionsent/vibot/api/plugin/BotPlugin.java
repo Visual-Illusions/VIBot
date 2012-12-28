@@ -88,6 +88,12 @@ public abstract class BotPlugin {
         generateVersion();
     }
 
+    public BotPlugin(Object WAT) {
+        if (!this.getClass().isAssignableFrom(VIBot.checkFake())) {
+            throw new IllegalStateException("WAT Constructor should not be used!");
+        }
+    }
+
     /**
      * Runs the {@code BotPlugin} enable code to check if enabling can happen<br>
      * Typically used to load properties and other dependencies.<br>
@@ -185,7 +191,7 @@ public abstract class BotPlugin {
             toRet = jar.getManifest();
         }
         catch (Exception e) {
-            vibe = new VIBotException("Unable to retrieve Manifest! (Missing?)", e);
+            vibe = new VIBotException("Unable to retrieve Plugin Manifest! (Missing?): ".concat(getName()), e);
         }
         finally {
             if (jar != null) {

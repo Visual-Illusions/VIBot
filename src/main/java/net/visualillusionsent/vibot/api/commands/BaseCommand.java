@@ -20,6 +20,7 @@ package net.visualillusionsent.vibot.api.commands;
 import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.CommandParser;
+import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.irc.Channel;
@@ -77,6 +78,12 @@ public abstract class BaseCommand {
         }
         else {
             cmd = getClass().getAnnotation(BotCommand.class);
+        }
+        if (plugin == null) {
+            throw new IllegalArgumentException("Plugin cannot be null");
+        }
+        else if (plugin.getClass().getName().equals(VIBot.checkFake().getName()) && !VIBot.fakeEqualsFake(plugin)) {
+            throw new IllegalStateException("FakePlugin not proper instance");
         }
         this.plugin = plugin;
         CommandParser.getInstance().add(this);

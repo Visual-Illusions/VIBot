@@ -21,6 +21,7 @@ import net.visualillusionsent.utils.DateUtils;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
@@ -39,8 +40,8 @@ import net.visualillusionsent.vibot.io.irc.User;
 @BotCommand(main = "ping", usage = "!ping", desc = "Sends a Pong")
 public final class PingCommand extends BaseCommand {
 
-    public PingCommand() {
-        super(null);
+    public PingCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

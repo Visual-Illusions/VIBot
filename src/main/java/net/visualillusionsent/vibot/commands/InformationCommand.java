@@ -25,6 +25,7 @@ import net.visualillusionsent.utils.SystemUtils;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
@@ -46,8 +47,8 @@ public final class InformationCommand extends BaseCommand {
     /**
      * Constructs a new {@code InformationCommand}
      */
-    public InformationCommand() {
-        super(null);
+    public InformationCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

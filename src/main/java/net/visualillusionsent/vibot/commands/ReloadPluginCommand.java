@@ -42,8 +42,8 @@ public final class ReloadPluginCommand extends BaseCommand {
     /**
      * Constructs a new {@code ReloadPluginCommand}
      */
-    public ReloadPluginCommand() {
-        super(null);
+    public ReloadPluginCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

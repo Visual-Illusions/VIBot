@@ -42,8 +42,8 @@ public final class EnablePluginCommand extends BaseCommand {
     /**
      * Constructs a new {@code EnablePluginCommand}
      */
-    public EnablePluginCommand() {
-        super(null);
+    public EnablePluginCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

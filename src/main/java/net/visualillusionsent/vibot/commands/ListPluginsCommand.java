@@ -43,8 +43,8 @@ public final class ListPluginsCommand extends BaseCommand {
     /**
      * Constructs a new {@code ListPluginsCommand}
      */
-    public ListPluginsCommand() {
-        super(null);
+    public ListPluginsCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

@@ -22,6 +22,7 @@ import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
@@ -43,8 +44,8 @@ public final class DisconnectCommand extends BaseCommand {
     /**
      * Constructs a new {@code DisconnectCommand} object
      */
-    public DisconnectCommand() {
-        super(null);
+    public DisconnectCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

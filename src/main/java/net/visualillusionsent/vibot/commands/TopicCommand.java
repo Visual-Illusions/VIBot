@@ -19,6 +19,7 @@ package net.visualillusionsent.vibot.commands;
 
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.Topic;
 import net.visualillusionsent.vibot.io.irc.User;
@@ -38,8 +39,8 @@ import net.visualillusionsent.vibot.io.irc.User;
 @BotCommand(main = "topic", usage = "!topic [user]", desc = "Shows the channel's topic", maxParam = 2, chanOnly = true)
 public final class TopicCommand extends BaseCommand {
 
-    public TopicCommand() {
-        super(null);
+    public TopicCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

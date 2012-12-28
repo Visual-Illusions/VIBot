@@ -21,6 +21,7 @@ import java.util.List;
 
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
+import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
 
@@ -42,8 +43,8 @@ public final class ListIgnoresCommand extends BaseCommand {
     /**
      * Constructs a new {@code ListIgnoresCommand}
      */
-    public ListIgnoresCommand() {
-        super(null);
+    public ListIgnoresCommand(BotPlugin fake) {
+        super(fake);
     }
 
     @Override

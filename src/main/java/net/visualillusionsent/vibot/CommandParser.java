@@ -32,6 +32,7 @@ import net.visualillusionsent.vibot.commands.HelpCommand;
 import net.visualillusionsent.vibot.commands.IdentifyCommand;
 import net.visualillusionsent.vibot.commands.IgnoreUserCommand;
 import net.visualillusionsent.vibot.commands.InformationCommand;
+import net.visualillusionsent.vibot.commands.InviteCommand;
 import net.visualillusionsent.vibot.commands.JoinChannelCommand;
 import net.visualillusionsent.vibot.commands.ListIgnoresCommand;
 import net.visualillusionsent.vibot.commands.ListPluginsCommand;
@@ -95,25 +96,26 @@ public final class CommandParser {
     public static final CommandParser getInstance() {
         if (instance == null) {
             instance = new CommandParser();
-            new DisablePluginCommand();
-            new DisconnectCommand();
-            new EchoCommand();
-            new EnablePluginCommand();
-            new HelpCommand();
-            new IdentifyCommand();
-            new IgnoreUserCommand();
-            new InformationCommand();
-            new JoinChannelCommand();
-            new ListIgnoresCommand();
-            new ListPluginsCommand();
-            new NickChangeCommand();
-            new OkThanksCommand();
-            new PartChannelCommand();
-            new PingCommand();
-            new ReloadPluginCommand();
-            new ShutTheFuckUpCommand();
-            new TopicCommand();
-            new UnignoreUserCommand();
+            new DisablePluginCommand(VIBot.FAKE_PLUGIN);
+            new DisconnectCommand(VIBot.FAKE_PLUGIN);
+            new EchoCommand(VIBot.FAKE_PLUGIN);
+            new EnablePluginCommand(VIBot.FAKE_PLUGIN);
+            new HelpCommand(VIBot.FAKE_PLUGIN);
+            new IdentifyCommand(VIBot.FAKE_PLUGIN);
+            new IgnoreUserCommand(VIBot.FAKE_PLUGIN);
+            new InformationCommand(VIBot.FAKE_PLUGIN);
+            new InviteCommand(VIBot.FAKE_PLUGIN);
+            new JoinChannelCommand(VIBot.FAKE_PLUGIN);
+            new ListIgnoresCommand(VIBot.FAKE_PLUGIN);
+            new ListPluginsCommand(VIBot.FAKE_PLUGIN);
+            new NickChangeCommand(VIBot.FAKE_PLUGIN);
+            new OkThanksCommand(VIBot.FAKE_PLUGIN);
+            new PartChannelCommand(VIBot.FAKE_PLUGIN);
+            new PingCommand(VIBot.FAKE_PLUGIN);
+            new ReloadPluginCommand(VIBot.FAKE_PLUGIN);
+            new ShutTheFuckUpCommand(VIBot.FAKE_PLUGIN);
+            new TopicCommand(VIBot.FAKE_PLUGIN);
+            new UnignoreUserCommand(VIBot.FAKE_PLUGIN);
         }
         return instance;
     }
