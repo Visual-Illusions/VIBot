@@ -431,7 +431,11 @@ public final class VIBot {
      * @throws VIBotException
      */
     public final synchronized void reconnect() throws IOException, IRCException, NickAlreadyInUseException, VIBotException {
-        irc_conn.connect();
+        if (isConnected()) {
+            return;
+        }
+
+        instance.irc_conn.reconnect();
     }
 
     /**

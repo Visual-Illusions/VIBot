@@ -30,6 +30,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -65,14 +67,13 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
 public final class IRCConnection {
     private final VIBot bot;
     private final String channelPrefixes = "#";
-    private final IRCInput input_thread;
-    private final IRCOutput output_thread;
     private final Queue out_Queue;
-    private final Socket socket;
-    private final BufferedReader breader;
-    private final BufferedWriter bwriter;
     private final DccManager dccManager;
-
+    private Socket socket;
+    private BufferedReader breader;
+    private BufferedWriter bwriter;
+    private IRCInput input_thread;
+    private IRCOutput output_thread;
     private InetAddress dccInetAddress;
     private ArrayList<Channel> channels;
     private boolean connected = false;
@@ -251,6 +252,8 @@ public final class IRCConnection {
     }
 
     void closeSocket() throws IOException {
+        breader.close();
+        bwriter.close();
         socket.close();
     }
 
@@ -1182,5 +1185,23 @@ public final class IRCConnection {
         for (User user : channel.getUsers()) {
             addToQueue("WHO ".concat(user.getNick()));
         }
+    }
+
+    public void reconnect() throws IOException {
+        input_thread.dispose();
+        output_thread.dispose();
+
+        // Connect to the server.
+        socket = new Socket(BotConfig.getServer(), BotConfig.getServerPort());
+        BotLogMan.info("Connecting to server...");
+
+        //Set the encoding and open socket
+        breader = new BufferedReader(new InputStreamReader(socket.getInputStream(), BotConfig.getEncoding()));
+        bwriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), BotConfig.getEncoding()));
+
+        input_thread = new IRCInput(this);
+        output_thread = new IRCOutput(this);
+
+        connect();
     }
 }

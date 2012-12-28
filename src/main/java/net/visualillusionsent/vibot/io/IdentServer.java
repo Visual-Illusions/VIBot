@@ -34,8 +34,6 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import net.visualillusionsent.utils.TaskManager;
-import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
@@ -84,10 +82,7 @@ public class IdentServer extends Thread {
         }
 
         BotLogMan.info("Ident server running on port ".concat(String.valueOf(BotConfig.getIdentPort())).concat(" for the next 120 seconds..."));
-        try {
-            TaskManager.executeTask(this);
-        }
-        catch (UtilityException e) {}
+        this.start();
     }
 
     /**
@@ -102,7 +97,7 @@ public class IdentServer extends Thread {
         BufferedReader reader = null;
         try {
             Socket socket = ss.accept();
-            socket.setSoTimeout(120000);
+            socket.setSoTimeout(119998);
 
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));

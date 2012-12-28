@@ -17,9 +17,10 @@
  */
 package net.visualillusionsent.vibot.io;
 
+import java.io.IOException;
+
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
-import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.logging.BotLogMan;
 
 /**
@@ -47,14 +48,15 @@ public final class ReconnectionThread extends Thread {
                     try {
                         new IdentServer(bot);
                     }
-                    catch (VIBotException vibe) {
-                        BotLogMan.warning("", vibe);
+                    catch (IOException ioe) {
+                        BotLogMan.warning("", ioe);
                     }
                 }
                 bot.reconnect();
             }
             catch (Exception e) {
                 BotLogMan.warning("Reconnect failed... Trying again in 2 minutes...");
+                e.printStackTrace(); //Sometimes more info is required, but storing to the log isnt nessary
             }
             try {
                 sleep(120000);
