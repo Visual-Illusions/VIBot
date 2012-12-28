@@ -214,6 +214,7 @@ public abstract class BaseCommand {
      * String representation as BaseCommand[ClassName=%s Aliases=%s Usage=%s ErrorMessage=%s MinParams=%d MaxParams=%d RequireVoice=%b RequireOp=%b RequireBotOwner=%b] format
      * 
      * @return formated string
+     * @see Object#toString()
      */
     @Override
     public final String toString() {
@@ -228,6 +229,7 @@ public abstract class BaseCommand {
      * Checks is an {@link Object} is equal to the {@code BaseCommand}
      * 
      * @return {@code true} if equal; {@code false} otherwise
+     * @see Object#equals(Object)
      */
     @Override
     public final boolean equals(Object other) {
@@ -246,6 +248,8 @@ public abstract class BaseCommand {
 
     /**
      * Returns a hash code value for the {@code BaseCommand}.
+     * 
+     * @see Object#hashCode()
      */
     @Override
     public final int hashCode() {

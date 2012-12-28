@@ -315,6 +315,12 @@ public abstract class BotPlugin {
         loader.close();
     }
 
+    /**
+     * Checks is an {@link Object} is equal to the {@code BotPlugin}
+     * 
+     * @return {@code true} if equal; {@code false} otherwise
+     * @see Object#equals(Object)
+     */
     public final boolean equals(Object obj) {
         if (!(obj instanceof BotPlugin)) {
             return false;
@@ -336,12 +342,18 @@ public abstract class BotPlugin {
      * Returns a string representation of the {@code BotPlugin} as "%Name% v%Version%"
      * 
      * @return string representation of the {@code BotPlugin}
+     * @see Object#toString()
      */
     @Override
     public final String toString() {
         return String.format("%s v%s", getName(), getVersion());
     }
 
+    /**
+     * Returns a hash code value for the {@code BotPlugin}.
+     * 
+     * @see Object#hashCode()
+     */
     @Override
     public final int hashCode() {
         int hash = 8;

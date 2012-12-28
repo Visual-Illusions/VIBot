@@ -139,4 +139,53 @@ public abstract class BaseEvent {
     public EventPriority getPriority() {
         return priority;
     }
+
+    /**
+     * String representation as BaseEvent[ClassName=%s Type=%s] format
+     * 
+     * @return formated string
+     * @see Object#toString()
+     */
+    @Override
+    public final String toString() {
+        return String.format("BaseEvent[ClassName=%s Type=%s Priority=%s]", this.getClass().getSimpleName(), type.name(), priority.name());
+    }
+
+    /**
+     * Checks is an {@link Object} is equal to the {@code BaseEvent}
+     * 
+     * @return {@code true} if equal; {@code false} otherwise
+     * @see Object#equals(Object)
+     */
+    @Override
+    public final boolean equals(Object other) {
+        if (!(other instanceof BaseEvent)) {
+            return false;
+        }
+        BaseEvent that = (BaseEvent) other;
+        if (this.type != that.type) {
+            return false;
+        }
+        if (this.priority != that.priority) {
+            return false;
+        }
+        if (this.plugin != null && !this.plugin.equals(that.getPlugin())) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns a hash code value for the {@code BaseEvent}.
+     * 
+     * @see Object#hashCode()
+     */
+    @Override
+    public final int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + type.hashCode();
+        hash = 53 * hash + plugin.hashCode();
+        hash = 53 * hash + priority.hashCode();
+        return hash;
+    }
 }

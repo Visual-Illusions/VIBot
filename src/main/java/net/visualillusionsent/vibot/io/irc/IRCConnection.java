@@ -384,8 +384,8 @@ public final class IRCConnection {
 
         BotLogMan.info("Logged onto server: ".concat(BotConfig.getServer()));
 
-        // This makes the socket timeout on read operations after 5 minutes.
-        socket.setSoTimeout(300000);
+        // This makes the socket timeout on read operations after 3 minutes.
+        socket.setSoTimeout(180000);
 
         // Now start the IRCInput/IRCOutput to read all other lines from the server.
         start();
@@ -644,14 +644,14 @@ public final class IRCConnection {
             case "KICK":
                 // Somebody has been kicked from a channel.
                 String recipient = tokenizer.nextToken();
+                User kicked = channel.getUser(recipient);
                 if (recipient.equals(bot.getNick())) {
                     channels.remove(channel);
                 }
                 else {
-                    user = channel.getUser(recipient);
-                    channel.removeUser(user);
+                    channel.removeUser(kicked);
                 }
-                //this.onKick(target, sourceNick, sourceLogin, sourceHostname, recipient, line.substring(line.indexOf(" :") + 2));
+                EventManager.activateKickEvent(channel, kicked, user, line.substring(line.indexOf(" :") + 2));
                 break;
             case "MODE":
                 // Somebody is changing the mode on a channel or user.

@@ -297,6 +297,47 @@ public class EventManager {
     }
 
     /**
+     * Called when the {@link KickEvent} is activated
+     * 
+     * @param channel
+     *            the {@link Channel} the kick happened in
+     * @param kicked
+     *            the {@link User} being kicked
+     * @param kicker
+     *            the {@link User} kicking the other
+     * @param reason
+     *            the reason for the kick
+     */
+    public static final void activateKickEvent(Channel channel, User kicked, User kicker, String reason) {
+        instance.dispatchKickEvent(channel, kicked, kicker, reason);
+    }
+
+    /**
+     * Dispatches the {@link KickEvent}
+     * 
+     * @param channel
+     *            the {@link Channel} the kick happened in
+     * @param kicked
+     *            the {@link User} being kicked
+     * @param kicker
+     *            the {@link User} kicking the other
+     * @param reason
+     *            the reason for the kick
+     */
+    private final void dispatchKickEvent(Channel channel, User kicked, User kicker, String reason) {
+        synchronized (registeredEvents) {
+            for (BaseEvent kickEvent : registeredEvents.get(EventType.KICK)) {
+                try {
+                    ((KickEvent) kickEvent).execute(channel, kicked, kicker, reason);
+                }
+                catch (Exception e) {
+                    BotLogMan.warning("Unhandled Exception caught while calling 'KickEvent' for Plugin: ".concat(kickEvent.getPlugin().getName()), e);
+                }
+            }
+        }
+    }
+
+    /**
      * Called when the {@link JoinEvent} is activated
      * 
      * @param channel

@@ -32,6 +32,7 @@ public enum EventType {
     INCOMING_FILE_TRANSFER, //
     INVITE, //
     JOIN, //
+    KICK, //
     PART, //
     PRIVATE_MESSAGE, //
 }

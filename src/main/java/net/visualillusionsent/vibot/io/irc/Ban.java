@@ -84,6 +84,12 @@ public final class Ban {
         return datetime;
     }
 
+    /**
+     * Checks is an {@link Object} is equal to the {@code Ban}
+     * 
+     * @return {@code true} if equal; {@code false} otherwise
+     * @see Object#equals(Object)
+     */
     public final boolean equals(Object obj) {
         if (!(obj instanceof Ban)) {
             return false;
@@ -101,6 +107,11 @@ public final class Ban {
         return true;
     }
 
+    /**
+     * Returns a hash code value for the {@code Ban}.
+     * 
+     * @see Object#hashCode()
+     */
     public final int hashCode() {
         int hash = 7;
         hash = 31 * hash + banned.hashCode();
@@ -109,6 +120,12 @@ public final class Ban {
         return hash;
     }
 
+    /**
+     * String representation as Ban[User=%s BannedBy=%s Channel=%s DateTime=%s] format
+     * 
+     * @return formated string
+     * @see Object#toString()
+     */
     public final String toString() {
         return String.format("Ban[User=%s BannedBy=%s Channel=%s DateTime=%s]", banned.getNick(), bannedBy.getNick(), channel.getName(), datetime);
     }
