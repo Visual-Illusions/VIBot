@@ -43,7 +43,6 @@ import java.util.StringTokenizer;
 
 import net.visualillusionsent.utils.DateUtils;
 import net.visualillusionsent.utils.IPAddressUtils;
-import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.Queue;
@@ -566,7 +565,7 @@ public final class IRCConnection {
                             String[] args = message.substring(1).split(" ");
                             boolean cont = CommandParser.parseBotCommand(channel, user, args);
                             try {
-                                BotLogMan.command(user.getNick() + (cont ? " used" : " attempted") + " Command: " + StringUtils.joinString(args, " ", 0));
+                                BotLogMan.command(user.getNick() + (cont ? " used" : " attempted") + " Command: " + message);
                             }
                             catch (UtilityException e) {}
                         }
@@ -583,7 +582,7 @@ public final class IRCConnection {
                         String[] args = message.substring(1).split(" ");
                         boolean cont = CommandParser.parseBotCommand(null, user, args);
                         try {
-                            BotLogMan.command(user.getNick() + (cont ? " used" : " attempted") + " Command: " + StringUtils.joinString(args, " ", 0));
+                            BotLogMan.command(user.getNick() + (cont ? " used" : " attempted") + " Command: " + message);
                         }
                         catch (UtilityException e) {}
                     }

@@ -617,7 +617,7 @@ public final class VIBot {
      * The main method to start the VIBot
      * 
      * @param args
-     *            currently uses no arguments
+     *            no-gui: disables the gui
      */
     public final static void main(String[] args) {
         if (isLaunched) {
@@ -627,7 +627,7 @@ public final class VIBot {
         try {
             BotLogMan.info("Visual Illusions IRC Bot starting...");
             BotLogMan.info("VIBot Version: ".concat(getBotVersion()));
-            vc = new VersionChecker("VIBot", getBotVersion(), "http://visualillusionsent.net/vibot/vibot_versions.php?name=VIBot");
+            vc = new VersionChecker("VIBot", "1.0", "0", "http://visualillusionsent.net/vibot/vibot_versions.php?name=VIBot", true, false);
             if (!vc.isLatest()) {
                 BotLogMan.info(vc.getUpdateAvailibleMessage());
             }

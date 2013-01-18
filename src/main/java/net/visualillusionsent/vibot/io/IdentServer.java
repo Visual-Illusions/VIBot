@@ -120,7 +120,7 @@ public class IdentServer extends Thread {
                 writer.close();
                 reader.close();
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 // Doesn't really matter...
             }
         }
