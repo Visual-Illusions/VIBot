@@ -16,7 +16,7 @@ Offical JavaDocs can be found @ http://docs.visualillusionsent.net/VIBot/
 
 ## License ##
 
-###### &copy; 2012 [Visual Illusions Entertainment](http://visualillusionsent.net/ "vi") ######
+###### &copy; 2012 - 2013 [Visual Illusions Entertainment](http://visualillusionsent.net/ "vi") ######
 
 VIBot is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
