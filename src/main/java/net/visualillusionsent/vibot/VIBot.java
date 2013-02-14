@@ -84,7 +84,11 @@ public final class VIBot {
     /**
      * {@code VIBot} Version as Major.Minor.Build or UNDEFINED if the Manifest was missing
      */
+    private static String vb;
+
     private static String version;
+
+    private static String build;
 
     /**
      * {@code VIBot} running instance
@@ -118,7 +122,7 @@ public final class VIBot {
         if (instance != null) {
             throw new IllegalStateException("Only one VIBot instance may be created at a time.");
         }
-        this.real_name = "VIBot v".concat(getVersion()).concat(" Visual Illusions Java IRC Bot");
+        this.real_name = "VIBot v".concat(getVersionBuild()).concat(" Visual Illusions Java IRC Bot");
     }
 
     public static final Class<?> checkFake() {
@@ -279,6 +283,30 @@ public final class VIBot {
             return version;
         }
         return getBotVersion();
+    }
+
+    /**
+     * Gets the internal build of the {@code VIBot}.
+     * 
+     * @return The build of the {@code VIBot}.
+     */
+    public final String getBuild() {
+        if (build != null) {
+            return build;
+        }
+        return getBotBuild();
+    }
+
+    /**
+     * Gets the internal version and build of the {@code VIBot} formated as Major.Minor.Build
+     * 
+     * @return The version of the {@code VIBot}.
+     */
+    public final String getVersionBuild() {
+        if (vb != null) {
+            return vb;
+        }
+        return getBotVersionBuild();
     }
 
     /**
@@ -600,7 +628,7 @@ public final class VIBot {
         try {
             Manifest manifest = getBotManifest();
             Attributes mainAttribs = manifest.getMainAttributes();
-            version = mainAttribs.getValue("Implementation-Version");
+            version = mainAttribs.getValue("Version");
             if (version == null) {
                 version = "UNDEFINED";
             }
@@ -611,6 +639,50 @@ public final class VIBot {
         }
 
         return version;
+    }
+
+    /**
+     * Get the VIBot build. (values specified in the manifest)
+     * 
+     * @return the build of this VIBot
+     */
+    public static final String getBotBuild() {
+        if (build != null) {
+            return build;
+        }
+        try {
+            Manifest manifest = getBotManifest();
+            Attributes mainAttribs = manifest.getMainAttributes();
+            build = mainAttribs.getValue("Build");
+            if (build == null) {
+                build = "UNDEFINED";
+            }
+        }
+        catch (Exception e) {
+            BotLogMan.warning(e.getMessage());
+            build = "UNDEFINED";
+        }
+
+        return build;
+    }
+
+    /**
+     * Get the VIBot Version and Build as Major.Minor.Build (values specified in the manifest)
+     * 
+     * @return the version and build of this VIBot
+     */
+    public static final String getBotVersionBuild() {
+        if (vb != null) {
+            return vb;
+        }
+        if (version == null) {
+            getBotVersion();
+        }
+        if (build == null) {
+            getBotBuild();
+        }
+        vb = version + "." + build;
+        return vb;
     }
 
     /**
@@ -626,8 +698,8 @@ public final class VIBot {
         isLaunched = true;
         try {
             BotLogMan.info("Visual Illusions IRC Bot starting...");
-            BotLogMan.info("VIBot Version: ".concat(getBotVersion()));
-            vc = new VersionChecker("VIBot", "1.0", "0", "http://visualillusionsent.net/vibot/vibot_versions.php?name=VIBot", true, false);
+            BotLogMan.info("VIBot Version: ".concat(getBotVersionBuild()));
+            vc = new VersionChecker("VIBot", version, build, "http://visualillusionsent.net/vibot/vibot_versions.php?name=VIBot", true, false);
             if (!vc.isLatest()) {
                 BotLogMan.info(vc.getUpdateAvailibleMessage());
             }

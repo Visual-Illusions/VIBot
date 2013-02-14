@@ -42,6 +42,7 @@ import net.visualillusionsent.vibot.commands.PartChannelCommand;
 import net.visualillusionsent.vibot.commands.PingCommand;
 import net.visualillusionsent.vibot.commands.ReloadPluginCommand;
 import net.visualillusionsent.vibot.commands.ShutTheFuckUpCommand;
+import net.visualillusionsent.vibot.commands.TimeCommand;
 import net.visualillusionsent.vibot.commands.TopicCommand;
 import net.visualillusionsent.vibot.commands.UnignoreUserCommand;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
@@ -114,6 +115,7 @@ public final class CommandParser {
             new PingCommand(VIBot.FAKE_PLUGIN);
             new ReloadPluginCommand(VIBot.FAKE_PLUGIN);
             new ShutTheFuckUpCommand(VIBot.FAKE_PLUGIN);
+            new TimeCommand(VIBot.FAKE_PLUGIN);
             new TopicCommand(VIBot.FAKE_PLUGIN);
             new UnignoreUserCommand(VIBot.FAKE_PLUGIN);
         }
