@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="VIBot Distribution Package Script" default="dist" basedir=".">
+    <description>
+        This script will build the Realms and zip appropriate files.
+    </description>
+
+    <property name="dist" location="dist" />
+
+    <target name="init" depends="clean" description="Create the output directories.">
+        <mkdir dir="${dist}" />
+        <mkdir dir="${dist}/lib" />
+    </target>
+    
+    <target name="dist" depends="init" >
+        <copy file="${user.home}/.m2/repository/net/visualillusionsent/viutils/1.0.0/viutils-1.0.0.jar" tofile="${dist}/lib/viutils-1.0.0.jar"/>
+        <copy file="target/vibot-1.0.jar" tofile="${dist}/vibot-1.0.jar"/>
+        <zip destfile="${dist}/VIBot.zip" basedir="${dist}" />
+    </target>
+
+    <target name="clean" description="Remove the output directories">
+        <delete dir="${dist}" />
+    </target>
+</project>
