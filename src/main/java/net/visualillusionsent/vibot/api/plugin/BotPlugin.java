@@ -1,5 +1,5 @@
 /* 
- * Copyright 2012 Visual Illusions Entertainment.
+ * Copyright 2012 - 2013 Visual Illusions Entertainment.
  *  
  * This file is part of VIBot.
  *
@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * You should have received a copy of the GNU Lesser General Public License along with VIBot.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
 package net.visualillusionsent.vibot.api.plugin;
@@ -216,6 +216,11 @@ public abstract class BotPlugin {
         return build;
     }
 
+    /**
+     * Gets the Version with Build appended for the {@code BotPlugin}
+     * 
+     * @return version and build
+     */
     public final String getVersion() {
         return getVersioning().concat("b").concat(getBuild());
     }
@@ -335,14 +340,29 @@ public abstract class BotPlugin {
         return new PropertiesFile(String.format("plugins/%s/%s", getName(), filename));
     }
 
+    /**
+     * Checks if the {@code BotPlugin} supports the Version Checker
+     * 
+     * @return {@code true} if VersionChecker is supported; {@code false} otherwise
+     */
     public final boolean supportsversionChecker() {
         return vercheck != null;
     }
 
+    /**
+     * Gets wether the {@code BotPlugin} is the latest version or not.
+     * 
+     * @return {@code true} if latest version; {@code false} if not; {@code null} if an error occured while checking
+     */
     public final Boolean isLatestVersion() {
         return vercheck.isLatest();
     }
 
+    /**
+     * Gets the update availible message from the VersionChecker
+     * 
+     * @return updatemessage if VersionChecker is supported; {@code null} otherwise
+     */
     public final String getUpdateMessage() {
         if (vercheck != null) {
             return vercheck.getUpdateAvailibleMessage();
@@ -363,6 +383,13 @@ public abstract class BotPlugin {
         catch (Exception ex) {} //Not worried about errors here 
     }
 
+    /**
+     * Runs the Updater on the {@code BotPlugin} if supported
+     * 
+     * @return {@code true} if successfully update; {@code false} otherwise or unsupported
+     * @throws UpdateException
+     *             If something goes wrong durring the update.
+     */
     public final boolean runUpdate() throws UpdateException {
         if (update != null) {
             if (update.performUpdate()) {

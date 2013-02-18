@@ -1,5 +1,5 @@
 /* 
- * Copyright 2012 Visual Illusions Entertainment.
+ * Copyright 2012 - 2013 Visual Illusions Entertainment.
  *  
  * This file is part of VIBot.
  *
@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * You should have received a copy of the GNU Lesser General Public License along with VIBot.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  */
 package net.visualillusionsent.vibot.commands;

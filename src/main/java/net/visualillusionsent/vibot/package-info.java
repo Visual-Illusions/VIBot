@@ -6,7 +6,7 @@ and contains a Plugin API for adding on to the Bot or to be used as just a stand
 Classes and source code contained within VIBot are licensed under the GNU Lesser General Public License unless otherwise noted as being PircBot source code derivative,
 in which the licenses of PircBot are then applied.
 <p>
-&copy; 2012 Visual Illusions Entertainment.
+&copy; 2012 - 2013 Visual Illusions Entertainment.
 <p>
 VIBot is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -17,7 +17,7 @@ VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANT
 without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU Lesser General Public License for more details.
 <p>
-You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+You should have received a copy of the GNU Lesser General Public License along with VIBot.
 If not, see <a href="http://www.gnu.org/licenses/lgpl.html">http://www.gnu.org/licenses/lgpl.html</a>
 <p>
 Plugins designed for VIBot are hearby released of any licenses imposed on the VIBot sources and are the property of the Plugin Author to license as they wish.<br>

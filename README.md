@@ -27,7 +27,7 @@ VIBot is distributed in the hope that it will be useful, but WITHOUT ANY WARRANT
 without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+You should have received a copy of the GNU Lesser General Public License along with VIBot.
 If not, see [http://www.gnu.org/licenses/lgpl.html](http://www.gnu.org/licenses/lgpl.html "lgplv3")
 
 Plugins designed for VIBot are hearby released of any licenses imposed on the VIBot sources and are the property of the Plugin Author to license as they wish.

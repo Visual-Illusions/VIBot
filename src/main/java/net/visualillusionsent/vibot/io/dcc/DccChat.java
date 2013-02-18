@@ -1,5 +1,5 @@
 /* 
- * Copyright 2012 Visual Illusions Entertainment.
+ * Copyright 2012 - 2013 Visual Illusions Entertainment.
  *  
  * This file is part of VIBot.
  *
@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License along with VIUtils.
+ * You should have received a copy of the GNU Lesser General Public License along with VIBot.
  * If not, see http://www.gnu.org/licenses/lgpl.html
  *
  * Parts of this file are derived from PircBot
@@ -45,10 +45,10 @@ import net.visualillusionsent.vibot.io.irc.User;
  * PircBot is Copyrighted: Paul James Mutton, 2001-2009, http://www.jibble.org/<br>
  * and dual Licensed under the GNU General Public License/www.jibble.org Commercial License
  * 
- * @since VIBot 1.0
+ * @since 1.0
+ * @version 1.0
  * @author Jason Jones (darkdiplomat)
  * @author Paul James Mutton (PircBot)
- * @version 1.0
  */
 public class DccChat {
     private User user;
