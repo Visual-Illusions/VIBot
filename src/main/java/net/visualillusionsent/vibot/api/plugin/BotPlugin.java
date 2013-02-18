@@ -25,7 +25,10 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import net.visualillusionsent.utils.PropertiesFile;
+import net.visualillusionsent.utils.UpdateException;
+import net.visualillusionsent.utils.Updater;
 import net.visualillusionsent.utils.UtilityException;
+import net.visualillusionsent.utils.VersionChecker;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.events.BaseEvent;
@@ -70,9 +73,34 @@ public abstract class BotPlugin {
     private PropertiesFile plugin_props;
 
     /**
-     * The version of the {@code BotPlugin}, either auto-generated or set
+     * Creates a VersionChecker instance for the {@code BotPlugin}, if the {@code BotPlugin} supports version checking.
+     */
+    private VersionChecker vercheck;
+
+    /**
+     * Creates a Updater intance for the {@code BotPlugin}, it the {@code BotPlugin} supports updating.
+     */
+    private Updater update;
+
+    /**
+     * The version of the {@code BotPlugin}, either auto-generated from the Manifest key: Version or set programmically
      */
     protected String version;
+
+    /**
+     * The build of the {@code BotPlugin}, either auto-generated from the Manifest key: Build or set programmically
+     */
+    protected String build;
+
+    /**
+     * The beta status of the {@code BotPlugin}, either auto-generated from the Manifest key: isBeta or set programmically
+     */
+    protected boolean beta;
+
+    /**
+     * The release canidate status of the {@code BotPlugin}, either auto-generated from the Manifest key: isRC or set programmically
+     */
+    protected boolean rc;
 
     /**
      * The name of the {@code BotPlugin}
@@ -85,7 +113,9 @@ public abstract class BotPlugin {
     public BotPlugin() {
         getName();
         getJarName();
-        generateVersion();
+        readManifestInfo();
+        createVersionChecker();
+        createUpdater();
     }
 
     public BotPlugin(Object WAT) {
@@ -167,11 +197,27 @@ public abstract class BotPlugin {
      * 
      * @return version
      */
-    public final String getVersion() {
+    public final String getVersioning() {
         if (version == null) {
             version = "UNDEFINED";
         }
         return version;
+    }
+
+    /**
+     * Gets the build of this {@code BotPlugin}
+     * 
+     * @return build
+     */
+    public final String getBuild() {
+        if (build == null) {
+            build = "UNDEFINED";
+        }
+        return build;
+    }
+
+    public final String getVersion() {
+        return getVersioning().concat("b").concat(getBuild());
     }
 
     /**
@@ -233,20 +279,17 @@ public abstract class BotPlugin {
      * If the manifest does not contain those values it defaults to "UNDEFINED"<br>
      * Format wise it will be displayed as #.#b#
      */
-    protected final void generateVersion() {
-        String build = null;
-        version = null;
+    protected final void readManifestInfo() {
         try {
             Manifest manifest = getPluginManifest();
             Attributes mainAttribs = manifest.getMainAttributes();
             version = mainAttribs.getValue("Version");
             build = mainAttribs.getValue("Build");
+            beta = Boolean.valueOf(mainAttribs.getValue("isBeta"));
+            rc = Boolean.valueOf(mainAttribs.getValue("isRC"));
         }
         catch (Exception e) {
             BotLogMan.warning(e.getMessage());
-        }
-        if (version != null && build != null) {
-            version = version.concat("b").concat(build);
         }
     }
 
@@ -292,6 +335,56 @@ public abstract class BotPlugin {
         return new PropertiesFile(String.format("plugins/%s/%s", getName(), filename));
     }
 
+    public final boolean supportsversionChecker() {
+        return vercheck != null;
+    }
+
+    public final Boolean isLatestVersion() {
+        return vercheck.isLatest();
+    }
+
+    public final String getUpdateMessage() {
+        if (vercheck != null) {
+            return vercheck.getUpdateAvailibleMessage();
+        }
+        return null; //Version Checker not supported
+    }
+
+    private final void createVersionChecker() {
+        try {
+            Manifest mf = getPluginManifest();
+            Attributes attr = mf.getMainAttributes();
+            String url = attr.getValue("Version-Check-URL");
+
+            if (url != null && !this.version.equals("UNDEFINED")) {
+                vercheck = new VersionChecker(this.getName(), this.getVersioning(), this.getBuild(), url, beta, rc);
+            }
+        }
+        catch (Exception ex) {} //Not worried about errors here 
+    }
+
+    public final boolean runUpdate() throws UpdateException {
+        if (update != null) {
+            if (update.performUpdate()) {
+                return BotPluginLoader.reloadBotPlugin(this.getName());
+            }
+        }
+        return false;
+    }
+
+    private final void createUpdater() {
+        try {
+            Manifest mf = getPluginManifest();
+            Attributes attr = mf.getMainAttributes();
+            String url = attr.getValue("Update-URL");
+
+            if (url != null && !this.version.equals("UNDEFINED")) {
+                update = new Updater(url, String.format("plugins/%s", this.getJarName()), this.getName());
+            }
+        }
+        catch (Exception ex) {} //Not worried about errors here 
+    }
+
     /**
      * Sets the {@link URLClassLoader} for the {@code BotPlugin} which is used later to close out the {@code BotPlugin} jar file
      * 
@@ -331,11 +424,14 @@ public abstract class BotPlugin {
         if (!(obj instanceof BotPlugin)) {
             return false;
         }
+        if (obj == this) {
+            return true;
+        }
         BotPlugin toCheck = (BotPlugin) obj;
         if (!toCheck.getName().equals(getName())) {
             return false;
         }
-        if (!toCheck.getVersion().equals(version)) {
+        if (!toCheck.getVersioning().equals(version)) {
             return false;
         }
         if (!toCheck.loader.equals(loader)) {

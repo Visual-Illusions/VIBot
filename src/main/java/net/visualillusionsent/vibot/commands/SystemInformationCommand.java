@@ -41,24 +41,27 @@ import net.visualillusionsent.vibot.io.irc.User;
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "info", usage = "!info", desc = "Gives System Information about this VIBot")
-public final class InformationCommand extends BaseCommand {
+@BotCommand(main = "sysinfo", usage = "!sysinfo", desc = "Gives System Information about this VIBot")
+public final class SystemInformationCommand extends BaseCommand {
 
     /**
      * Constructs a new {@code InformationCommand}
      */
-    public InformationCommand(BotPlugin fake) {
+    public SystemInformationCommand(BotPlugin fake) {
         super(fake);
     }
 
     @Override
-    public boolean execute(Channel channel, User user, String[] args) {
+    public final boolean execute(Channel channel, User user, String[] args) {
         Runtime.getRuntime().gc();
         if (SystemUtils.isWindows()) {
             windowsInfo(channel, user);
         }
-        else {
+        else if (SystemUtils.isUnix()) {
             unixInfo(channel, user);
+        }
+        else {
+            message(channel, user, "Unable to determin System Information...");
         }
         return true;
     }
@@ -78,12 +81,12 @@ public final class InformationCommand extends BaseCommand {
         float maxMemory = (float) Runtime.getRuntime().maxMemory();
         String ramMax = "Max Allowed: " + (maxMemory == Float.MAX_VALUE ? "no limit" : String.valueOf((float) maxMemory / 1024.0F / 1024.0F) + "Mb");
 
-        message(channel, user, "OS NAME: " + System.getProperty("os.name"));
-        message(channel, user, "OS VERSION: " + System.getProperty("os.version"));
-        message(channel, user, "OS ARCH: " + System.getProperty("os.arch"));
-        message(channel, user, "CPU: " + cpu);
-        message(channel, user, "Architecture: " + (bits != null ? bits : "x86"));
-        message(channel, user, "Cores: " + (cores != null ? cores : "1"));
+        message(channel, user, "OS Name: " + System.getProperty("os.name"));
+        message(channel, user, "OS Version: " + System.getProperty("os.version"));
+        message(channel, user, "OS Architecture: " + System.getProperty("os.arch"));
+        message(channel, user, "CPU Model: " + cpu);
+        message(channel, user, "Architecture: " + (bits != null ? bits : "unknown"));
+        message(channel, user, "Cores: " + (cores != null ? cores : "unknown"));
         message(channel, user, "RAM: " + ramFree + " " + ramTotal + " " + ramMax);
     }
 
@@ -94,9 +97,9 @@ public final class InformationCommand extends BaseCommand {
      *            the {@link Channel} to send info to
      */
     private final void unixInfo(Channel channel, User user) {
-        channel.sendMessage("OS NAME: " + System.getProperty("os.name"));
-        channel.sendMessage("OS VERSION: " + System.getProperty("os.version"));
-        channel.sendMessage("OS ARCH: " + System.getProperty("os.arch"));
+        int cores = 0;
+        String vID = "";
+        String cpuModel = "";
         try {
             String command = ("cat /proc/cpuinfo");
             Process process = Runtime.getRuntime().exec(command);
@@ -104,8 +107,14 @@ public final class InformationCommand extends BaseCommand {
             String line;
             while ((line = in.readLine()) != null) {
                 String[] pre = line.split(":");
-                if (pre[0].trim().matches("processor|cpu|clock|platform|Memory")) {
-                    message(channel, user, pre[0].trim().toUpperCase() + ": " + pre[1].trim());
+                if (pre[0].trim().startsWith("processor")) {
+                    cores++;
+                }
+                else if (pre[0].trim().startsWith("vendor_id") && vID.isEmpty()) {
+                    vID = pre[1].trim();
+                }
+                else if (pre[0].trim().startsWith("model name") && cpuModel.isEmpty()) {
+                    cpuModel = pre[1].trim();
                 }
             }
             in.close();
@@ -113,6 +122,18 @@ public final class InformationCommand extends BaseCommand {
         catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        String ramFree = "Free: " + String.format("%.2f Mb", ((Runtime.getRuntime().freeMemory() / 1024.0F) / 1024.0F));
+        String ramTotal = "Total Allocated: " + String.format("%.2f Mb", ((Runtime.getRuntime().totalMemory() / 1024.0F) / 1024.0F));
+        float maxMemory = (float) Runtime.getRuntime().maxMemory();
+        String ramMax = "Max Allowed: " + (maxMemory == Float.MAX_VALUE ? "no limit" : String.format("%.2f Mb", (float) maxMemory / 1024.0F / 1024.0F));
+
+        message(channel, user, "OS Name: " + System.getProperty("os.name"));
+        message(channel, user, "OS Version: " + System.getProperty("os.version"));
+        message(channel, user, "OS Architecture: " + System.getProperty("os.arch"));
+        message(channel, user, "CPU Cores: " + cores);
+        message(channel, user, "Vendor ID: " + (vID.isEmpty() ? "unknown" : vID));
+        message(channel, user, "CPU Model: " + (cpuModel.isEmpty() ? "unknown" : cpuModel));
+        message(channel, user, "JVM RAM Allocations: " + ramFree + " " + ramTotal + " " + ramMax);
     }
 
     private final void message(Channel channel, User user, String message) {

@@ -31,7 +31,6 @@ import net.visualillusionsent.vibot.commands.EnablePluginCommand;
 import net.visualillusionsent.vibot.commands.HelpCommand;
 import net.visualillusionsent.vibot.commands.IdentifyCommand;
 import net.visualillusionsent.vibot.commands.IgnoreUserCommand;
-import net.visualillusionsent.vibot.commands.InformationCommand;
 import net.visualillusionsent.vibot.commands.InviteCommand;
 import net.visualillusionsent.vibot.commands.JoinChannelCommand;
 import net.visualillusionsent.vibot.commands.ListIgnoresCommand;
@@ -42,9 +41,12 @@ import net.visualillusionsent.vibot.commands.PartChannelCommand;
 import net.visualillusionsent.vibot.commands.PingCommand;
 import net.visualillusionsent.vibot.commands.ReloadPluginCommand;
 import net.visualillusionsent.vibot.commands.ShutTheFuckUpCommand;
+import net.visualillusionsent.vibot.commands.SystemInformationCommand;
 import net.visualillusionsent.vibot.commands.TimeCommand;
 import net.visualillusionsent.vibot.commands.TopicCommand;
 import net.visualillusionsent.vibot.commands.UnignoreUserCommand;
+import net.visualillusionsent.vibot.commands.UpdatePluginCommand;
+import net.visualillusionsent.vibot.commands.VersionCheckCommand;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.irc.Channel;
 import net.visualillusionsent.vibot.io.irc.User;
@@ -104,7 +106,7 @@ public final class CommandParser {
             new HelpCommand(VIBot.FAKE_PLUGIN);
             new IdentifyCommand(VIBot.FAKE_PLUGIN);
             new IgnoreUserCommand(VIBot.FAKE_PLUGIN);
-            new InformationCommand(VIBot.FAKE_PLUGIN);
+            new SystemInformationCommand(VIBot.FAKE_PLUGIN);
             new InviteCommand(VIBot.FAKE_PLUGIN);
             new JoinChannelCommand(VIBot.FAKE_PLUGIN);
             new ListIgnoresCommand(VIBot.FAKE_PLUGIN);
@@ -118,6 +120,8 @@ public final class CommandParser {
             new TimeCommand(VIBot.FAKE_PLUGIN);
             new TopicCommand(VIBot.FAKE_PLUGIN);
             new UnignoreUserCommand(VIBot.FAKE_PLUGIN);
+            new UpdatePluginCommand(VIBot.FAKE_PLUGIN);
+            new VersionCheckCommand(VIBot.FAKE_PLUGIN);
         }
         return instance;
     }

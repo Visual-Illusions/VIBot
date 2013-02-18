@@ -67,7 +67,7 @@ public final class VIBot {
     private final String finger = "Do you get off on fingering bots?!";
 
     /**
-     * Real Name of the {@code VIBot} as represented by: VIBot v{Major}.{Minor}.{Mirco} Java IRC Bot
+     * Real Name of the {@code VIBot} as represented by: VIBot v{Major}.{Minor}.{Build} Java IRC Bot
      */
     private final String real_name;
 

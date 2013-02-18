@@ -11,7 +11,7 @@ import net.visualillusionsent.vibot.io.irc.User;
 
 @BotCommand(main = "time", usage = "!time [TimeZone]", desc = "Shows the current time", maxParam = 2)
 public final class TimeCommand extends BaseCommand {
-    private final String print = "The current time in Area: '%s' is %s";
+    private final String print = "The current time in TimeZone: '%s' is %s";
 
     public TimeCommand(BotPlugin fake) {
         super(fake);
@@ -31,10 +31,10 @@ public final class TimeCommand extends BaseCommand {
         }
         else {
             if (channel != null) {
-                channel.sendMessage(String.format(print, TimeZone.getDefault().getID(), DateUtils.longToTimeDate(current)));
+                channel.sendMessage("The current time where I am is : " + DateUtils.longToTimeDate(current));
             }
             else {
-                user.sendMessage(String.format(print, TimeZone.getDefault().getID(), DateUtils.longToTimeDate(current)));
+                user.sendMessage("The current time where I am is : " + DateUtils.longToTimeDate(current));
             }
         }
         return true;
