@@ -30,7 +30,7 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Part Channel Command<br>
  * Tells the {@link VIBot} to leave a {@link Channel}<br>
  * <b>Usage:</b> !part [channel] [reason]<br>
- * <b>Minimum Params:</b> 1<br>
+ * <b>Minimum Params:</b> 0<br>
  * <b>Maximum Params:</b> &infin;<br>
  * <b>Requires:</b> Owner<br>
  * 
@@ -51,26 +51,26 @@ public final class PartChannelCommand extends BaseCommand {
     @Override
     public final boolean execute(Channel channel, User user, String[] args) {
         String reason = "disconnect.leaving";
-        if (args.length > 2) {
-            if (!args[1].startsWith("#")) {
+        if (args.length > 1) {
+            if (!args[0].startsWith("#")) {
                 try {
-                    reason = StringUtils.joinString(args, " ", 1);
+                    reason = StringUtils.joinString(args, " ", 0);
                 }
                 catch (UtilityException e) {}
                 VIBot.partChannel(channel.getName(), reason);
             }
             else {
                 try {
-                    reason = StringUtils.joinString(args, " ", 2);
+                    reason = StringUtils.joinString(args, " ", 1);
                 }
                 catch (UtilityException e) {}
 
                 VIBot.partChannel(args[1], reason);
             }
         }
-        else if (args.length > 1) {
-            if (args[1].startsWith("#")) {
-                VIBot.partChannel(args[1], reason);
+        else if (args.length > 0) {
+            if (args[0].startsWith("#")) {
+                VIBot.partChannel(args[0], reason);
             }
             else {
                 VIBot.partChannel(channel.getName(), reason);

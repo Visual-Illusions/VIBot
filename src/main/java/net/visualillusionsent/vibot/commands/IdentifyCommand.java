@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Identify Command<br>
  * Tells the {@link VIBot} to identify with NickServ<br>
  * <b>Usage:</b> !identify<br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> &infin;<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 0<br>
  * <b>Requires:</b> Owner<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "identify", usage = "!identify", desc = "Tells the bot to identify with NickServ", owner = true)
+@BotCommand(main = "identify", usage = "!identify", desc = "Tells the bot to identify with NickServ", maxParam = 0, owner = true)
 public final class IdentifyCommand extends BaseCommand {
 
     /**

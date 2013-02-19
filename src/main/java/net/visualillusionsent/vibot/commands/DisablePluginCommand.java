@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Disable Plugin Command<br>
  * Disables a {@link BotPlugin}<br>
  * <b>Usage:</b> !disableplugin {@literal <plugin>}<br>
- * <b>Minimum Params:</b> 2<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> BotOwner<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "disableplugin", desc = "Disables a plugin", usage = "!disableplugin <plugin>", minParam = 2, maxParam = 2, owner = true)
+@BotCommand(main = "disableplugin", desc = "Disables a plugin", usage = "!disableplugin <plugin>", minParam = 1, maxParam = 1, owner = true)
 public final class DisablePluginCommand extends BaseCommand {
 
     /**
@@ -48,8 +48,8 @@ public final class DisablePluginCommand extends BaseCommand {
 
     @Override
     public final boolean execute(Channel channel, User user, String[] args) {
-        if (BotPluginLoader.disableBotPlugin(args[1])) {
-            String pluginName = BotPluginLoader.getBotPlugin(args[1]).toString();
+        if (BotPluginLoader.disableBotPlugin(args[0])) {
+            String pluginName = BotPluginLoader.getBotPlugin(args[0]).toString();
             if (channel != null) {
                 channel.sendMessage(pluginName.concat(" disabled!"));
             }

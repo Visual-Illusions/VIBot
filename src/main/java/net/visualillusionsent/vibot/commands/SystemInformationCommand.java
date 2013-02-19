@@ -33,15 +33,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Information Command<br>
  * Gives system information about the {@link VIBot}<br>
  * <b>Usage:</b> !info<br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> &infin;<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 0<br>
  * <b>Requires:</b> n/a<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "sysinfo", usage = "!sysinfo", desc = "Gives System Information about this VIBot")
+@BotCommand(main = "sysinfo", usage = "!sysinfo", maxParam = 0, desc = "Gives System Information about this VIBot")
 public final class SystemInformationCommand extends BaseCommand {
 
     /**

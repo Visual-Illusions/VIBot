@@ -30,7 +30,7 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Disconnect Command<br>
  * Disconnects the {@link VIBot} from the IRC Server and shuts down<br>
  * <b>Usage:</b> !disconnect [message]<br>
- * <b>Minimum Params:</b> 1<br>
+ * <b>Minimum Params:</b> 0<br>
  * <b>Maximum Params:</b> &infin;<br>
  * <b>Requires:</b> BotOwner<br>
  * 
@@ -50,9 +50,9 @@ public final class DisconnectCommand extends BaseCommand {
 
     @Override
     public final boolean execute(Channel channel, User user, String[] args) {
-        if (args.length > 1) {
+        if (args.length > 0) {
             try {
-                VIBot.terminate(StringUtils.joinString(args, " ", 1), 0);
+                VIBot.terminate(StringUtils.joinString(args, " ", 0), 0);
             }
             catch (UtilityException e) {
                 VIBot.terminate(null, 0);

@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Topic Command<br>
  * Displays the {@link Topic} for a {@link Channel}<br>
  * <b>Usage:</b> !topic [user]<br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> Op Channel<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "topic", usage = "!topic [user]", desc = "Shows the channel's topic", maxParam = 2, chanOnly = true)
+@BotCommand(main = "topic", usage = "!topic [user]", desc = "Shows the channel's topic", maxParam = 1, chanOnly = true)
 public final class TopicCommand extends BaseCommand {
 
     public TopicCommand(BotPlugin fake) {
@@ -45,8 +45,8 @@ public final class TopicCommand extends BaseCommand {
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        if (args.length > 1 && user.hasVoice()) {
-            User theUser = channel.getUser(args[1]);
+        if (args.length > 0 && user.hasVoice()) {
+            User theUser = channel.getUser(args[0]);
             if (theUser != null) {
                 if (channel.getTopic() != null) {
                     Topic topic = channel.getTopic();

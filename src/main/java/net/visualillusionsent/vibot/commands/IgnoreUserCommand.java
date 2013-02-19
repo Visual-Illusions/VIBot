@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Ignore User Command<br>
  * Tells the {@link VIBot} to ignore a {@link User} in a specified {@link Channel}<br>
  * <b>Usage:</b> !ignore {@literal <user>}<br>
- * <b>Minimum Params:</b> 2<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> Op Channel<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "ignore", usage = "!ignore <user>", desc = "Ignores a user", minParam = 2, maxParam = 2, op = true, chanOnly = true)
+@BotCommand(main = "ignore", usage = "!ignore <user>", desc = "Ignores a user", minParam = 1, maxParam = 1, op = true, chanOnly = true)
 public final class IgnoreUserCommand extends BaseCommand {
 
     /**
@@ -48,13 +48,13 @@ public final class IgnoreUserCommand extends BaseCommand {
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        User ignore = channel.getUser(args[1]);
+        User ignore = channel.getUser(args[0]);
         if (!channel.isUserIgnored(ignore)) {
             channel.ignoreUser(ignore);
-            channel.sendMessage("Now ignoring " + args[1]);
+            channel.sendMessage("Now ignoring " + args[0]);
         }
         else {
-            channel.sendMessage("I was already ignoring " + args[1]);
+            channel.sendMessage("I was already ignoring " + args[0]);
         }
         return true;
     }

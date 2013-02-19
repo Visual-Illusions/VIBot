@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
@@ -193,8 +194,11 @@ public final class CommandParser {
                         user.sendNotice("Command can only be used from the Console!");
                         return false;
                     }
-
-                    return cmd.parseCommand(channel, user, args);
+                    String[] newArgs = new String[0];
+                    if (args.length >= 2) {
+                        newArgs = StringUtils.joinString(args, " ", 1).split(" ");
+                    }
+                    return cmd.parseCommand(channel, user, newArgs);
                 }
                 catch (Exception e) {
                     throw new VIBotException("Exception occured while parsing Command: ".concat(args[0]), e);

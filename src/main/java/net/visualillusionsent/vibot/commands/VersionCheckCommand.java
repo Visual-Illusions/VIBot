@@ -29,15 +29,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Version Command<br>
  * Tells the current version of the {@link VIBot} or specified {@link BotPlugin}, if the plugin supports VersionChecker it will also display if there is an update avalible<br>
  * <b>Usage:</b> !version [plugin] <br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> op<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "version", usage = "!version [pluginname]", desc = "Checks the version of the VIBot or specified plugin", maxParam = 2, op = true)
+@BotCommand(main = "version", usage = "!version [pluginname]", desc = "Checks the version of the VIBot or specified plugin", maxParam = 1, op = true)
 public final class VersionCheckCommand extends BaseCommand {
 
     public VersionCheckCommand(BotPlugin fake) {
@@ -46,8 +46,8 @@ public final class VersionCheckCommand extends BaseCommand {
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        if (args.length > 1) {
-            BotPlugin plugin = BotPluginLoader.getBotPlugin(args[1]);
+        if (args.length > 0) {
+            BotPlugin plugin = BotPluginLoader.getBotPlugin(args[0]);
             String message = "Plugin not found!";
             if (plugin != null) {
                 if (!plugin.supportsversionChecker()) {

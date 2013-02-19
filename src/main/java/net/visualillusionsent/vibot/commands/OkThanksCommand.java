@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Ok Thanks Command<br>
  * Un-Quites the {@link VIBot} in a specified {@link Channel}<br>
  * <b>Usage:</b> !kthx<br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> &infin;<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 0<br>
  * <b>Requires:</b> Op Channel<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "kthx", usage = "!kthx", desc = "Un-Quites the Bot", op = true, chanOnly = true)
+@BotCommand(main = "kthx", usage = "!kthx", desc = "Un-Quites the Bot", maxParam = 0, op = true, chanOnly = true)
 public final class OkThanksCommand extends BaseCommand {
 
     /**

@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Help Command<br>
  * Displays a list of commands and their usage<br>
  * <b>Usage:</b> !help<br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> &infin;<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 0<br>
  * <b>Requires:</b> n/a<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "help", usage = "!help", desc = "Displays a list of commands and their usage")
+@BotCommand(main = "help", usage = "!help", maxParam = 0, desc = "Displays a list of commands and their usage")
 public final class HelpCommand extends BaseCommand {
 
     /**

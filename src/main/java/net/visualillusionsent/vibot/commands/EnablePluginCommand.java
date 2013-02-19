@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Enable Plugin Command<br>
  * Enables a {@link BotPlugin}<br>
  * <b>Usage:</b> !enableplugin {@literal <plugin>}<br>
- * <b>Minimum Params:</b> 2<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> Owner<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "enableplugin", usage = "!enableplugin <plugin>", desc = "Enables a plugin", minParam = 2, maxParam = 2, owner = true)
+@BotCommand(main = "enableplugin", usage = "!enableplugin <plugin>", desc = "Enables a plugin", minParam = 1, maxParam = 1, owner = true)
 public final class EnablePluginCommand extends BaseCommand {
 
     /**
@@ -49,8 +49,8 @@ public final class EnablePluginCommand extends BaseCommand {
     @Override
     public final boolean execute(Channel channel, User user, String[] args) {
         String message;
-        if (BotPluginLoader.enableBotPlugin(args[1])) {
-            message = BotPluginLoader.getBotPlugin(args[1]).toString().concat(" enabled successfully!");
+        if (BotPluginLoader.enableBotPlugin(args[0])) {
+            message = BotPluginLoader.getBotPlugin(args[0]).toString().concat(" enabled successfully!");
         }
         else {
             message = "An exception occured while enabling plugin...";

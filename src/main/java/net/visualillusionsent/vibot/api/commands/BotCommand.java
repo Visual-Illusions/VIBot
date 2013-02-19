@@ -66,7 +66,7 @@ public @interface BotCommand {
     /**
      * The minimum number of required parameters
      */
-    int minParam() default 1;
+    int minParam() default 0;
 
     /**
      * The maximum number of required parameteres

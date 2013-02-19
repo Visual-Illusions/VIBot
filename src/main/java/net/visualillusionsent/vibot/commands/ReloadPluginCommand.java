@@ -28,8 +28,8 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Reload Plugin Command<br>
  * Reloads a {@link BotPlugin}<br>
  * <b>Usage:</b> !reloadplugin {@literal <plugin>}<br>
- * <b>Minimum Params:</b> 2<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> Owner<br>
  * 
  * @since 1.0
@@ -49,8 +49,8 @@ public final class ReloadPluginCommand extends BaseCommand {
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
         String message;
-        if (BotPluginLoader.reloadBotPlugin(args[1])) {
-            message = BotPluginLoader.getBotPlugin(args[1]).toString().concat(" reloaded successfully!");
+        if (BotPluginLoader.reloadBotPlugin(args[0])) {
+            message = BotPluginLoader.getBotPlugin(args[0]).toString().concat(" reloaded successfully!");
         }
         else {
             message = "An exception occured while reloading the plugin...";

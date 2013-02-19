@@ -29,15 +29,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * List Ignores Command<br>
  * Gets the list of {@link User}s being ignored in a {@link Channel}<br>
  * <b>Usage:</b> !listignore<br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> &infin;<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 0<br>
  * <b>Requires:</b> Op Channel<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "listignore", usage = "!listignore", desc = "List of users being ignored in the channel", op = true, chanOnly = true)
+@BotCommand(main = "listignore", usage = "!listignore", desc = "List of users being ignored in the channel", maxParam = 0, op = true, chanOnly = true)
 public final class ListIgnoresCommand extends BaseCommand {
 
     /**

@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Unignore User Command<br>
  * Tells the {@link VIBot} to stop ignoring a {@link User} in a specified {@link Channel}<br>
  * <b>Usage:</b> !unignore {@literal <user>}<br>
- * <b>Minimum Params:</b> 2<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> Op Channel<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "unignore", usage = "!unignore <user>", desc = "Stops ignoring a user", minParam = 2, maxParam = 2, op = true, chanOnly = true)
+@BotCommand(main = "unignore", usage = "!unignore <user>", desc = "Stops ignoring a user", minParam = 1, maxParam = 1, op = true, chanOnly = true)
 public final class UnignoreUserCommand extends BaseCommand {
 
     /**
@@ -48,13 +48,13 @@ public final class UnignoreUserCommand extends BaseCommand {
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        User ignore = channel.getUser(args[1]);
+        User ignore = channel.getUser(args[0]);
         if (channel.isUserIgnored(ignore)) {
             channel.unIgnoreUser(ignore);
-            channel.sendMessage("No longer ignoring User: ".concat(args[1]));
+            channel.sendMessage("No longer ignoring User: ".concat(args[0]));
         }
         else {
-            channel.sendMessage("I wasn't ignoring " + args[1]);
+            channel.sendMessage("I wasn't ignoring " + args[0]);
         }
         return true;
     }

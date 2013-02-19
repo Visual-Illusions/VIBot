@@ -9,7 +9,7 @@ in which the licenses of PircBot are then applied.
 
 ## Compiling ##
 Add a new project from existing sources in whatever IDE you use. 
-Add VIUtils.jar as a library.
+Add [viutils-1.0.0.jar](http://dl.visualillusionsent.net/?download=viutils.1.0.0.jar) as a library.
 
 ## JavaDocs ##
 Offical JavaDocs can be found @ http://docs.visualillusionsent.net/VIBot/

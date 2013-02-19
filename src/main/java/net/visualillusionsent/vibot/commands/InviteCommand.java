@@ -28,15 +28,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Invite Command<br>
  * Invites a user into the channel<br>
  * <b>Usage:</b> !invite {@literal <user>}<br>
- * <b>Minimum Params:</b> 2<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> Op Channel<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "invite", usage = "!invite <user>", desc = "Invites a user into the channel", minParam = 2, maxParam = 2, op = true, chanOnly = true)
+@BotCommand(main = "invite", usage = "!invite <user>", desc = "Invites a user into the channel", minParam = 1, maxParam = 1, op = true, chanOnly = true)
 public final class InviteCommand extends BaseCommand {
 
     /**
@@ -52,7 +52,7 @@ public final class InviteCommand extends BaseCommand {
             user.sendNotice("VIBot needs to be Op in the channel for this command");
             return false;
         }
-        VIBot.inviteUser(channel, args[1]);
+        VIBot.inviteUser(channel, args[0]);
         return true;
     }
 }

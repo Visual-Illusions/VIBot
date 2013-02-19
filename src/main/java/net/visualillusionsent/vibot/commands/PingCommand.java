@@ -29,15 +29,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Ping Command<br>
  * Sends a Pong<br>
  * <b>Usage:</b> !ping<br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> &infin;<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 0<br>
  * <b>Requires:</b> Owner<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "ping", usage = "!ping", desc = "Sends a Pong")
+@BotCommand(main = "ping", usage = "!ping", maxParam = 0, desc = "Sends a Pong")
 public final class PingCommand extends BaseCommand {
 
     public PingCommand(BotPlugin fake) {

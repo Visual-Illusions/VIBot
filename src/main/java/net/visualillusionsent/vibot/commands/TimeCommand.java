@@ -31,15 +31,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Time Command<br>
  * Gives the current time at the {@link VIBot} location, or time in the specified TimeZone<br>
  * <b>Usage:</b> !time [TimeZone]<br>
- * <b>Minimum Params:</b> 1<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 0<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> n/a<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "time", usage = "!time [TimeZone]", desc = "Shows the current time", maxParam = 2)
+@BotCommand(main = "time", usage = "!time [TimeZone]", desc = "Shows the current time", maxParam = 1)
 public final class TimeCommand extends BaseCommand {
     private final String print = "The current time in TimeZone: '%s' is %s";
 
@@ -51,7 +51,7 @@ public final class TimeCommand extends BaseCommand {
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
         long current = System.currentTimeMillis();
         if (args.length > 1) {
-            TimeZone zone = TimeZone.getTimeZone(args[1]);
+            TimeZone zone = TimeZone.getTimeZone(args[0]);
             if (channel != null) {
                 channel.sendMessage(String.format(print, zone.getID(), DateUtils.longToTimeDate(current, zone), ""));
             }

@@ -29,15 +29,15 @@ import net.visualillusionsent.vibot.io.irc.User;
  * Update Plugin Command<br>
  * Updates a specifed {@link BotPlugin} if the plugin supports Updater<br>
  * <b>Usage:</b> !updateplugin {@literal <plugin>}<br>
- * <b>Minimum Params:</b> 2<br>
- * <b>Maximum Params:</b> 2<br>
+ * <b>Minimum Params:</b> 1<br>
+ * <b>Maximum Params:</b> 1<br>
  * <b>Requires:</b> botowner<br>
  * 
  * @since 1.0
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "updateplugin", usage = "!updateplugiun <pluginname>", desc = "Attemps to update a Plugin, if the plugin supports VIUtils.Updater", minParam = 1, owner = true)
+@BotCommand(main = "updateplugin", usage = "!updateplugiun <pluginname>", desc = "Attemps to update a Plugin, if the plugin supports VIUtils.Updater", minParam = 1, maxParam = 1, owner = true)
 public final class UpdatePluginCommand extends BaseCommand {
 
     public UpdatePluginCommand(BotPlugin fake) {
@@ -46,7 +46,7 @@ public final class UpdatePluginCommand extends BaseCommand {
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        BotPlugin plugin = BotPluginLoader.getBotPlugin(args[1]);
+        BotPlugin plugin = BotPluginLoader.getBotPlugin(args[0]);
         if (plugin != null) {
             try {
                 if (plugin.runUpdate()) {
