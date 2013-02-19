@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.io.configuration.BotConfig;
+import net.visualillusionsent.vibot.io.irc.Colors;
 
 /**
  * The {@link VIBot} {@link Logger} Manager
@@ -73,7 +74,7 @@ public final class BotLogMan {
      *            the message to be logged
      */
     public static void consoleMessage(String msg) {
-        logger.log(BotLevel.CONSOLE_MESSAGE, msg);
+        logger.log(BotLevel.CONSOLE_MESSAGE, Colors.removeFormattingAndColors(msg));
     }
 
     /**

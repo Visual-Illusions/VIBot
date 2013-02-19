@@ -25,6 +25,7 @@ import net.visualillusionsent.utils.StringUtils;
 import net.visualillusionsent.vibot.api.commands.BaseCommand;
 import net.visualillusionsent.vibot.api.commands.BotCommand;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
+import net.visualillusionsent.vibot.commands.BanUserCommand;
 import net.visualillusionsent.vibot.commands.DisablePluginCommand;
 import net.visualillusionsent.vibot.commands.DisconnectCommand;
 import net.visualillusionsent.vibot.commands.EchoCommand;
@@ -34,6 +35,7 @@ import net.visualillusionsent.vibot.commands.IdentifyCommand;
 import net.visualillusionsent.vibot.commands.IgnoreUserCommand;
 import net.visualillusionsent.vibot.commands.InviteCommand;
 import net.visualillusionsent.vibot.commands.JoinChannelCommand;
+import net.visualillusionsent.vibot.commands.KickUserCommand;
 import net.visualillusionsent.vibot.commands.ListIgnoresCommand;
 import net.visualillusionsent.vibot.commands.ListPluginsCommand;
 import net.visualillusionsent.vibot.commands.NickChangeCommand;
@@ -100,6 +102,7 @@ public final class CommandParser {
     public static final CommandParser getInstance() {
         if (instance == null) {
             instance = new CommandParser();
+            new BanUserCommand(VIBot.FAKE_PLUGIN);
             new DisablePluginCommand(VIBot.FAKE_PLUGIN);
             new DisconnectCommand(VIBot.FAKE_PLUGIN);
             new EchoCommand(VIBot.FAKE_PLUGIN);
@@ -110,6 +113,7 @@ public final class CommandParser {
             new SystemInformationCommand(VIBot.FAKE_PLUGIN);
             new InviteCommand(VIBot.FAKE_PLUGIN);
             new JoinChannelCommand(VIBot.FAKE_PLUGIN);
+            new KickUserCommand(VIBot.FAKE_PLUGIN);
             new ListIgnoresCommand(VIBot.FAKE_PLUGIN);
             new ListPluginsCommand(VIBot.FAKE_PLUGIN);
             new NickChangeCommand(VIBot.FAKE_PLUGIN);
@@ -195,7 +199,7 @@ public final class CommandParser {
                         return false;
                     }
                     String[] newArgs = new String[0];
-                    if (args.length >= 2) {
+                    if (args.length > 1) {
                         newArgs = StringUtils.joinString(args, " ", 1).split(" ");
                     }
                     return cmd.parseCommand(channel, user, newArgs);

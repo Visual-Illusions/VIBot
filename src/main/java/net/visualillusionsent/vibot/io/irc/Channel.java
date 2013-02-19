@@ -34,7 +34,7 @@ import net.visualillusionsent.vibot.io.logging.BotLogMan;
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-public final class Channel {
+public final class Channel implements Cloneable {
 
     /**
      * The name of the Channel
@@ -118,38 +118,6 @@ public final class Channel {
         this.bans = new ArrayList<Ban>();
         this.botModes = new HashMap<String, Boolean>(allowedBotModes.size());
         botModes.putAll(allowedBotModes);
-    }
-
-    /**
-     * Private Constructor used in cloning
-     * 
-     * @param name
-     *            the name of the {@code Channel}
-     * @param irc_conn
-     *            the IRCConnection instance
-     * @param topic
-     *            the {@link Topic} for the {@code Channel}
-     * @param users
-     *            the {@link ArrayList} of {@link User}s
-     * @param ignored
-     *            the {@link ArrayList} of ignored {@link User}s
-     * @param modes
-     *            the {@link ArrayList} of {@link ChannelMode}s
-     * @param bans
-     *            the {@link ArrayList} of {@link User}s banned in the {@code Channel}
-     * @param botModes
-     *            the {@link HashMap} of {@link VIBot} modes
-     */
-    private Channel(String name, IRCConnection irc_conn, Topic topic, ArrayList<User> users, ArrayList<User> ignored, ArrayList<ChannelMode> modes, ArrayList<Ban> bans, HashMap<String, Boolean> botModes, boolean muted) {
-        this.name = name;
-        this.irc_conn = irc_conn;
-        this.topic = topic;
-        this.users = users;
-        this.ignored = ignored;
-        this.modes = modes;
-        this.bans = bans;
-        this.botModes = botModes;
-        this.muted = muted;
     }
 
     /**
@@ -382,6 +350,19 @@ public final class Channel {
         }
     }
 
+    public Ban[] getBansFor(String nick) {
+        ArrayList<Ban> nickbans = new ArrayList<Ban>();
+        for (Ban ban : bans) {
+            if (ban.getBanned().equals(nick)) {
+                nickbans.add(ban);
+            }
+        }
+        if (!nickbans.isEmpty()) {
+            return nickbans.toArray(new Ban[0]);
+        }
+        return null;
+    }
+
     /**
      * Set the mode of a channel. This method attempts to set the mode of a
      * channel. This may require the bot to have operator status on the channel.
@@ -407,6 +388,32 @@ public final class Channel {
      */
     public final void banUser(User user) {
         setMode("+b ".concat(user.getHostMask()));
+    }
+
+    /**
+     * Bans a user's nick from the channel.This may be used in conjunction with the kick
+     * method to permanently remove a user from a channel. Successful use of
+     * this method may require the bot to have operator status itself.
+     * 
+     * @param user
+     *            the {@link User} who's nick is to be ban from the channel
+     */
+    public final void banUserNick(User user) {
+        setMode("+b " + user.getNick() + "!*@*");
+    }
+
+    /**
+     * Bans a user's hostname from the channel.This may be used in conjunction with the kick
+     * method to permanently remove a user from a channel. Successful use of
+     * this method may require the bot to have operator status itself.
+     * 
+     * @param user
+     *            the {@link User} who's hostname is to be ban from the channel
+     */
+    public final void banUserHost(User user) {
+        if (user.getHostname() != null) {
+            setMode("+b *!*@".concat(user.getHostname()));
+        }
     }
 
     /**
@@ -552,9 +559,5 @@ public final class Channel {
         hash = 31 * hash + users.hashCode();
         hash = 31 * hash + ignored.hashCode();
         return hash;
-    }
-
-    public final Channel clone() {
-        return new Channel(name, irc_conn, topic, users, ignored, modes, bans, botModes, muted);
     }
 }
