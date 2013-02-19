@@ -36,7 +36,7 @@ import net.visualillusionsent.vibot.io.irc.User;
  * @version 1.0
  * @author Jason (darkdiplomat)
  */
-@BotCommand(main = "reloadplugin", usage = "!reloadplugin <plugin>", desc = "Reloads a plugin", owner = true)
+@BotCommand(main = "reloadplugin", usage = "!reloadplugin <plugin>", minParam = 1, maxParam = 1, desc = "Reloads a plugin", owner = true)
 public final class ReloadPluginCommand extends BaseCommand {
 
     /**
