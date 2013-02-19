@@ -54,20 +54,25 @@ public class BanUserCommand extends BaseCommand {
 
         User theUser = channel.getUser(args[0]);
         if (theUser != null) {
-            switch (args.length) {
-                case 2:
-                    if (args[1].toUpperCase().equals("HOST")) {
-                        channel.banUserHost(theUser);
-                    }
-                    else if (args[1].toUpperCase().equals("NICK")) {
-                        channel.banUserNick(theUser);
-                    }
-                    else {
+            if (!theUser.isBotOwner()) {
+                switch (args.length) {
+                    case 2:
+                        if (args[1].toUpperCase().equals("HOST")) {
+                            channel.banUserHost(theUser);
+                        }
+                        else if (args[1].toUpperCase().equals("NICK")) {
+                            channel.banUserNick(theUser);
+                        }
+                        else {
+                            channel.banUser(theUser);
+                        }
+                        break;
+                    default:
                         channel.banUser(theUser);
-                    }
-                    break;
-                default:
-                    channel.banUser(theUser);
+                }
+            }
+            else {
+                user.sendNotice("I cannot ban a owner of me...");
             }
         }
         else {

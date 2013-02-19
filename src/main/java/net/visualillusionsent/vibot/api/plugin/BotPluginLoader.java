@@ -169,6 +169,8 @@ public final class BotPluginLoader {
         if (toNull != null) {
             if (toNull.isEnabled()) {
                 toNull.disable();
+                EventManager.unregisterPluginHooks(toNull);
+                CommandParser.getInstance().removePluginCommands(toNull);
             }
         }
         synchronized (lock) {

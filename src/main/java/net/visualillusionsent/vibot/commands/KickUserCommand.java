@@ -55,11 +55,16 @@ public class KickUserCommand extends BaseCommand {
 
         User theUser = channel.getUser(args[0]);
         if (theUser != null) {
-            if (args.length > 1) {
-                channel.kick(theUser, StringUtils.joinString(args, " ", 1));
+            if (!theUser.isBotOwner()) {
+                if (args.length > 1) {
+                    channel.kick(theUser, StringUtils.joinString(args, " ", 1));
+                }
+                else {
+                    channel.kick(theUser);
+                }
             }
             else {
-                channel.kick(theUser);
+                user.sendNotice("I cannot kick an owner of me...");
             }
         }
         else {
