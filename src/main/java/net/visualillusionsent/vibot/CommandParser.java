@@ -48,7 +48,6 @@ import net.visualillusionsent.vibot.commands.SystemInformationCommand;
 import net.visualillusionsent.vibot.commands.TimeCommand;
 import net.visualillusionsent.vibot.commands.TopicCommand;
 import net.visualillusionsent.vibot.commands.UnignoreUserCommand;
-import net.visualillusionsent.vibot.commands.UpdatePluginCommand;
 import net.visualillusionsent.vibot.commands.VersionCheckCommand;
 import net.visualillusionsent.vibot.io.exception.VIBotException;
 import net.visualillusionsent.vibot.io.irc.Channel;
@@ -125,7 +124,6 @@ public final class CommandParser {
             new TimeCommand(VIBot.FAKE_PLUGIN);
             new TopicCommand(VIBot.FAKE_PLUGIN);
             new UnignoreUserCommand(VIBot.FAKE_PLUGIN);
-            new UpdatePluginCommand(VIBot.FAKE_PLUGIN);
             new VersionCheckCommand(VIBot.FAKE_PLUGIN);
         }
         return instance;

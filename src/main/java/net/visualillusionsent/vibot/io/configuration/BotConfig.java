@@ -18,11 +18,9 @@
 package net.visualillusionsent.vibot.io.configuration;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import net.visualillusionsent.utils.FileUtils;
 import net.visualillusionsent.utils.PropertiesFile;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.vibot.VIBot;
@@ -112,7 +110,13 @@ public final class BotConfig {
         cmd_Prefix = props.getCharacter("Command-Prefix");
         bot_owners = props.getStringArray("Bot-Owner-Nicks");
         plugins = props.getString("Plugins").split(",");
-        dcc_ports = props.getIntArray("dcc-ports");
+        try {
+            dcc_ports = props.getIntArray("dcc-ports");
+        }
+        catch (UtilityException ue) {
+            //Skiping the error on this one
+            dcc_ports = new int[] {};
+        }
         checkEncoding();
         BotLogMan.info("Properties Loaded...");
     }
@@ -123,36 +127,7 @@ public final class BotConfig {
      * @throws UtilityException
      */
     private void migrateProps() throws UtilityException {
-        InputStream in = null;
-        FileWriter out = null;
-        try {
-            File outputFile = new File("botprops.ini");
-            in = getClass().getClassLoader().getResourceAsStream("resources/defaultbotprops.ini");
-            out = new FileWriter(outputFile);
-            int c;
-            while ((c = in.read()) != -1) {
-                out.write(c);
-            }
-        }
-        catch (IOException e) {
-            BotLogMan.severe("Unable to create properties file!");
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                if (out != null) {
-                    out.close();
-                }
-            }
-            catch (IOException e2) {}
-        }
-        finally {
-            try {
-                in.close();
-                out.close();
-            }
-            catch (IOException ioe) {}
-        }
+        FileUtils.cloneFileFromJar(VIBot.getJarPath(), "resources/defaultbotprops.ini", "botprops.ini");
     }
 
     /**

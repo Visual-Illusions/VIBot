@@ -36,6 +36,8 @@ public final class User {
     public User(String prefix, String nick, String hostname, String login, IRCConnection irc_conn) {
         this.prefix = prefix;
         this.nick = nick;
+        this.hostname = hostname;
+        this.login = login;
         this.irc_conn = irc_conn;
     }
 
@@ -147,7 +149,7 @@ public final class User {
         if (irc_conn != null) {
             irc_conn.sendMessage(nick, message);
         }
-        else {
+        else if (this == BOT_CONSOLE) {
             BotLogMan.consoleMessage(message);
         }
     }
@@ -156,7 +158,7 @@ public final class User {
         if (irc_conn != null) {
             irc_conn.sendNotice(nick, message);
         }
-        else {
+        else if (this == BOT_CONSOLE) {
             BotLogMan.consoleMessage(message);
         }
     }

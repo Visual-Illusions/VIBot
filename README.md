@@ -8,8 +8,8 @@ Classes and source code contained within VIBot are licensed under the GNU Lesser
 in which the licenses of PircBot are then applied.
 
 ## Compiling ##
-Add a new project from existing sources in whatever IDE you use. 
-Add [viutils-1.0.0.jar](http://dl.visualillusionsent.net/?download=viutils.1.0.0.jar) as a library.
+Add a new project from existing sources in whatever IDE you use.
+Requires VIUtils.
 
 ## JavaDocs ##
 Offical JavaDocs can be found @ http://docs.visualillusionsent.net/VIBot/

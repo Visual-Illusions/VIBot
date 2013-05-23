@@ -32,12 +32,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.URISyntaxException;
+import java.security.CodeSource;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
+import net.visualillusionsent.utils.ProgramStatus;
 import net.visualillusionsent.utils.VersionChecker;
 import net.visualillusionsent.vibot.api.plugin.BotPlugin;
 import net.visualillusionsent.vibot.api.plugin.BotPluginLoader;
@@ -90,10 +93,12 @@ public final class VIBot {
 
     private static String build;
 
+    private static final ProgramStatus status = ProgramStatus.BETA;
+
     /**
      * {@code VIBot} running instance
      */
-    private static VIBot instance;
+    private static final VIBot instance;
 
     /**
      * {@link VersionChecker} instance
@@ -537,7 +542,9 @@ public final class VIBot {
     public final static synchronized void terminate(String quitMessage, int code) {
         BotLogMan.warning("VIBot shutting down...");
         shuttingdown = true;
-
+        BotLogMan.warning("Disabling all plugins...");
+        BotPluginLoader.disableAllBotPlugins(instance);
+        BotLogMan.warning("Killing bot...");
         if (instance != null) {
             if (isConnected()) {
                 if (quitMessage != null) {
@@ -552,15 +559,13 @@ public final class VIBot {
             }
             instance.dispose();
         }
-
-        BotPluginLoader.disableAllBotPlugins(instance);
-
+        BotLogMan.info("VIBot is now shutdown. Cleaning up logger...");
         for (Handler hand : Logger.getLogger("VIBot").getHandlers()) {
             if (hand != null) {
                 hand.close();
             }
         }
-        System.out.println("VIBot is now shutdown.");
+        System.out.println("Clean up complete, exiting...");
         System.exit(code);
     }
 
@@ -572,7 +577,6 @@ public final class VIBot {
             irc_conn.dispose();
         }
         catch (Exception e) {}
-        instance = null;
     }
 
     /**
@@ -596,8 +600,7 @@ public final class VIBot {
         VIBotException vibe = null;
         JarFile jar = null;
         try {
-            jar = new JarFile(System.getProperty("java.class.path"));
-            toRet = jar.getManifest();
+            toRet = new Manifest(VIBot.class.getResourceAsStream(JarFile.MANIFEST_NAME));
         }
         catch (Exception e) {
             vibe = new VIBotException("Unable to retrieve Manifest! (Missing?)", e);
@@ -637,7 +640,7 @@ public final class VIBot {
             BotLogMan.warning(e.getMessage());
             version = "UNDEFINED";
         }
-
+        version = version.replace("-SNAPSHOT", "");
         return version;
     }
 
@@ -684,6 +687,15 @@ public final class VIBot {
         vb = version + "." + build;
         return vb;
     }
+    
+    public static final String getJarPath(){
+    	CodeSource codeSource = VIBot.class.getProtectionDomain().getCodeSource();
+        try {
+			return codeSource.getLocation().toURI().getPath();
+		} catch (URISyntaxException e) {
+		}
+        return "vibot.jar";
+    }
 
     /**
      * The main method to start the VIBot
@@ -699,10 +711,14 @@ public final class VIBot {
         try {
             BotLogMan.info("Visual Illusions IRC Bot starting...");
             BotLogMan.info("VIBot Version: ".concat(getBotVersionBuild()));
-            vc = new VersionChecker("VIBot", version, build, "http://visualillusionsent.net/vibot/vibot_versions.php?name=VIBot", true, false);
-            if (!vc.isLatest()) {
-                BotLogMan.info(vc.getUpdateAvailibleMessage());
+            if (status == ProgramStatus.BETA) {
+                BotLogMan.warning("VIBot is still a BETA version release, could possibly be unstable");
             }
+            vc = new VersionChecker("VIBot", version, build, "http://visualillusionsent.net/vibot/", status, true);
+            
+            //if (vc.isLatest()) {
+            //    BotLogMan.info(vc.getUpdateAvailibleMessage());
+            //}
             CommandParser.getInstance();
             BotConfig.getInstance();
             BotPluginLoader.loadPlugins();
@@ -733,5 +749,9 @@ public final class VIBot {
             BotLogMan.severe("Unexpected exception caught: ", e);
             terminate("Error Code 1", 1);
         }
+    }
+
+    public static final boolean verifyBotInstance(VIBot bot) {
+        return instance == bot;
     }
 }

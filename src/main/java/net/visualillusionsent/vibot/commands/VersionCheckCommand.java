@@ -55,7 +55,7 @@ public final class VersionCheckCommand extends BaseCommand {
                 }
                 else {
                     Boolean isLatest = plugin.isLatestVersion();
-                    message = plugin.getName() + " v" + plugin.getVersion() + " | " + (isLatest == null ? "An Error occured while checking version..." : plugin.getUpdateMessage());
+                    message = plugin.toString() + " | " + (isLatest == null ? "An Error occured while checking version..." : plugin.getUpdateMessage());
                 }
             }
 

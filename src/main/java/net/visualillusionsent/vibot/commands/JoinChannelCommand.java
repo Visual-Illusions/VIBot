@@ -48,7 +48,7 @@ public final class JoinChannelCommand extends BaseCommand {
 
     @Override
     public final synchronized boolean execute(Channel channel, User user, String[] args) {
-        if (!args[1].startsWith("#")) {
+        if (!args[0].startsWith("#")) {
             user.sendNotice("Channels need to start with a '#'!");
         }
         else {

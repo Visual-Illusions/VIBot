@@ -28,7 +28,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import net.visualillusionsent.utils.SystemUtils;
 import net.visualillusionsent.vibot.CommandParser;
 import net.visualillusionsent.vibot.VIBot;
 import net.visualillusionsent.vibot.api.events.EventManager;
@@ -249,22 +248,26 @@ public final class BotPluginLoader {
     private final String getPluginClassPath(String jarpath) throws VIBotException {
         String value = null;
         JarFile jar = null;
+        VIBotException toThrow = null;
         try {
             jar = new JarFile(jarpath);
             Manifest manifest = jar.getManifest();
             Attributes attr = manifest.getMainAttributes();
             value = attr.getValue("Plugin-Class");
-            if (value == null) {
-                BotLogMan.warning("Was unable to locate Plugin-Class attribute for Plugin: '".concat(jarpath).concat("'").concat(SystemUtils.LINE_SEP).concat(" Proceeding with assumption that default package is used..."));
-            }
         }
         catch (Exception e) {
-            throw new VIBotException("Was unable to read Manifest for Plugin: '".concat(jarpath).concat("'"));
+            toThrow = new VIBotException("Was unable to read Manifest for Plugin: '".concat(jarpath).concat("'"));
         }
         try {
             jar.close();
         }
         catch (IOException e) {}
+        if (toThrow != null) {
+            throw toThrow;
+        }
+        if (value == null) {
+            throw new VIBotException("Was unable to locate Plugin-Class attribute for Plugin: '".concat(jarpath).concat("'"));
+        }
         return value;
     }
 
@@ -420,12 +423,17 @@ public final class BotPluginLoader {
 
     /**
      * Disables all {@link BotPlugin}<br>
-     * Typically when the {@link VIBot} is shutting down
+     * Called only when the {@link VIBot} is shutting down
      * 
      * @param bot
      *            the {@link VIBot} instance
+     * @throws SecurityException
+     *             if this method is called using an instance other than the main VIBot instance
      */
     private final void disableAll(VIBot bot) {
+        if (bot == null || !VIBot.verifyBotInstance(bot)) {
+            throw new SecurityException("Illegal call to BotPluginLoader.disableAll(VIBot) using invaild VIBot instance");
+        }
         for (BotPlugin plugin : plugins) {
             if (plugin.isEnabled()) {
                 plugin.toggleEnabled();

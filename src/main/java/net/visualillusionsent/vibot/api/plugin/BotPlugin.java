@@ -24,9 +24,8 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import net.visualillusionsent.utils.ProgramStatus;
 import net.visualillusionsent.utils.PropertiesFile;
-import net.visualillusionsent.utils.UpdateException;
-import net.visualillusionsent.utils.Updater;
 import net.visualillusionsent.utils.UtilityException;
 import net.visualillusionsent.utils.VersionChecker;
 import net.visualillusionsent.vibot.VIBot;
@@ -78,11 +77,6 @@ public abstract class BotPlugin {
     private VersionChecker vercheck;
 
     /**
-     * Creates a Updater intance for the {@code BotPlugin}, it the {@code BotPlugin} supports updating.
-     */
-    private Updater update;
-
-    /**
      * The version of the {@code BotPlugin}, either auto-generated from the Manifest key: Version or set programmically
      */
     protected String version;
@@ -93,14 +87,9 @@ public abstract class BotPlugin {
     protected String build;
 
     /**
-     * The beta status of the {@code BotPlugin}, either auto-generated from the Manifest key: isBeta or set programmically
+     * The Program status of the {@code BotPlugin}, either auto-generated from the Manifest key: ProgramStatus or set programmically
      */
-    protected boolean beta;
-
-    /**
-     * The release canidate status of the {@code BotPlugin}, either auto-generated from the Manifest key: isRC or set programmically
-     */
-    protected boolean rc;
+    protected ProgramStatus status;
 
     /**
      * The name of the {@code BotPlugin}
@@ -115,7 +104,6 @@ public abstract class BotPlugin {
         getJarName();
         readManifestInfo();
         createVersionChecker();
-        createUpdater();
     }
 
     public BotPlugin(Object WAT) {
@@ -290,8 +278,7 @@ public abstract class BotPlugin {
             Attributes mainAttribs = manifest.getMainAttributes();
             version = mainAttribs.getValue("Version");
             build = mainAttribs.getValue("Build");
-            beta = Boolean.valueOf(mainAttribs.getValue("isBeta"));
-            rc = Boolean.valueOf(mainAttribs.getValue("isRC"));
+            status = ProgramStatus.valueOf(mainAttribs.getValue("ProgramStatus").toUpperCase());
         }
         catch (Exception e) {
             BotLogMan.warning(e.getMessage());
@@ -377,36 +364,7 @@ public abstract class BotPlugin {
             String url = attr.getValue("Version-Check-URL");
 
             if (url != null && !this.version.equals("UNDEFINED")) {
-                vercheck = new VersionChecker(this.getName(), this.getVersioning(), this.getBuild(), url, beta, rc);
-            }
-        }
-        catch (Exception ex) {} //Not worried about errors here 
-    }
-
-    /**
-     * Runs the Updater on the {@code BotPlugin} if supported
-     * 
-     * @return {@code true} if successfully update; {@code false} otherwise or unsupported
-     * @throws UpdateException
-     *             If something goes wrong durring the update.
-     */
-    public final boolean runUpdate() throws UpdateException {
-        if (update != null) {
-            if (update.performUpdate()) {
-                return BotPluginLoader.reloadBotPlugin(this.getName());
-            }
-        }
-        return false;
-    }
-
-    private final void createUpdater() {
-        try {
-            Manifest mf = getPluginManifest();
-            Attributes attr = mf.getMainAttributes();
-            String url = attr.getValue("Update-URL");
-
-            if (url != null && !this.version.equals("UNDEFINED")) {
-                update = new Updater(url, String.format("plugins/%s", this.getJarName()), this.getName());
+                vercheck = new VersionChecker(this.getName(), this.getVersioning(), this.getBuild(), url, status, false);
             }
         }
         catch (Exception ex) {} //Not worried about errors here 

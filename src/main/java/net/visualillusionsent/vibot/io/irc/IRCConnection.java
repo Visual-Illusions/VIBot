@@ -68,6 +68,7 @@ public final class IRCConnection {
     private final String channelPrefixes = "#";
     private final Queue out_Queue;
     private final DccManager dccManager;
+    private final ArrayList<String> netsplitusers = new ArrayList<String>();
     private Socket socket;
     private BufferedReader breader;
     private BufferedWriter bwriter;
@@ -598,12 +599,17 @@ public final class IRCConnection {
                     if (channel.getUser(sourceNick) == null) {
                         channel.addUser(user);
                     }
-                    EventManager.activateJoinEvent(channel, user);
+                    if(!netsplitusers.contains(sourceNick)){
+                		EventManager.activateJoinEvent(channel, user);
+                		BotLogMan.join("[" + channel.getName() + "] " + sourceNick + " has joined.");
+                	}
+                    else{
+                    	netsplitusers.remove(sourceNick);
+                    }
                 }
                 else {
                     channel.sendMessage(BotConfig.getJoinMessage());
                 }
-                BotLogMan.join("[" + channel.getName() + "] " + sourceNick + " has joined.");
                 break;
             case "PART":
                 // Someone is parting from a channel.
@@ -639,10 +645,10 @@ public final class IRCConnection {
                 break;
             case "QUIT":
                 // Someone has quit from the IRC server.
-                if (line.substring(line.indexOf(" :") + 2).equals("*.net *.split")) {
-                    //do nothing
+                if (line.substring(line.indexOf(" :") + 2).contains("*.net *.split")) {
+                    netsplitusers.add(sourceNick);
                 }
-                else if (sourceNick.equals(bot.getNick())) {
+                if (sourceNick.equals(bot.getNick())) {
                     this.removeAllChannels();
                 }
                 else {
